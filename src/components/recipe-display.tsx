@@ -85,8 +85,21 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
   };
 
   const handleRecipeRegenerate = async () => {
-    if (!originalInput || !modificationText.trim()) return;
-    await onRegenerate({ ...originalInput, modifications: modificationText });
+    if (!originalInput || !modificationText.trim() || !displayedRecipe) return;
+
+    const currentRecipeContext = {
+      title: displayedRecipe.title,
+      description: displayedRecipe.description,
+      ingredients: displayedRecipe.ingredients,
+      instructions: displayedRecipe.instructions,
+    };
+
+    await onRegenerate({ 
+      ...originalInput, 
+      servings: servings, // Pass the possibly updated servings count
+      modifications: modificationText,
+      currentRecipe: currentRecipeContext 
+    });
     setModificationText('');
   };
 

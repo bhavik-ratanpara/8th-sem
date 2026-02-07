@@ -20,6 +20,12 @@ export const CreateRecipeInputSchema = z.object({
     language: z.string().describe('The language the recipe should be written in.'),
     diet: z.enum(['Vegetarian', 'Non-Vegetarian']).describe('The dietary preference.'),
     modifications: z.string().optional().describe("User-provided constraints or modifications for the recipe (e.g., 'no oven', 'allergic to nuts')."),
+    currentRecipe: z.object({
+        title: z.string(),
+        description: z.string(),
+        ingredients: z.array(IngredientSchema),
+        instructions: z.string(),
+    }).optional().describe('The current recipe that needs to be modified. If provided, the AI should adapt this recipe based on the new constraints, keeping as much of the original recipe as possible.'),
 });
 export type CreateRecipeInput = z.infer<typeof CreateRecipeInputSchema>;
 

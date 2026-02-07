@@ -3,7 +3,7 @@
 import { createRecipe, type CreateRecipeOutput } from '@/ai/flows/create-recipe-flow';
 import { regenerateInstructions } from '@/ai/flows/regenerate-instructions-flow';
 import { suggestDishes } from '@/ai/flows/suggest-dishes-flow';
-import { type CreateRecipeInput, type RegenerateInstructionsInput, type SuggestDishesInput, type SuggestDishesOutput } from '@/ai/schemas';
+import { type CreateRecipeInput, type RegenerateInstructionsInput, type SuggestDishesInput, type SuggestDishesOutput, IngredientSchema } from '@/ai/schemas';
 import { z } from 'zod';
 
 const RecipeSchema = z.object({
@@ -13,6 +13,12 @@ const RecipeSchema = z.object({
     language: z.string().min(1, 'Language is required.'),
     diet: z.enum(['Vegetarian', 'Non-Vegetarian'], { required_error: 'Dietary preference is required.' }),
     modifications: z.string().optional(),
+    currentRecipe: z.object({
+        title: z.string(),
+        description: z.string(),
+        ingredients: z.array(IngredientSchema),
+        instructions: z.string(),
+    }).optional(),
 });
 
 export async function createRecipeAction(input: CreateRecipeInput): Promise<CreateRecipeOutput> {
