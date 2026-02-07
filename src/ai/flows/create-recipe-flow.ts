@@ -17,6 +17,9 @@ const prompt = ai.definePrompt({
   name: 'createRecipePrompt',
   input: {schema: CreateRecipeInputSchema},
   output: {schema: CreateRecipeOutputSchema},
+  config: {
+    temperature: 0.3, // Lower temperature for more consistent, less random output
+  },
   prompt: `You are an expert chef.
 {{#if currentRecipe}}
 You will be modifying an existing recipe based on new user constraints. Your task is to adapt the provided recipe, keeping as much of it the same as possible, especially the ingredient list and quantities (unless the constraint requires changing them). Only alter the parts necessary to meet the user's new requirements.
@@ -42,7 +45,7 @@ The entire output, including the title, description, ingredients, and instructio
 The step-by-step instructions must be a numbered list in markdown format. Crucially, each step must be separated by a newline character (\\n).
 For example: "1. Do this.\\n2. Do that.\\n3. Do another thing."
 
-CRITICAL: For ingredients, provide the name, quantity, and unit for each item. The quantities must be realistic and accurate for the specified number of servings. The core recipe and its quantities should not change if only the language is different.
+CRITICAL: For ingredients, provide the name, quantity, and unit for each item. The quantities MUST be realistic and accurate for the specified number of servings. A recipe for 4 servings should not contain 30kg of anything. Quantities should be consistent; generating the same recipe multiple times should result in similar measurements. The core recipe and its quantities should not change if only the language is different.
 
 Dish Name: {{{dishName}}}
 Number of Servings: {{{servings}}}
