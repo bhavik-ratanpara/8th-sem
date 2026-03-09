@@ -1,44 +1,45 @@
+
 {
   "entities": {
     "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the FridgeRecipe application, storing their profile information and their available ingredients. User authentication details (passwords) are managed by an external system like Firebase Authentication and are not stored here.",
+      "description": "Represents a user of the Cooking Lab application, storing their profile information. User authentication details (passwords) are managed by Firebase Authentication and are not stored here.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the User entity. This ID typically corresponds to the user's authentication ID from Firebase."
+          "description": "Unique identifier for the User, matching their Firebase Auth UID."
         },
         "email": {
           "type": "string",
-          "description": "The user's email address, primarily used for identification and communication within the app.",
+          "description": "The user's email address.",
           "format": "email"
         },
         "displayName": {
           "type": "string",
-          "description": "The user's display name or full name, suitable for showing in the UI."
+          "description": "The user's display name."
         },
         "profilePictureUrl": {
           "type": "string",
-          "description": "URL to the user's profile picture, if available.",
+          "description": "URL to the user's profile picture.",
           "format": "uri"
         },
         "fridgeIngredientIds": {
           "type": "array",
-          "description": "An array of IDs referencing ingredients the user currently has in their fridge. This populates the 'Ingredient Input' feature. (Relationship: User 1:N Ingredient)",
+          "description": "IDs of ingredients in the user's digital fridge.",
           "items": {
             "type": "string"
           }
         },
         "createdAt": {
           "type": "string",
-          "description": "Timestamp indicating when the user account was created.",
+          "description": "Timestamp of account creation.",
           "format": "date-time"
         },
         "updatedAt": {
           "type": "string",
-          "description": "Timestamp indicating when the user account was last updated.",
+          "description": "Timestamp of last profile update.",
           "format": "date-time"
         }
       },
@@ -49,87 +50,50 @@
         "createdAt"
       ]
     },
-    "Ingredient": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Ingredient",
-      "type": "object",
-      "description": "Represents a distinct ingredient that can be used in recipes or present in a user's fridge. This entity serves as a master list for available ingredients.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Ingredient entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The common name of the ingredient (e.g., 'Chicken Breast', 'Tomato', 'Olive Oil')."
-        },
-        "category": {
-          "type": "string",
-          "description": "The category the ingredient belongs to (e.g., 'Meat', 'Vegetable', 'Dairy', 'Spice', 'Pantry')."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "category"
-      ]
-    },
     "Recipe": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Recipe",
       "type": "object",
-      "description": "Represents a generated or saved recipe, including its title, ingredients, and step-by-step instructions. This supports the 'Recipe Generation' and 'Recipe Display' features.",
+      "description": "Represents a generated or saved recipe.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Recipe entity."
+          "description": "Unique identifier for the Recipe."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to the User who generated or explicitly saved this recipe. (Relationship: User 1:N Recipe)"
+          "description": "Reference to the User who owns this recipe."
         },
         "title": {
           "type": "string",
-          "description": "The title of the recipe, e.g., 'Simple Chicken Stir-fry'."
+          "description": "The title of the recipe."
         },
         "description": {
           "type": "string",
-          "description": "A brief summary or general description of the recipe."
+          "description": "A brief summary of the dish."
         },
         "ingredients": {
           "type": "array",
-          "description": "A list of ingredients required for the recipe, including quantities, formatted as text strings (e.g., '1 cup flour', '2 large eggs', '1/2 tsp salt').",
+          "description": "List of ingredient objects with quantities.",
           "items": {
-            "type": "string"
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "unit": { "type": "string" }
+            }
           }
         },
         "instructions": {
-          "type": "array",
-          "description": "A step-by-step list of instructions for preparing the recipe, where each item is a single instruction step.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "prepTimeMinutes": {
-          "type": "number",
-          "description": "The estimated preparation time for the recipe in minutes."
-        },
-        "cookTimeMinutes": {
-          "type": "number",
-          "description": "The estimated cooking time for the recipe in minutes."
+          "type": "string",
+          "description": "Step-by-step instructions in Markdown format."
         },
         "servings": {
           "type": "number",
-          "description": "The number of servings the recipe yields."
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "Optional URL to an image representing the finished dish of the recipe.",
-          "format": "uri"
+          "description": "The number of servings."
         },
         "generatedAt": {
           "type": "string",
-          "description": "Timestamp indicating when this recipe was generated or saved.",
           "format": "date-time"
         }
       },
@@ -146,7 +110,7 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {
@@ -158,27 +122,11 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profile information, where the document ID matches the Firebase Authentication UID. Accessible only by the owning user (request.auth.uid == userId).",
+          "description": "Stores user profile information. Accessible only by the owning user.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user, corresponding to their Firebase Authentication UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/ingredients/{ingredientId}",
-        "definition": {
-          "entityName": "Ingredient",
-          "schema": {
-            "$ref": "#/backend/entities/Ingredient"
-          },
-          "description": "Master list of all available ingredients. This collection is globally readable by all authenticated users.",
-          "params": [
-            {
-              "name": "ingredientId",
-              "description": "The unique identifier for an ingredient."
+              "description": "The Firebase Auth UID."
             }
           ]
         }
@@ -190,20 +138,19 @@
           "schema": {
             "$ref": "#/backend/entities/Recipe"
           },
-          "description": "Stores recipes generated or saved by a specific user. Accessible only by the owning user. Includes denormalized 'userId' for authorization independence, matching the parent user's ID.",
+          "description": "Private recipes generated by the user.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user who owns this recipe, corresponding to their Firebase Authentication UID."
+              "description": "The owner's UID."
             },
             {
               "name": "recipeId",
-              "description": "The unique identifier for a specific recipe."
+              "description": "Unique recipe ID."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The recommended Firestore structure is designed to be secure, scalable, and highly debuggable, strictly adhering to the core design principles and strategy mandates. \n\n**Authorization Independence:**\n1.  **`/users/{userId}`:** User profile documents are stored under a path where the `userId` wildcard directly corresponds to the authenticated user's `request.auth.uid`. The `User` entity's `id` field will store this same `uid`. This makes authorization rules for user profiles exceptionally simple: `allow read, update, delete: if request.auth.uid == userId;`. There is no need for `get()` calls in rules as the ownership is inherent in the path and the document's `id` field. Atomic operations are fully supported.\n2.  **`/users/{userId}/recipes/{recipeId}`:** Recipes are stored as a subcollection under the owning user's document. The `Recipe` entity itself includes a `userId` field. This denormalization means that authorization rules for recipes can directly check `request.auth.uid == userId` (from the path wildcard) or `request.auth.uid == resource.data.userId` (from the document content). This eliminates the need to `get()` the parent user document, ensuring full authorization independence for `Recipe` documents and enabling atomic creation/modification of recipes without breaking security rules.\n\n**QAPs (Rules are not Filters):**\n1.  **`/users/{userId}`:** This collection is designed for individual user profile management. A user can only perform `get` operations on their specific document (`/users/{request.auth.uid}`). Listing all user profiles is not supported by the structure, making the `list` operation naturally secure as it's restricted to a single known document.\n2.  **`/ingredients/{ingredientId}`:** This collection serves as a global, read-only master list of ingredients. All authenticated users are intended to be able to read and list all documents in this collection. A simple rule like `allow read, list: if request.auth.uid != null;` ensures QAP compliance, as there is no need to filter data at the rule level; all data is globally accessible for reading.\n3.  **`/users/{userId}/recipes/{recipeId}`:** Recipes are private to the user who created them. By placing them in a subcollection of the user's document, a user can only perform `list` operations within their *own* `/users/{request.auth.uid}/recipes` path. The `userId` in the path wildcard ensures that any `list` query must specify the current authenticated user's ID, thereby guaranteeing that the query results are inherently filtered to only include recipes owned by `request.auth.uid`. This structure inherently prevents users from listing other users' recipes, thus satisfying the QAP principle without needing complex database filters in rules."
+    ]
   }
 }
