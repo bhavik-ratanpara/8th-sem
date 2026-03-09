@@ -69,38 +69,40 @@ export function Header() {
           <span className="font-bold hidden sm:inline-block">Cooking Lab</span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
-            <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                <div className="relative w-full max-w-sm">
-                    <form onSubmit={handleSearch}>
-                        <PopoverTrigger asChild>
-                            <Input
-                                type="search"
-                                placeholder="Search recipe videos..."
-                                className="pr-10 h-9"
-                                value={query}
-                                onChange={(e) => {
-                                    setQuery(e.target.value);
-                                    if(!e.target.value.trim()){
-                                        setPopoverOpen(false);
-                                    }
-                                }}
-                            />
-                        </PopoverTrigger>
-                        <Button
-                            type="submit"
-                            size="icon"
-                            variant="ghost"
-                            className="absolute right-0 top-0 h-full w-10"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                        </Button>
-                    </form>
-                </div>
-                <PopoverContent className="w-[var(--radix-popover-trigger-width)] mt-2 p-2" align="start">
-                    <YoutubeSearchResults videos={videos} isLoading={isLoading} error={error} />
-                </PopoverContent>
-            </Popover>
+            {!isUserLoading && user && (
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                  <div className="relative w-full max-w-sm">
+                      <form onSubmit={handleSearch}>
+                          <PopoverTrigger asChild>
+                              <Input
+                                  type="search"
+                                  placeholder="Search recipe videos..."
+                                  className="pr-10 h-9"
+                                  value={query}
+                                  onChange={(e) => {
+                                      setQuery(e.target.value);
+                                      if(!e.target.value.trim()){
+                                          setPopoverOpen(false);
+                                      }
+                                  }}
+                              />
+                          </PopoverTrigger>
+                          <Button
+                              type="submit"
+                              size="icon"
+                              variant="ghost"
+                              className="absolute right-0 top-0 h-full w-10"
+                              disabled={isLoading}
+                          >
+                              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                          </Button>
+                      </form>
+                  </div>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] mt-2 p-2" align="start">
+                      <YoutubeSearchResults videos={videos} isLoading={isLoading} error={error} />
+                  </PopoverContent>
+              </Popover>
+            )}
 
             <div className="flex items-center space-x-2">
               {!isUserLoading && (
@@ -130,9 +132,14 @@ export function Header() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : (
-                    <Button asChild variant="default" size="sm">
-                      <Link href="/login">Login</Link>
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href="/login">Login</Link>
+                      </Button>
+                      <Button asChild variant="default" size="sm">
+                        <Link href="/signup">Sign Up</Link>
+                      </Button>
+                    </div>
                   )}
                 </>
               )}
