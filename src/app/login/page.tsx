@@ -52,11 +52,16 @@ export default function LoginPage() {
     },
   });
 
+  /**
+   * Syncs the user's profile to Firestore.
+   * NOTE: We only store non-sensitive profile info here. 
+   * Passwords are NEVER stored in Firestore; they stay in Firebase Auth.
+   */
   const syncUserToFirestore = async (user: any) => {
     const userRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userRef);
     
-    // Non-blocking update to sync user activity/existence
+    // We initiate a non-blocking write to sync user activity/existence
     if (!userDoc.exists()) {
       setDocumentNonBlocking(userRef, {
         id: user.uid,
@@ -77,9 +82,12 @@ export default function LoginPage() {
   const onEmailLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
-      // Passwords are sent directly to Firebase Auth and never stored by our app
+      // Step 1: Securely authenticate with Firebase Auth (handles passwords)
       const result = await signInWithEmailAndPassword(auth, values.email, values.password);
+      
+      // Step 2: Sync profile to Firestore (handles display data)
       await syncUserToFirestore(result.user);
+      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -96,8 +104,12 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
+      // Step 1: Securely authenticate with Google via Firebase Auth
       const result = await signInWithPopup(auth, provider);
+      
+      // Step 2: Sync profile to Firestore
       await syncUserToFirestore(result.user);
+      
       router.push('/');
     } catch (error: any) {
       toast({

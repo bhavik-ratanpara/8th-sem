@@ -55,8 +55,11 @@ export default function SignupPage() {
     },
   });
 
+  /**
+   * Stores the user's non-sensitive profile info in Firestore.
+   * Passwords stay secure in Firebase Auth and are NEVER stored here.
+   */
   const createUserProfile = (user: any, name: string) => {
-    // Non-blocking Firestore write to store non-sensitive profile info
     setDocumentNonBlocking(doc(db, 'users', user.uid), {
       id: user.uid,
       email: user.email,
@@ -71,10 +74,15 @@ export default function SignupPage() {
   const onSignup = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
     try {
-      // Firebase Authentication securely handles the email and password
+      // 1. Create the user securely in Firebase Auth (handles password)
       const result = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      
+      // 2. Set the display name in the Auth profile
       await updateProfile(result.user, { displayName: values.displayName });
+      
+      // 3. Store non-sensitive profile info in Firestore
       createUserProfile(result.user, values.displayName);
+      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -91,8 +99,12 @@ export default function SignupPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
+      // Authenticate with Google securely
       const result = await signInWithPopup(auth, provider);
+      
+      // Store/Update profile info in Firestore
       createUserProfile(result.user, result.user.displayName || 'New Chef');
+      
       router.push('/');
     } catch (error: any) {
       toast({
