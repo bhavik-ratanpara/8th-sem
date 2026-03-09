@@ -1,6 +1,6 @@
 'use client';
 
-import { ChefHat, Loader2, RefreshCw } from 'lucide-react';
+import { ChefHat, Loader2, RefreshCw, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { RecipeCard } from './recipe-card';
@@ -19,21 +19,24 @@ type RecipeDisplayProps = {
 };
 
 const RecipeSkeleton = () => (
-  <Card className="overflow-hidden">
-    <CardHeader>
-      <Skeleton className="h-8 w-1/2 rounded-md" />
+  <Card className="culinary-card border-none shadow-xl overflow-hidden">
+    <CardHeader className="p-12 text-center bg-muted/20">
+      <Skeleton className="h-12 w-2/3 mx-auto rounded-xl" />
+      <Skeleton className="h-6 w-full max-w-md mx-auto rounded-lg mt-4" />
     </CardHeader>
-    <CardContent className="space-y-6">
-       <div className="space-y-2">
-          <Skeleton className="h-4 w-1/4 rounded-md" />
-          <Skeleton className="h-4 w-3/4 rounded-md" />
-          <Skeleton className="h-4 w-5/6 rounded-md" />
-        </div>
-       <div className="space-y-2">
-          <Skeleton className="h-4 w-1/3 rounded-md" />
-          <Skeleton className="h-4 w-full rounded-md" />
-          <Skeleton className="h-4 w-full rounded-md" />
-          <Skeleton className="h-4 w-4/5 rounded-md" />
+    <CardContent className="p-12">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-1/3 rounded-lg" />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-6 w-full rounded-md" />
+            ))}
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-8 w-1/3 rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+          </div>
         </div>
     </CardContent>
   </Card>
@@ -78,7 +81,6 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         setIngredientsChanged(false);
     } catch (error) {
         console.error("Failed to regenerate instructions", error);
-        // Optionally, show an error to the user
     } finally {
         setIsRegenerating(false);
     }
@@ -96,7 +98,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
     await onRegenerate({ 
       ...originalInput, 
-      servings: servings, // Pass the possibly updated servings count
+      servings: servings,
       modifications: modificationText,
       currentRecipe: currentRecipeContext 
     });
@@ -105,8 +107,12 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
   if (isLoading && !recipe) {
     return (
-      <div className="space-y-8">
-        <h2 className="text-2xl font-headline font-semibold text-center text-primary">Crafting your recipe...</h2>
+      <div className="space-y-8 py-12">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto" />
+          <h2 className="text-3xl font-headline font-bold italic">Consulting the Chef...</h2>
+          <p className="text-muted-foreground">Orchestrating flavors and balancing techniques for your masterpiece.</p>
+        </div>
         <RecipeSkeleton />
       </div>
     );
@@ -114,15 +120,18 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
   if (!displayedRecipe) {
     return (
-       <div className="text-center py-10 px-4 border-2 border-dashed border-border rounded-lg bg-card/50">
-        <ChefHat className="mx-auto h-12 w-12 text-muted-foreground" />
-        <p className="mt-4 text-muted-foreground">Your generated recipe will appear here.</p>
+       <div className="text-center py-20 px-8 border-2 border-dashed border-border rounded-3xl bg-card/50 backdrop-blur-sm group hover:border-primary/50 transition-all duration-500">
+        <div className="bg-primary/5 p-6 rounded-full w-fit mx-auto mb-6 group-hover:scale-110 transition-transform">
+          <ChefHat className="h-12 w-12 text-primary/40 group-hover:text-primary transition-colors" />
+        </div>
+        <h3 className="text-2xl font-headline font-bold italic mb-2">Ready for Service</h3>
+        <p className="text-muted-foreground max-w-sm mx-auto">Your high-precision recipe will manifest here once initialized.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-12 animate-fade-in pb-20">
       <RecipeCard 
         recipe={displayedRecipe} 
         onIngredientRemove={handleIngredientRemove}
@@ -133,24 +142,30 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         onServingsChange={setServings}
       />
 
-      <div className="bg-card p-6 md:p-8 rounded-lg shadow-lg border border-border">
-          <h3 className="text-xl font-headline font-bold mb-4">Need to make a change?</h3>
+      <div className="culinary-card p-8 md:p-12 bg-accent/5 border-accent/20">
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="h-6 w-6 text-accent" />
+            <h3 className="text-2xl font-headline font-bold italic">Culinary Modification</h3>
+          </div>
+          <p className="text-muted-foreground mb-6 text-base">
+            Need to substitute an ingredient, adjust for kitchen equipment, or tailor the flavor profile? Describe your constraints below.
+          </p>
           <Textarea
             value={modificationText}
             onChange={(e) => setModificationText(e.target.value)}
-            placeholder="Don't have certain ingredients or equipment? Tell us what to avoid or substitute..."
-            rows={3}
-            className="text-base md:text-sm"
+            placeholder="e.g., 'Replace white wine with chicken broth', 'Adjust for a pressure cooker', 'Make it spicier'..."
+            rows={4}
+            className="text-lg md:text-base rounded-2xl border-border/50 bg-background/50 focus:bg-background h-32 p-6"
           />
           <Button
             onClick={handleRecipeRegenerate}
             disabled={isLoading || !modificationText.trim()}
-            className="w-full mt-4"
+            className="pill-button w-full mt-8 h-16 text-lg bg-primary hover:bg-primary/90 text-white shadow-xl"
           >
             {isLoading ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Regenerating...</>
+              <><Loader2 className="mr-3 h-6 w-6 animate-spin" />Consulting...</>
             ) : (
-              <><RefreshCw className="mr-2 h-4 w-4" />Regenerate Recipe</>
+              <><RefreshCw className="mr-3 h-6 w-6" />Re-Craft Masterpiece</>
             )}
           </Button>
       </div>

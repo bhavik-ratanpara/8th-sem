@@ -9,13 +9,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { suggestDishesAction } from '@/app/actions';
 import { type SuggestDishesOutput } from '@/ai/schemas';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, ChefHat } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 
 const formSchema = z.object({
-  thoughts: z.string().min(10, "Please tell us a bit more about what you're feeling or craving."),
+  thoughts: z.string().min(10, "A more descriptive culinary thought will yield better results."),
 });
 
 type DishSuggesterProps = {
@@ -50,31 +50,32 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
 
   const handleSuggestionClick = (dishName: string) => {
     onSuggestionSelect(dishName);
-    setSuggestions(null); // Clear suggestions after selection
-    form.reset(); // Reset the textarea
+    setSuggestions(null);
+    form.reset();
   };
 
   return (
-    <section className="bg-card p-6 md:p-8 rounded-lg shadow-lg border border-border mb-8">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-6 h-6 text-primary" />
-        <h2 className="text-xl md:text-2xl font-headline font-bold">NEED INSPIRATION?</h2>
+    <section className="culinary-card p-8 md:p-12 bg-background border-none shadow-xl animate-fade-in">
+      <div className="flex items-center gap-3 mb-4">
+        <ChefHat className="w-8 h-8 text-primary" />
+        <h2 className="text-3xl md:text-4xl font-headline font-bold italic uppercase tracking-tight">Culinary Inspiration</h2>
       </div>
-      <p className="text-muted-foreground -mt-2 mb-6 text-sm md:text-base">
-        Tell us what's on your mind, and we'll suggest a few dishes for you!
+      <p className="text-muted-foreground mb-8 text-lg max-w-xl">
+        Share your mood, cravings, or context. We'll curate a list of exquisite dishes tailored to your state of mind.
       </p>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
           <FormField
             control={form.control}
             name="thoughts"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>What are you craving or how are you feeling?</FormLabel>
+                <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">What's your current culinary muse?</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="e.g., 'A cozy meal for a rainy day' or 'Something quick and healthy after a workout'"
+                    placeholder="e.g., 'A light but sophisticated dinner for a garden party' or 'Elevated comfort food for a winter evening'"
+                    className="rounded-2xl border-border/50 bg-background/50 focus:bg-background h-32 p-6 text-lg"
                     {...field}
                   />
                 </FormControl>
@@ -82,25 +83,25 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isLoading} className="w-full">
+          <Button type="submit" disabled={isLoading} className="pill-button w-full h-16 text-lg bg-primary hover:bg-primary/90 shadow-xl">
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Getting Ideas...
+                <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                Curating Ideas...
               </>
             ) : (
-              'Suggest Dishes'
+              'Curate Suggestions'
             )}
           </Button>
         </form>
       </Form>
 
       {error && (
-        <div className="mt-4">
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
+        <div className="mt-8 animate-fade-in">
+            <Alert variant="destructive" className="rounded-2xl border-destructive/50">
+                <AlertCircle className="h-5 w-5" />
+                <AlertTitle className="font-headline italic text-lg">Inspiration Failed</AlertTitle>
+                <AlertDescription className="text-base">
                     {error}
                 </AlertDescription>
             </Alert>
@@ -108,19 +109,26 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
       )}
 
       {suggestions && suggestions.length > 0 && (
-        <div className="mt-6">
-          <h3 className="font-headline text-lg mb-4">Here are a few ideas. Click one to create the recipe!</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-12 space-y-8">
+          <h3 className="font-headline text-2xl italic border-b pb-4">Curated Recommendations</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {suggestions.map((suggestion) => (
               <Card
                 key={suggestion.dish_name}
-                className="cursor-pointer hover:border-primary transition-colors"
+                className="group cursor-pointer culinary-card hover:border-accent hover:bg-accent/5 transition-all duration-500 overflow-hidden"
                 onClick={() => handleSuggestionClick(suggestion.dish_name)}
               >
-                <CardContent className="p-4">
-                  <h4 className="font-bold">{suggestion.dish_name}</h4>
-                  <p className="text-sm text-muted-foreground mt-1">{suggestion.description}</p>
-                  <p className="text-xs text-muted-foreground mt-2 font-bold uppercase tracking-wider">Difficulty: {suggestion.difficulty}</p>
+                <CardContent className="p-8 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-headline text-2xl group-hover:text-primary transition-colors italic">{suggestion.dish_name}</h4>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-accent px-2 py-1 bg-accent/10 rounded-full">
+                      {suggestion.difficulty}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{suggestion.description}</p>
+                  <div className="pt-4 flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0">
+                    Craft Recipe <Sparkles className="w-3 h-3" />
+                  </div>
                 </CardContent>
               </Card>
             ))}
