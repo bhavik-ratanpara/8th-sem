@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Chrome } from 'lucide-react';
+import { Loader2, Chrome, User, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
@@ -55,10 +55,6 @@ export default function SignupPage() {
     },
   });
 
-  /**
-   * Stores the user's non-sensitive profile info in Firestore.
-   * Passwords stay secure in Firebase Auth and are NEVER stored here.
-   */
   const createUserProfile = (user: any, name: string) => {
     setDocumentNonBlocking(doc(db, 'users', user.uid), {
       id: user.uid,
@@ -74,15 +70,9 @@ export default function SignupPage() {
   const onSignup = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
     try {
-      // 1. Create the user securely in Firebase Auth (handles password)
       const result = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      
-      // 2. Set the display name in the Auth profile
       await updateProfile(result.user, { displayName: values.displayName });
-      
-      // 3. Store non-sensitive profile info in Firestore
       createUserProfile(result.user, values.displayName);
-      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -99,12 +89,8 @@ export default function SignupPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      // Authenticate with Google securely
       const result = await signInWithPopup(auth, provider);
-      
-      // Store/Update profile info in Firestore
       createUserProfile(result.user, result.user.displayName || 'New Chef');
-      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -120,15 +106,15 @@ export default function SignupPage() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] px-4">
-      <Card className="w-full max-w-md bg-card/80 backdrop-blur">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-headline font-bold text-center">Create an Account</CardTitle>
-          <CardDescription className="text-center">
+    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl border-t-4 border-t-primary">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight">Create Account</CardTitle>
+          <CardDescription>
             Join the Cooking Lab and start creating recipes
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent className="grid gap-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSignup)} className="space-y-4">
               <FormField
@@ -136,7 +122,7 @@ export default function SignupPage() {
                 name="displayName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><User className="w-4 h-4" /> Full Name</FormLabel>
                     <FormControl>
                       <Input placeholder="John Doe" {...field} />
                     </FormControl>
@@ -149,7 +135,7 @@ export default function SignupPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><Mail className="w-4 h-4" /> Email</FormLabel>
                     <FormControl>
                       <Input placeholder="chef@example.com" {...field} />
                     </FormControl>
@@ -162,7 +148,7 @@ export default function SignupPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><Lock className="w-4 h-4" /> Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -170,33 +156,35 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Account'}
+              <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-white" disabled={isLoading}>
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Get Started'}
               </Button>
             </form>
           </Form>
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground font-medium">Or continue with</span>
             </div>
           </div>
-          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin}>
+
+          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full border-primary/20 hover:bg-primary/5">
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Chrome className="mr-2 h-4 w-4" />
+              <Chrome className="mr-2 h-4 w-4 text-primary" />
             )}{" "}
-            Google
+            Sign up with Google
           </Button>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-center text-muted-foreground">
-            Already have an account?{" "}
-            <Link href="/login" className="text-primary hover:underline font-bold">
-              Login
+        <CardFooter className="flex flex-col space-y-4 text-center">
+          <div className="text-sm text-muted-foreground">
+            Already a member?{" "}
+            <Link href="/login" className="text-primary hover:underline font-bold transition-colors">
+              Sign In
             </Link>
           </div>
         </CardFooter>

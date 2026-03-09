@@ -135,7 +135,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                     <FormControl>
                       <RadioGroupItem value="Vegetarian" />
                     </FormControl>
-                    <FormLabel className="font-normal flex items-center gap-2"><Vegan className="text-green-500" /> Vegetarian</FormLabel>
+                    <FormLabel className="font-normal flex items-center gap-2"><Vegan className="text-green-600" /> Vegetarian</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
@@ -150,7 +150,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
           )}
         />
 
-        <Button type="submit" disabled={isLoading} className="w-full text-base md:text-lg py-5 md:py-6 bg-primary hover:bg-primary/90 text-primary-foreground">
+        <Button type="submit" disabled={isLoading} className="w-full text-base md:text-lg py-5 md:py-6 bg-accent hover:bg-accent/90 text-white shadow-lg transition-transform hover:scale-[1.01]">
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />

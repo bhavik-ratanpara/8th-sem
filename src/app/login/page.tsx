@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Chrome } from 'lucide-react';
+import { Loader2, Chrome, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
@@ -52,16 +52,10 @@ export default function LoginPage() {
     },
   });
 
-  /**
-   * Syncs the user's profile to Firestore.
-   * NOTE: We only store non-sensitive profile info here. 
-   * Passwords are NEVER stored in Firestore; they stay in Firebase Auth.
-   */
   const syncUserToFirestore = async (user: any) => {
     const userRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userRef);
     
-    // We initiate a non-blocking write to sync user activity/existence
     if (!userDoc.exists()) {
       setDocumentNonBlocking(userRef, {
         id: user.uid,
@@ -82,12 +76,8 @@ export default function LoginPage() {
   const onEmailLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
-      // Step 1: Securely authenticate with Firebase Auth (handles passwords)
       const result = await signInWithEmailAndPassword(auth, values.email, values.password);
-      
-      // Step 2: Sync profile to Firestore (handles display data)
       await syncUserToFirestore(result.user);
-      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -104,12 +94,8 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      // Step 1: Securely authenticate with Google via Firebase Auth
       const result = await signInWithPopup(auth, provider);
-      
-      // Step 2: Sync profile to Firestore
       await syncUserToFirestore(result.user);
-      
       router.push('/');
     } catch (error: any) {
       toast({
@@ -125,15 +111,15 @@ export default function LoginPage() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] px-4">
-      <Card className="w-full max-w-md bg-card/80 backdrop-blur">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-headline font-bold text-center">Login</CardTitle>
-          <CardDescription className="text-center">
+    <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)] px-4 py-8">
+      <Card className="w-full max-w-md shadow-xl border-t-4 border-t-primary">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight">Welcome Back</CardTitle>
+          <CardDescription>
             Enter your email to sign in to your Cooking Lab
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
+        <CardContent className="grid gap-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onEmailLogin)} className="space-y-4">
               <FormField
@@ -141,7 +127,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><Mail className="w-4 h-4" /> Email</FormLabel>
                     <FormControl>
                       <Input placeholder="chef@example.com" {...field} />
                     </FormControl>
@@ -154,7 +140,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><Lock className="w-4 h-4" /> Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
@@ -162,33 +148,35 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-white" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Sign In'}
               </Button>
             </form>
           </Form>
+          
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground font-medium">Or continue with</span>
             </div>
           </div>
-          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin}>
+          
+          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full border-primary/20 hover:bg-primary/5">
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Chrome className="mr-2 h-4 w-4" />
+              <Chrome className="mr-2 h-4 w-4 text-primary" />
             )}{" "}
-            Google
+            Sign in with Google
           </Button>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-center text-muted-foreground">
+        <CardFooter className="flex flex-col space-y-4 text-center">
+          <div className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-primary hover:underline font-bold">
-              Sign up
+            <Link href="/signup" className="text-primary hover:underline font-bold transition-colors">
+              Join the Lab
             </Link>
           </div>
         </CardFooter>

@@ -2,56 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
-  html {
-    font-size: 17px;
-  }
   :root {
-    --background: 0 0% 8%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 35 92% 55%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 63%;
-    --accent: 0 0% 25%;
+    /* Background: Light, desaturated green (#F0F8F0) */
+    --background: 120 40% 97%;
+    --foreground: 120 10% 10%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 120 10% 10%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 10% 10%;
+    
+    /* Primary: Fresh green (#8FBC8F) */
+    --primary: 120 26% 64%;
+    --primary-foreground: 120 10% 5%;
+    
+    --secondary: 120 20% 90%;
+    --secondary-foreground: 120 10% 10%;
+    
+    --muted: 120 10% 90%;
+    --muted-foreground: 120 10% 40%;
+    
+    /* Accent: Earthy orange (#D2691E) */
+    --accent: 25 75% 47%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 63% 31%;
+    
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 35 92% 55%;
-    --radius: 0.5rem;
+    
+    --border: 120 10% 85%;
+    --input: 120 10% 85%;
+    --ring: 120 26% 64%;
+    
+    --radius: 0.75rem;
   }
+
   .dark {
-    --background: 0 0% 8%;
+    --background: 120 20% 10%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 12%;
+    
+    --card: 120 20% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 8%;
+    
+    --popover: 120 20% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 35 92% 55%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 15%;
+    
+    --primary: 120 26% 64%;
+    --primary-foreground: 120 10% 5%;
+    
+    --secondary: 120 10% 20%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 63%;
-    --accent: 0 0% 25%;
+    
+    --muted: 120 10% 20%;
+    --muted-foreground: 120 10% 65%;
+    
+    --accent: 25 75% 47%;
     --accent-foreground: 0 0% 98%;
+    
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 35 92% 55%;
+    
+    --border: 120 10% 20%;
+    --input: 120 10% 20%;
+    --ring: 120 26% 64%;
   }
 }
 
@@ -60,241 +74,45 @@ body {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
   }
 }
 
+/* Animations */
 .wave-text span {
   display: inline-block;
   animation: wave 2s ease-in-out infinite;
 }
 
-.wave-text span:nth-child(1) { animation-delay: 0.0s; }
-.wave-text span:nth-child(2) { animation-delay: 0.1s; }
-.wave-text span:nth-child(3) { animation-delay: 0.2s; }
-.wave-text span:nth-child(4) { animation-delay: 0.3s; }
-.wave-text span:nth-child(5) { animation-delay: 0.4s; }
-.wave-text span:nth-child(6) { animation-delay: 0.5s; }
-.wave-text span:nth-child(7) { animation-delay: 0.6s; }
-.wave-text span:nth-child(8) { animation-delay: 0.7s; }
-.wave-text span:nth-child(9) { animation-delay: 0.8s; }
-.wave-text span:nth-child(10) { animation-delay: 0.9s; }
-.wave-text span:nth-child(11) { animation-delay: 1.0s; }
-
-
 @keyframes wave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-15px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-/* Animated gradient overlay */
 .background-glow {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 30%, rgba(255, 87, 34, 0.08), transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(255, 152, 0, 0.06), transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(76, 175, 80, 0.04), transparent 50%);
-    animation: pulseGlow 8s ease-in-out infinite;
-    z-index: 0;
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 30%, hsla(120, 26%, 64%, 0.1), transparent 40%),
+              radial-gradient(circle at 80% 70%, hsla(25, 75%, 47%, 0.05), transparent 40%);
+  z-index: -1;
 }
 
-@keyframes pulseGlow {
-    0%, 100% {
-        opacity: 0.5;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-/* Floating cooking ingredients */
 .ingredient {
-    position: fixed;
-    font-size: 45px;
-    opacity: 0.5;
-    animation: floatIngredient 20s infinite ease-in-out;
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+  position: fixed;
+  font-size: 3rem;
+  opacity: 0.2;
+  animation: float 20s infinite ease-in-out;
+  z-index: -1;
 }
 
-.ingredient:nth-child(1) {
-    left: 10%;
-    top: 20%;
-    animation-delay: 0s;
-}
-
-.ingredient:nth-child(2) {
-    left: 85%;
-    top: 15%;
-    animation-delay: -3s;
-}
-
-.ingredient:nth-child(3) {
-    left: 20%;
-    top: 70%;
-    animation-delay: -6s;
-}
-
-.ingredient:nth-child(4) {
-    left: 75%;
-    top: 65%;
-    animation-delay: -9s;
-}
-
-.ingredient:nth-child(5) {
-    left: 50%;
-    top: 40%;
-    animation-delay: -12s;
-}
-
-.ingredient:nth-child(6) {
-    left: 35%;
-    top: 85%;
-    animation-delay: -15s;
-}
-
-.ingredient:nth-child(7) {
-    left: 65%;
-    top: 30%;
-    animation-delay: -2s;
-}
-
-.ingredient:nth-child(8) {
-    left: 90%;
-    top: 80%;
-    animation-delay: -7s;
-}
-
-@keyframes floatIngredient {
-    0%, 100% {
-        transform: translateY(0) rotate(0deg) scale(1);
-    }
-    25% {
-        transform: translateY(-25px) rotate(5deg) scale(1.1);
-    }
-    50% {
-        transform: translateY(-40px) rotate(-5deg) scale(0.95);
-    }
-    75% {
-        transform: translateY(-25px) rotate(3deg) scale(1.05);
-    }
-}
-
-/* Rising smoke/steam */
-.smoke {
-    position: fixed;
-    width: 50px;
-    height: 100px;
-    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.3), transparent);
-    border-radius: 50%;
-    animation: riseSmoke 12s infinite ease-out;
-    filter: blur(6px);
-}
-
-.smoke:nth-of-type(1) {
-    left: 15%;
-    bottom: -80px;
-    animation-delay: 0s;
-}
-
-.smoke:nth-of-type(2) {
-    left: 45%;
-    bottom: -80px;
-    animation-delay: -4s;
-}
-
-.smoke:nth-of-type(3) {
-    left: 75%;
-    bottom: -80px;
-    animation-delay: -8s;
-}
-
-.smoke:nth-of-type(4) {
-    left: 30%;
-    bottom: -80px;
-    animation-delay: -2s;
-}
-
-.smoke:nth-of-type(5) {
-    left: 60%;
-    bottom: -80px;
-    animation-delay: -6s;
-}
-
-@keyframes riseSmoke {
-    0% {
-        bottom: -80px;
-        opacity: 0;
-        transform: translateX(0) scale(0.8);
-    }
-    20% {
-        opacity: 0.3;
-    }
-    80% {
-        opacity: 0.3;
-    }
-    100% {
-        bottom: 110%;
-        opacity: 0;
-        transform: translateX(30px) scale(1.5);
-    }
-}
-
-/* Sparkle effects */
-.sparkle {
-    position: fixed;
-    width: 6px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 1);
-    animation: sparkleAnim 3s infinite ease-in-out;
-}
-
-.sparkle:nth-of-type(1) {
-    left: 25%;
-    top: 30%;
-    animation-delay: 0s;
-}
-
-.sparkle:nth-of-type(2) {
-    left: 70%;
-    top: 50%;
-    animation-delay: -1s;
-}
-
-.sparkle:nth-of-type(3) {
-    left: 40%;
-    top: 70%;
-    animation-delay: -2s;
-}
-
-.sparkle:nth-of-type(4) {
-    left: 85%;
-    top: 40%;
-    animation-delay: -0.5s;
-}
-
-.sparkle:nth-of-type(5) {
-    left: 55%;
-    top: 20%;
-    animation-delay: -1.5s;
-}
-
-@keyframes sparkleAnim {
-    0%, 100% {
-        opacity: 0;
-        transform: scale(0);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1);
-    }
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-30px) rotate(10deg); }
 }
