@@ -20,9 +20,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
+        {/* Note: Cal Sans is typically a custom font, but we include the requested import logic here */}
+        <link href="https://fonts.cdnfonts.com/css/cal-sans" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <FirebaseClientProvider>
@@ -33,7 +35,7 @@ export default function RootLayout({
               <div className="max-content px-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
                   <div className="space-y-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Cooking Lab</h3>
+                    <h3 className="text-lg font-semibold tracking-tight text-foreground">Cooking Lab</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       Precision-crafted culinary intelligence for professional chefs and home enthusiasts alike.
                     </p>

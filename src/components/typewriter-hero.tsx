@@ -61,88 +61,66 @@ export function TypewriterHero() {
 
   return (
     <section
+      className="relative flex flex-col items-center justify-center text-center overflow-hidden w-full"
       style={{
-        minHeight: '520px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: '80px 24px',
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'hsl(var(--background))',
+        padding: '72px 40px 40px',
+        marginBottom: '8px',
       }}
     >
       {/* Radial Glow Background */}
       <div
+        className="absolute pointer-events-none z-0"
         style={{
-          position: 'absolute',
           width: '800px',
           height: '400px',
           background: 'radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          pointerEvents: 'none',
-          zIndex: 0,
         }}
       />
 
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="relative z-10 flex flex-col items-center w-full max-w-[860px] mx-auto">
         <div
+          className="inline-flex items-center gap-2 mb-6"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(59, 130, 246, 0.1)',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
-            color: '#3b82f6',
-            fontSize: '13px',
-            fontWeight: 600,
-            letterSpacing: '0.05em',
+            background: 'rgba(37, 99, 235, 0.08)',
+            border: '1px solid rgba(96, 165, 250, 0.2)',
+            color: 'var(--primary)',
+            fontSize: '11px',
+            fontWeight: 500,
+            letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            padding: '8px 16px',
+            padding: '4px 12px',
             borderRadius: '999px',
-            marginBottom: '32px',
           }}
         >
           ✦ AI Powered Recipe Generator
         </div>
 
         <h1
+          className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0 w-full max-w-[700px] mx-auto"
           style={{
-            fontSize: 'clamp(36px, 6vw, 60px)',
-            fontWeight: 800,
-            lineHeight: 1.1,
-            letterSpacing: '-0.04em',
-            margin: 0,
+            fontFamily: "'Cal Sans', 'Inter', sans-serif",
+            fontSize: 'clamp(40px, 5.5vw, 60px)',
           }}
         >
-          <span
-            style={{
-              color: 'hsl(var(--foreground))',
-              display: 'block',
-            }}
-          >
+          <span className="block text-foreground">
             Cook Smarter,
           </span>
 
           <span
+            className="block min-h-[1.2em]"
             style={{
-              color: '#3b82f6',
-              display: 'block',
-              minHeight: '1.2em',
+              color: 'var(--primary)',
             }}
           >
             {currentWord}
             <span
+              className="inline-block transition-opacity duration-100 ml-1 font-light"
               style={{
                 opacity: showCursor ? 1 : 0,
-                color: '#3b82f6',
-                fontWeight: 300,
-                marginLeft: '4px',
-                transition: 'opacity 0.1s',
+                color: 'var(--primary)',
               }}
             >
               |
@@ -151,62 +129,28 @@ export function TypewriterHero() {
         </h1>
 
         <p
+          className="font-normal mx-auto leading-[1.75] mt-5"
           style={{
-            fontSize: '18px',
-            color: 'hsl(var(--muted-foreground))',
-            fontWeight: 400,
-            maxWidth: '580px',
-            margin: '24px auto 0',
-            lineHeight: 1.6,
+            fontSize: '15px',
+            color: 'var(--muted-foreground)',
+            maxWidth: '480px',
           }}
         >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
         </p>
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '16px',
-            marginTop: '40px',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}
-        >
+        <div className="flex gap-[10px] mt-10 flex-wrap justify-center">
           {user ? (
             <button
               onClick={handleScrollToForm}
-              style={{
-                background: '#2563eb',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '14px 32px',
-                fontWeight: 600,
-                fontSize: '16px',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
-              onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
+              className="bg-primary text-primary-foreground border-none rounded-lg px-[28px] py-[10px] font-semibold text-[15px] cursor-pointer transition-colors hover:bg-primary/90"
             >
               Generate a Recipe
             </button>
           ) : (
-            <Link href="/signup" style={{ textDecoration: 'none' }}>
+            <Link href="/signup" className="no-underline">
               <button
-                style={{
-                  background: '#2563eb',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  padding: '14px 32px',
-                  fontWeight: 600,
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s',
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
-                onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
+                className="bg-primary text-primary-foreground border-none rounded-lg px-[28px] py-[10px] font-semibold text-[15px] cursor-pointer transition-colors hover:bg-primary/90"
               >
                 Generate a Recipe
               </button>
@@ -214,19 +158,19 @@ export function TypewriterHero() {
           )}
 
           <button
+            className="bg-transparent border rounded-lg px-[22px] py-[10px] font-medium text-[14px] cursor-pointer transition-all duration-200"
             style={{
-              background: 'transparent',
-              color: 'hsl(var(--foreground))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
-              padding: '14px 32px',
-              fontWeight: 500,
-              fontSize: '16px',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
+              color: 'var(--muted-foreground)',
+              borderColor: 'var(--border)',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.background = 'hsl(var(--secondary))')}
-            onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = 'var(--foreground)';
+              e.currentTarget.style.borderColor = 'var(--muted-foreground)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'var(--muted-foreground)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+            }}
           >
             See How It Works
           </button>
