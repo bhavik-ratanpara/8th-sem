@@ -63,33 +63,13 @@ export function TypewriterHero() {
 
   return (
     <section className="w-full flex flex-col md:flex-row items-center gap-12 min-h-[520px] px-5 md:px-[60px] py-12 md:py-20 bg-background overflow-hidden">
-      {/* Left Side - Cutout Image (45% width) */}
-      <div className="w-full md:w-[45%] order-1 flex justify-center md:justify-start items-center">
-        <img
-          src="/hero-food.png"
-          alt="Chef"
-          style={{
-            width: "100%",
-            maxWidth: "440px",
-            height: "auto",
-            objectFit: "contain",
-            background: "none",
-            border: "none",
-            borderRadius: "0",
-            boxShadow: "none",
-            display: "block"
-          }}
-          className="max-h-[250px] md:max-h-[450px]"
-        />
-      </div>
-
-      {/* Right Side - Content (55% width) */}
-      <div className="w-full md:w-[55%] flex flex-col items-center md:items-start text-center md:text-left md:pl-[32px] order-2">
+      {/* Left Side - Content (55% width) */}
+      <div className="w-full md:w-[55%] flex flex-col items-center md:items-start text-center md:text-left order-2 md:order-1">
         <h1 
           className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
           style={{ 
             fontFamily: "'Cal Sans', Inter, sans-serif", 
-            fontSize: 'clamp(36px, 4.5vw, 56px)' 
+            fontSize: 'clamp(36px, 5vw, 56px)' 
           }}
         >
           <span className="block text-[#0f0f0f] dark:text-[#ffffff]">Cook Smarter,</span>
@@ -128,6 +108,28 @@ export function TypewriterHero() {
             See How It Works
           </Button>
         </div>
+      </div>
+
+      {/* Right Side - Cutout Image (45% width) */}
+      <div className="w-full md:w-[45%] order-1 md:order-2 flex justify-center items-center">
+        <img
+          src="/hero-food.png"
+          alt="Indian food platter"
+          style={{
+            width: "100%",
+            maxWidth: "520px",
+            height: "auto",
+            minHeight: "420px",
+            objectFit: "contain",
+            background: "none",
+            backgroundColor: "transparent",
+            border: "none",
+            borderRadius: "0",
+            boxShadow: "none",
+            display: "block"
+          }}
+          className="max-h-[300px] md:max-h-[500px]"
+        />
       </div>
     </section>
   );
