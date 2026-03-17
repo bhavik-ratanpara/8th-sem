@@ -61,27 +61,21 @@ export function TypewriterHero() {
   };
 
   return (
-    <section className="w-full flex flex-col md:flex-row items-center gap-10 min-h-[520px] px-5 md:px-[60px] py-10 md:py-12 bg-background overflow-hidden">
-      {/* Left Side - Image */}
-      <div className="w-full md:w-[45%] order-1">
-        <div className="relative w-full h-[260px] md:h-[480px] rounded-[12px] md:rounded-[16px] overflow-hidden">
+    <section className="w-full flex flex-col md:flex-row items-center gap-10 min-h-[520px] px-5 md:px-[60px] py-12 md:py-12 bg-background overflow-hidden">
+      {/* Left Side - Cutout Image */}
+      <div className="w-full md:w-[48%] order-1 flex justify-start">
+        <div className="relative w-full max-w-[480px]">
           <img
-            src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80"
-            alt="Professional chef cooking"
-            className="w-full h-full object-cover"
-            data-ai-hint="chef cooking"
+            src="https://images.unsplash.com/photo-1543353071-873f17a7a088?w=800&q=80"
+            alt="Food and spices cutout"
+            className="w-full h-auto object-contain bg-transparent"
+            data-ai-hint="indian food"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent dark:from-black/60 light:from-white/20" />
         </div>
       </div>
 
       {/* Right Side - Content */}
-      <div className="w-full md:w-[55%] flex flex-col items-center md:items-start text-center md:text-left md:pl-10 order-2">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 bg-[#2563eb]/10 border border-[#2563eb]/20 text-[#3b82f6] dark:text-[#93c5fd] light:text-[#2563eb] text-[11px] font-medium tracking-[0.1em] uppercase rounded-full">
-          ✦ AI Powered Recipe Generator
-        </div>
-
+      <div className="w-full md:w-[52%] flex flex-col items-center md:items-start text-center md:text-left md:pl-[48px] order-2">
         {/* Heading */}
         <h1 
           className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
@@ -91,7 +85,7 @@ export function TypewriterHero() {
           }}
         >
           <span className="block text-foreground">Cook Smarter,</span>
-          <span className="block min-h-[1.2em] text-[#60a5fa] dark:text-[#60a5fa] light:text-[#2563eb]">
+          <span className="block min-h-[1.2em] text-[#60a5fa]">
             {currentWord}
             <span className={cn(
               "inline-block ml-1 font-light transition-opacity duration-100", 
@@ -100,8 +94,11 @@ export function TypewriterHero() {
           </span>
         </h1>
 
-        {/* Subtext */}
-        <p className="mt-4 text-[15px] leading-[1.75] text-muted-foreground max-w-[380px]">
+        {/* Subtext with Signature font */}
+        <p 
+          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#a1a1aa] dark:text-[#a1a1aa] light:text-[#6b7280] max-w-[420px]"
+          style={{ fontFamily: "'Crustaceans Signature', cursive" }}
+        >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
         </p>
 
@@ -120,26 +117,10 @@ export function TypewriterHero() {
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-border bg-transparent text-muted-foreground hover:text-foreground transition-all"
+            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-border bg-transparent text-[#71717a] hover:text-foreground transition-all"
           >
             See How It Works
           </Button>
-        </div>
-
-        {/* Stats Row */}
-        <div className="mt-10 flex items-center justify-center md:justify-start divide-x divide-border">
-          <div className="pr-5">
-            <div className="text-[18px] font-bold text-foreground">500+</div>
-            <div className="text-[12px] text-muted-foreground">Recipes</div>
-          </div>
-          <div className="px-5">
-            <div className="text-[18px] font-bold text-foreground">8</div>
-            <div className="text-[12px] text-muted-foreground">Cuisines</div>
-          </div>
-          <div className="px-5">
-            <div className="text-[18px] font-bold text-foreground">100%</div>
-            <div className="text-[12px] text-muted-foreground">Free</div>
-          </div>
         </div>
       </div>
     </section>

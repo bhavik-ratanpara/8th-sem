@@ -23,8 +23,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        {/* Note: Cal Sans is typically a custom font, but we include the requested import logic here */}
         <link href="https://fonts.cdnfonts.com/css/cal-sans" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Crustaceans+Signature&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <FirebaseClientProvider>
