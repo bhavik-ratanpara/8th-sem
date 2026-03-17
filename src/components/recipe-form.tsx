@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { type CreateRecipeInput } from '@/ai/schemas';
 import { useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -126,66 +125,73 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
               <FormItem className="space-y-4">
                 <FormLabel className="text-[13px] font-medium text-foreground">Diet Type</FormLabel>
                 <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                  >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Vegetarian Card */}
-                    <div 
+                    <label 
+                      htmlFor="diet-veg"
                       className={cn(
                         "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
                         field.value === "Vegetarian" 
                           ? "bg-[#f0fdf4] border-2 border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]" 
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
-                      onClick={() => field.onChange("Vegetarian")}
                     >
-                      <RadioGroupItem value="Vegetarian" className="sr-only" />
+                      <input 
+                        type="radio"
+                        id="diet-veg"
+                        name={field.name}
+                        value="Vegetarian"
+                        checked={field.value === "Vegetarian"}
+                        onChange={() => field.onChange("Vegetarian")}
+                        className="sr-only"
+                      />
                       <div className="flex items-center gap-3 w-full">
                         <div className={cn(
                           "w-5 h-5 border flex items-center justify-center shrink-0 rounded-[2px] bg-transparent transition-colors",
                           field.value === "Vegetarian" ? "border-[#16a34a]" : "border-gray-400"
                         )}>
-                          <div className={cn(
-                            "w-3 h-3 rounded-full transition-colors",
-                            field.value === "Vegetarian" ? "bg-[#16a34a]" : "bg-gray-400"
-                          )} />
+                          <span className={cn(
+                            "text-[14px] leading-none mb-[1px]",
+                            field.value === "Vegetarian" ? "text-[#16a34a]" : "text-gray-400"
+                          )}>●</span>
                         </div>
                         <span className="text-[14px] font-semibold">Vegetarian</span>
                       </div>
-                    </div>
+                    </label>
 
                     {/* Non-Vegetarian Card */}
-                    <div 
+                    <label 
+                      htmlFor="diet-nonveg"
                       className={cn(
                         "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
                         field.value === "Non-Vegetarian" 
                           ? "bg-[#fff1f2] border-2 border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]" 
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
-                      onClick={() => field.onChange("Non-Vegetarian")}
                     >
-                      <RadioGroupItem value="Non-Vegetarian" className="sr-only" />
+                      <input 
+                        type="radio"
+                        id="diet-nonveg"
+                        name={field.name}
+                        value="Non-Vegetarian"
+                        checked={field.value === "Non-Vegetarian"}
+                        onChange={() => field.onChange("Non-Vegetarian")}
+                        className="sr-only"
+                      />
                       <div className="flex items-center gap-3 w-full">
                         <div className={cn(
                           "w-5 h-5 border flex items-center justify-center shrink-0 rounded-[2px] bg-transparent transition-colors",
                           field.value === "Non-Vegetarian" ? "border-[#dc2626]" : "border-gray-400"
                         )}>
-                          <svg width="10" height="10" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path 
-                              d="M7 1L13 12H1L7 1Z" 
-                              className={cn(
-                                "transition-colors",
-                                field.value === "Non-Vegetarian" ? "fill-[#dc2626]" : "fill-gray-400"
-                              )}
-                            />
-                          </svg>
+                          <span className={cn(
+                            "text-[14px] leading-none mb-[2px]",
+                            field.value === "Non-Vegetarian" ? "text-[#dc2626]" : "text-gray-400"
+                          )}>▲</span>
                         </div>
                         <span className="text-[14px] font-semibold">Non-Vegetarian</span>
                       </div>
-                    </div>
-                  </RadioGroup>
+                    </label>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
