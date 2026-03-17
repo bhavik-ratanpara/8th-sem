@@ -7,7 +7,7 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { type CreateRecipeOutput, type Ingredient } from '@/ai/schemas';
 import { Button } from './ui/button';
-import { Trash2, RefreshCw, Minus, Plus } from 'lucide-react';
+import { Trash2, RefreshCw, Minus, Plus, Users } from 'lucide-react';
 import { Badge } from './ui/badge';
 
 type RecipeCardProps = {
@@ -44,6 +44,10 @@ export function RecipeCard({
           <div className="space-y-3">
             <div className="flex items-center gap-2 mb-1">
                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 rounded-full px-3">Recipe</Badge>
+               <div className="flex items-center gap-1.5 text-xs font-semibold text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                 <Users className="h-3 w-3" />
+                 This recipe serves: {recipe.servings} people
+               </div>
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground">{recipe.title}</CardTitle>
             <p className="text-secondary-foreground max-w-2xl text-base leading-relaxed">
