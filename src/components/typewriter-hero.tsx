@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useUser } from '@/firebase';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const words = [
   'Not Harder.',
@@ -60,120 +61,85 @@ export function TypewriterHero() {
   };
 
   return (
-    <section
-      className="relative flex flex-col items-center justify-center text-center overflow-hidden w-full"
-      style={{
-        padding: '72px 40px 40px',
-        marginBottom: '8px',
-      }}
-    >
-      {/* Radial Glow Background */}
-      <div
-        className="absolute pointer-events-none z-0"
-        style={{
-          width: '800px',
-          height: '400px',
-          background: 'radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
-      />
+    <section className="w-full flex flex-col md:flex-row items-center gap-10 min-h-[520px] px-5 md:px-[60px] py-10 md:py-12 bg-background overflow-hidden">
+      {/* Left Side - Image */}
+      <div className="w-full md:w-[45%] order-1">
+        <div className="relative w-full h-[260px] md:h-[480px] rounded-[12px] md:rounded-[16px] overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80"
+            alt="Professional chef cooking"
+            className="w-full h-full object-cover"
+            data-ai-hint="chef cooking"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent dark:from-black/60 light:from-white/20" />
+        </div>
+      </div>
 
-      <div className="relative z-10 flex flex-col items-center w-full max-w-[860px] mx-auto">
-        <div
-          className="inline-flex items-center gap-2 mb-6"
-          style={{
-            background: 'rgba(37, 99, 235, 0.08)',
-            border: '1px solid rgba(96, 165, 250, 0.2)',
-            color: 'var(--primary)',
-            fontSize: '11px',
-            fontWeight: 500,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            padding: '4px 12px',
-            borderRadius: '999px',
-          }}
-        >
+      {/* Right Side - Content */}
+      <div className="w-full md:w-[55%] flex flex-col items-center md:items-start text-center md:text-left md:pl-10 order-2">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 bg-[#2563eb]/10 border border-[#2563eb]/20 text-[#3b82f6] dark:text-[#93c5fd] light:text-[#2563eb] text-[11px] font-medium tracking-[0.1em] uppercase rounded-full">
           ✦ AI Powered Recipe Generator
         </div>
 
-        <h1
-          className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0 w-full max-w-[700px] mx-auto"
-          style={{
-            fontFamily: "'Cal Sans', 'Inter', sans-serif",
-            fontSize: 'clamp(40px, 5.5vw, 60px)',
+        {/* Heading */}
+        <h1 
+          className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
+          style={{ 
+            fontFamily: "'Cal Sans', Inter, sans-serif", 
+            fontSize: 'clamp(36px, 4vw, 56px)' 
           }}
         >
-          <span className="block text-foreground">
-            Cook Smarter,
-          </span>
-
-          <span
-            className="block min-h-[1.2em]"
-            style={{
-              color: 'var(--primary)',
-            }}
-          >
+          <span className="block text-foreground">Cook Smarter,</span>
+          <span className="block min-h-[1.2em] text-[#60a5fa] dark:text-[#60a5fa] light:text-[#2563eb]">
             {currentWord}
-            <span
-              className="inline-block transition-opacity duration-100 ml-1 font-light"
-              style={{
-                opacity: showCursor ? 1 : 0,
-                color: 'var(--primary)',
-              }}
-            >
-              |
-            </span>
+            <span className={cn(
+              "inline-block ml-1 font-light transition-opacity duration-100", 
+              showCursor ? "opacity-100" : "opacity-0"
+            )}>|</span>
           </span>
         </h1>
 
-        <p
-          className="font-normal mx-auto leading-[1.75] mt-5"
-          style={{
-            fontSize: '15px',
-            color: 'var(--muted-foreground)',
-            maxWidth: '480px',
-          }}
-        >
+        {/* Subtext */}
+        <p className="mt-4 text-[15px] leading-[1.75] text-muted-foreground max-w-[380px]">
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
         </p>
 
-        <div className="flex gap-[10px] mt-10 flex-wrap justify-center">
-          {user ? (
-            <button
-              onClick={handleScrollToForm}
-              className="bg-primary text-primary-foreground border-none rounded-lg px-[28px] py-[10px] font-semibold text-[15px] cursor-pointer transition-colors hover:bg-primary/90"
-            >
-              Generate a Recipe
-            </button>
-          ) : (
-            <Link href="/signup" className="no-underline">
-              <button
-                className="bg-primary text-primary-foreground border-none rounded-lg px-[28px] py-[10px] font-semibold text-[15px] cursor-pointer transition-colors hover:bg-primary/90"
-              >
-                Generate a Recipe
-              </button>
-            </Link>
-          )}
-
-          <button
-            className="bg-transparent border rounded-lg px-[22px] py-[10px] font-medium text-[14px] cursor-pointer transition-all duration-200"
-            style={{
-              color: 'var(--muted-foreground)',
-              borderColor: 'var(--border)',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = 'var(--foreground)';
-              e.currentTarget.style.borderColor = 'var(--muted-foreground)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'var(--muted-foreground)';
-              e.currentTarget.style.borderColor = 'var(--border)';
-            }}
+        {/* Buttons */}
+        <div className="mt-7 flex flex-wrap items-center justify-center md:justify-start gap-[10px]">
+          <Button 
+            onClick={user ? handleScrollToForm : undefined}
+            asChild={!user}
+            className="h-auto py-[11px] px-6 text-sm font-semibold rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white border-none shadow-sm"
+          >
+            {user ? (
+              <span>Generate a Recipe</span>
+            ) : (
+              <a href="/signup">Generate a Recipe</a>
+            )}
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-border bg-transparent text-muted-foreground hover:text-foreground transition-all"
           >
             See How It Works
-          </button>
+          </Button>
+        </div>
+
+        {/* Stats Row */}
+        <div className="mt-10 flex items-center justify-center md:justify-start divide-x divide-border">
+          <div className="pr-5">
+            <div className="text-[18px] font-bold text-foreground">500+</div>
+            <div className="text-[12px] text-muted-foreground">Recipes</div>
+          </div>
+          <div className="px-5">
+            <div className="text-[18px] font-bold text-foreground">8</div>
+            <div className="text-[12px] text-muted-foreground">Cuisines</div>
+          </div>
+          <div className="px-5">
+            <div className="text-[18px] font-bold text-foreground">100%</div>
+            <div className="text-[12px] text-muted-foreground">Free</div>
+          </div>
         </div>
       </div>
     </section>
