@@ -62,15 +62,15 @@ export function TypewriterHero() {
   };
 
   return (
-    <section className="w-full flex flex-col md:flex-row items-center gap-12 min-h-[500px] px-5 md:px-[60px] py-12 md:py-20 bg-background overflow-hidden">
+    <section className="w-full flex flex-col md:flex-row items-center gap-12 min-h-[520px] px-5 md:px-[60px] py-12 md:py-20 bg-background overflow-hidden">
       {/* Left Side - Cutout Image (45% width) */}
-      <div className="w-full md:w-[45%] order-1 flex justify-center md:justify-start">
+      <div className="w-full md:w-[45%] order-1 flex justify-center md:justify-start items-center">
         <img
           src="/hero-food.png"
           alt="Chef"
           style={{
             width: "100%",
-            maxWidth: "460px",
+            maxWidth: "440px",
             height: "auto",
             objectFit: "contain",
             background: "none",
@@ -79,7 +79,7 @@ export function TypewriterHero() {
             boxShadow: "none",
             display: "block"
           }}
-          className="max-h-[280px] md:max-h-full"
+          className="max-h-[250px] md:max-h-[450px]"
         />
       </div>
 
@@ -89,7 +89,7 @@ export function TypewriterHero() {
           className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
           style={{ 
             fontFamily: "'Cal Sans', Inter, sans-serif", 
-            fontSize: 'clamp(36px, 4vw, 56px)' 
+            fontSize: 'clamp(36px, 4.5vw, 56px)' 
           }}
         >
           <span className="block text-[#0f0f0f] dark:text-[#ffffff]">Cook Smarter,</span>
@@ -103,17 +103,17 @@ export function TypewriterHero() {
         </h1>
 
         <p 
-          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#6b7280] dark:text-[#a1a1aa] max-w-[400px]"
+          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#6b7280] dark:text-[#a1a1aa] max-w-[420px]"
           style={{ fontFamily: "'Crustaceans Signature', cursive" }}
         >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
         </p>
 
-        <div className="mt-7 flex flex-wrap items-center justify-center md:justify-start gap-[10px]">
+        <div className="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-[10px]">
           <Button 
             onClick={user ? handleScrollToForm : undefined}
             asChild={!user}
-            className="h-auto py-[11px] px-6 text-sm font-semibold rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white border-none shadow-sm"
+            className="h-auto py-[12px] px-7 text-sm font-semibold rounded-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white border-none shadow-sm transition-all"
           >
             {user ? (
               <span>Generate a Recipe</span>
@@ -123,7 +123,7 @@ export function TypewriterHero() {
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-[#e5e7eb] dark:border-[#2a2a2a] bg-transparent text-[#6b7280] dark:text-[#71717a] hover:text-[#0f0f0f] dark:hover:text-white hover:border-[#0f0f0f] dark:hover:border-[#3f3f46] transition-all"
+            className="h-auto py-[12px] px-7 text-sm font-medium rounded-lg border-[#e5e7eb] dark:border-[#2a2a2a] bg-transparent text-[#6b7280] dark:text-[#71717a] hover:text-[#0f0f0f] dark:hover:text-white hover:border-[#0f0f0f] dark:hover:border-[#3f3f46] transition-all"
           >
             See How It Works
           </Button>
