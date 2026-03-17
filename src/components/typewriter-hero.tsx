@@ -1,9 +1,11 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const words = [
   'Not Harder.',
@@ -19,6 +21,9 @@ export function TypewriterHero() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCursor, setShowCursor] = useState(true);
   const { user } = useUser();
+
+  // Find the hero image from the placeholder library
+  const heroImage = PlaceHolderImages.find(img => img.id === 'hero-food-cutout');
 
   useEffect(() => {
     const blink = setInterval(() => {
@@ -65,12 +70,14 @@ export function TypewriterHero() {
       {/* Left Side - Cutout Image */}
       <div className="w-full md:w-[48%] order-1 flex justify-start">
         <div className="relative w-full max-w-[480px]">
-          <img
-            src="https://images.unsplash.com/photo-1543353071-873f17a7a088?w=800&q=80"
-            alt="Food and spices cutout"
-            className="w-full h-auto object-contain bg-transparent"
-            data-ai-hint="indian food"
-          />
+          {heroImage && (
+            <img
+              src={heroImage.imageUrl}
+              alt={heroImage.description}
+              className="w-full h-auto object-contain bg-transparent"
+              data-ai-hint={heroImage.imageHint}
+            />
+          )}
         </div>
       </div>
 
@@ -96,7 +103,7 @@ export function TypewriterHero() {
 
         {/* Subtext with Signature font */}
         <p 
-          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#a1a1aa] dark:text-[#a1a1aa] light:text-[#6b7280] max-w-[420px]"
+          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#a1a1aa] dark:text-[#a1a1aa]"
           style={{ fontFamily: "'Crustaceans Signature', cursive" }}
         >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
