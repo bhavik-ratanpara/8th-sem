@@ -6,16 +6,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { suggestDishesAction } from '@/app/actions';
 import { type SuggestDishesOutput } from '@/ai/schemas';
-import { Loader2, Sparkles, ChefHat, ArrowRight } from 'lucide-react';
-import { Card, CardContent } from './ui/card';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
+import { Alert, AlertDescription } from './ui/alert';
 
 const formSchema = z.object({
-  thoughts: z.string().min(10, "Provide a more descriptive context."),
+  thoughts: z.string().min(10, "Tell us a bit more about what you want."),
 });
 
 type DishSuggesterProps = {
@@ -42,7 +40,7 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
       const result = await suggestDishesAction(values);
       setSuggestions(result.suggestions);
     } catch (e: any) {
-      setError(e.message || 'Analysis failed.');
+      setError(e.message || 'Could not get suggestions.');
     } finally {
       setIsLoading(false);
     }
@@ -56,10 +54,10 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
 
   return (
     <div className="space-y-8">
-      <div className="saas-card p-6">
+      <div className="card-saas p-6 bg-card border border-border shadow-sm rounded-lg">
         <div className="flex items-center gap-2 mb-4">
           <Sparkles className="w-4 h-4 text-primary" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Culinary Intelligence</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground">AI Recipe Assistant</h2>
         </div>
         
         <Form {...form}>
@@ -71,8 +69,8 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
                 <FormItem>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe your context, mood, or available resources..."
-                      className="input-saas h-24 bg-muted/30"
+                      placeholder="What ingredients do you have? What are you craving?"
+                      className="input-saas h-24"
                       {...field}
                     />
                   </FormControl>
@@ -80,12 +78,11 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} variant="outline" className="w-full text-xs font-semibold h-9 uppercase tracking-wider">
+            <Button type="submit" disabled={isLoading} className="w-full text-sm font-medium h-10">
               {isLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                'Run Analysis'
-              )}
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Get Suggestions
             </Button>
           </form>
         </Form>
@@ -99,21 +96,21 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
 
       {suggestions && suggestions.length > 0 && (
         <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Recommendations</h3>
+          <h3 className="text-[13px] font-semibold text-secondary-foreground ml-1">Ideas for You</h3>
           <div className="space-y-2">
             {suggestions.map((suggestion) => (
               <div
                 key={suggestion.dish_name}
-                className="saas-card p-4 cursor-pointer hover:bg-muted/50 transition-colors group"
+                className="bg-card border border-border p-4 rounded-lg cursor-pointer hover:bg-secondary/50 transition-colors group"
                 onClick={() => handleSuggestionClick(suggestion.dish_name)}
               >
                 <div className="flex justify-between items-start mb-1">
                   <h4 className="font-semibold text-sm group-hover:text-primary transition-colors">{suggestion.dish_name}</h4>
-                  <span className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">
+                  <span className="text-[11px] font-medium text-secondary-foreground bg-secondary px-2 py-0.5 rounded">
                     {suggestion.difficulty}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{suggestion.description}</p>
+                <p className="text-xs text-secondary-foreground line-clamp-2">{suggestion.description}</p>
               </div>
             ))}
           </div>

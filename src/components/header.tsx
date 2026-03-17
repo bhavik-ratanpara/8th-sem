@@ -49,7 +49,7 @@ export function Header() {
     try {
       const response = await fetch(`/api/youtube?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
-        throw new Error(`An error occurred: ${response.statusText}`);
+        throw new Error(`Could not find videos.`);
       }
       const data = await response.json();
       setVideos(data.items || []);
@@ -87,8 +87,8 @@ export function Header() {
                             <PopoverPrimitive.Anchor asChild>
                                 <Input
                                     type="search"
-                                    placeholder="Search culinary guides..."
-                                    className="pr-10 h-10 bg-secondary/50 border-border focus:ring-primary/20"
+                                    placeholder="Search for recipes..."
+                                    className="pr-10 h-10 bg-secondary/50 border-border"
                                     value={query}
                                     onChange={(e) => {
                                         setQuery(e.target.value);
@@ -132,7 +132,7 @@ export function Header() {
                 <>
                   {user ? (
                     <div className="flex items-center gap-4">
-                      <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors hidden sm:block">Dashboard</Link>
+                      <Link href="/" className="text-sm font-medium text-secondary-foreground hover:text-foreground transition-colors hidden sm:block">Home</Link>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -164,8 +164,8 @@ export function Header() {
                       <Button asChild variant="ghost" size="sm" className="font-medium text-sm h-10 px-4">
                         <Link href="/login">Sign In</Link>
                       </Button>
-                      <Button asChild size="sm" className="font-medium text-sm bg-primary text-primary-foreground h-10 px-5 rounded-md hover:bg-primary/90">
-                        <Link href="/signup">Get Started</Link>
+                      <Button asChild size="sm" className="font-medium text-sm bg-primary text-primary-foreground h-10 px-5 rounded-md">
+                        <Link href="/signup">Start Cooking</Link>
                       </Button>
                     </div>
                   )}

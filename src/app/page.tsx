@@ -6,7 +6,7 @@ import { RecipeForm } from '@/components/recipe-form';
 import { RecipeDisplay } from '@/components/recipe-display';
 import { type CreateRecipeInput, type CreateRecipeOutput } from '@/ai/schemas';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Lock, LogIn, Sparkles, BookOpen } from 'lucide-react';
+import { AlertCircle, Lock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DishSuggester } from '@/components/dish-suggester';
 import { useUser } from '@/firebase';
@@ -45,7 +45,7 @@ export default function Home() {
         document.getElementById('recipe-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (e: any) {
-      setError(e.message || 'Generation failed. Please try again.');
+      setError(e.message || 'Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -61,18 +61,18 @@ export default function Home() {
   return (
     <div className="bg-background">
       {/* Hero Section */}
-      <section className="section-padding border-b border-border bg-card">
+      <section className="section-padding border-b border-border bg-background">
         <div className="max-content px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground tracking-tight">
-            Professional Culinary Intelligence
+            Your Personal AI Chef
           </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto font-normal leading-relaxed mb-10">
-            Generate high-precision recipes and master professional techniques with AI designed for efficiency.
+          <p className="text-secondary-foreground text-lg max-w-2xl mx-auto font-normal leading-relaxed mb-10">
+            Create perfect recipes and learn new cooking skills with our easy AI assistant.
           </p>
           {!user && (
             <div className="flex flex-wrap justify-center gap-4">
               <Button asChild className="bg-primary text-primary-foreground h-11 px-8 rounded-md" size="lg">
-                <Link href="/signup">Get Started</Link>
+                <Link href="/signup">Start Cooking</Link>
               </Button>
               <Button asChild variant="outline" className="h-11 px-8 rounded-md" size="lg">
                 <Link href="/login">Sign In</Link>
@@ -104,7 +104,7 @@ export default function Home() {
             {error && (
               <Alert variant="destructive" className="rounded-lg">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>Oops!</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
@@ -120,10 +120,10 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-20 border border-dashed border-border rounded-lg bg-card/50">
+          <div className="text-center py-20 border border-border rounded-lg bg-secondary/30">
             <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
-            <p className="text-muted-foreground mb-8">Please sign in to access the recipe generator.</p>
+            <h2 className="text-xl font-semibold mb-2">Please Sign In</h2>
+            <p className="text-secondary-foreground mb-8">Sign in to start creating recipes.</p>
             <Button asChild className="bg-primary text-primary-foreground">
               <Link href="/login">Sign In</Link>
             </Button>

@@ -7,11 +7,11 @@ import { type CreateRecipeInput, type RegenerateInstructionsInput, type SuggestD
 import { z } from 'zod';
 
 const RecipeSchema = z.object({
-    dishName: z.string().min(1, 'Dish name is required.'),
-    servings: z.coerce.number().min(1, 'Number of servings must be at least 1.'),
-    location: z.string().min(1, 'State, Country is required.'),
-    language: z.string().min(1, 'Language is required.'),
-    diet: z.enum(['Vegetarian', 'Non-Vegetarian'], { required_error: 'Dietary preference is required.' }),
+    dishName: z.string().min(1, 'Please enter a recipe name.'),
+    servings: z.coerce.number().min(1, 'Please enter 1 or more servings.'),
+    location: z.string().min(1, 'Please enter a region or cuisine.'),
+    language: z.string().min(1, 'Please enter a language.'),
+    diet: z.enum(['Vegetarian', 'Non-Vegetarian'], { required_error: 'Please pick a diet type.' }),
     modifications: z.string().optional(),
     currentRecipe: z.object({
         title: z.string(),
@@ -33,7 +33,7 @@ export async function createRecipeAction(input: CreateRecipeInput): Promise<Crea
     return result;
   } catch (error) {
     console.error('Error creating recipe:', error);
-    throw new Error('An unexpected error occurred while generating the recipe. Please try again later.');
+    throw new Error('Something went wrong while making your recipe. Please try again.');
   }
 }
 
@@ -43,7 +43,7 @@ export async function regenerateInstructionsAction(input: RegenerateInstructions
         return result.instructions;
     } catch (error) {
         console.error('Error regenerating instructions:', error);
-        throw new Error('An unexpected error occurred while regenerating the instructions. Please try again later.');
+        throw new Error('Could not update the instructions. Please try again.');
     }
 }
 
@@ -53,6 +53,6 @@ export async function suggestDishesAction(input: SuggestDishesInput): Promise<Su
         return result;
     } catch (error) {
         console.error('Error suggesting dishes:', error);
-        throw new Error('An unexpected error occurred while generating suggestions. Please try again later.');
+        throw new Error('Could not get suggestions. Please try again.');
     }
 }

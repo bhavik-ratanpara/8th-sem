@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Utensils, MapPin, Languages, Users, Vegan, Beef, Sparkles } from 'lucide-react';
+import { Loader2, Vegan, Beef } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -19,11 +19,11 @@ import { type CreateRecipeInput } from '@/ai/schemas';
 import { useEffect } from 'react';
 
 const formSchema = z.object({
-  dishName: z.string().min(1, 'Dish name is required.'),
-  servings: z.coerce.number().min(1, 'Minimum 1 serving.'),
-  location: z.string().min(1, 'Location is required.'),
-  language: z.string().min(1, 'Language is required.'),
-  diet: z.enum(['Vegetarian', 'Non-Vegetarian'], { required_error: 'Diet is required.' }),
+  dishName: z.string().min(1, 'Please enter a recipe name.'),
+  servings: z.coerce.number().min(1, 'Please enter 1 or more servings.'),
+  location: z.string().min(1, 'Please enter a region or cuisine.'),
+  language: z.string().min(1, 'Please enter a language.'),
+  diet: z.enum(['Vegetarian', 'Non-Vegetarian'], { required_error: 'Please pick a diet type.' }),
 });
 
 type RecipeFormProps = {
@@ -55,12 +55,12 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
   };
 
   return (
-    <div className="saas-card p-8 md:p-10 border-border bg-card">
+    <div className="bg-card border border-border p-8 rounded-lg shadow-sm">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-10">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Recipe Configuration</h2>
-            <p className="text-sm text-muted-foreground">Define the technical parameters for your next culinary creation.</p>
+            <h2 className="text-2xl font-bold text-foreground">Create Your Recipe</h2>
+            <p className="text-sm text-secondary-foreground">Fill in the details below to generate your recipe.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -69,9 +69,9 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
               name="dishName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[13px] font-semibold text-foreground">Dish Nomenclature</FormLabel>
+                  <FormLabel className="text-[13px] font-medium text-foreground">Recipe Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Traditional Ratatouille" className="input-saas" {...field} />
+                    <Input placeholder="e.g. Pasta Carbonara" className="input-saas" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -82,7 +82,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
               name="servings"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[13px] font-semibold text-foreground">Output Yield (Servings)</FormLabel>
+                  <FormLabel className="text-[13px] font-medium text-foreground">Number of Servings</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="4" className="input-saas" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : +e.target.value)} value={field.value ?? ''} />
                   </FormControl>
@@ -95,9 +95,9 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[13px] font-semibold text-foreground">Regional Context</FormLabel>
+                  <FormLabel className="text-[13px] font-medium text-foreground">Cuisine / Region</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Provence, France" className="input-saas" {...field} />
+                    <Input placeholder="e.g. Italian, Indian, Mexican" className="input-saas" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,7 +108,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
               name="language"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[13px] font-semibold text-foreground">Instruction Language</FormLabel>
+                  <FormLabel className="text-[13px] font-medium text-foreground">Language</FormLabel>
                   <FormControl>
                     <Input placeholder="English" className="input-saas" {...field} />
                   </FormControl>
@@ -122,27 +122,27 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
             control={form.control}
             name="diet"
             render={({ field }) => (
-              <FormItem className="space-y-5">
-                <FormLabel className="text-[13px] font-semibold text-foreground">Dietary Strategy</FormLabel>
+              <FormItem className="space-y-4">
+                <FormLabel className="text-[13px] font-medium text-foreground">Diet Type</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     className="flex flex-col sm:flex-row gap-4"
                   >
-                    <FormItem className="flex items-center space-x-3 border rounded-lg px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 border-border transition-colors">
+                    <FormItem className="flex items-center space-x-3 border border-border rounded-md px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 transition-colors">
                       <FormControl>
                         <RadioGroupItem value="Vegetarian" />
                       </FormControl>
-                      <FormLabel className="font-semibold text-sm cursor-pointer flex items-center gap-3">
+                      <FormLabel className="font-medium text-sm cursor-pointer flex items-center gap-3">
                         <Vegan className="w-5 h-5 text-primary" /> Vegetarian
                       </FormLabel>
                     </FormItem>
-                    <FormItem className="flex items-center space-x-3 border rounded-lg px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 border-border transition-colors">
+                    <FormItem className="flex items-center space-x-3 border border-border rounded-md px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 transition-colors">
                       <FormControl>
                         <RadioGroupItem value="Non-Vegetarian" />
                       </FormControl>
-                      <FormLabel className="font-semibold text-sm cursor-pointer flex items-center gap-3">
+                      <FormLabel className="font-medium text-sm cursor-pointer flex items-center gap-3">
                         <Beef className="w-5 h-5 text-primary" /> Non-Vegetarian
                       </FormLabel>
                     </FormItem>
@@ -153,14 +153,14 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
             )}
           />
 
-          <Button type="submit" disabled={isLoading} className="w-full bg-primary text-primary-foreground h-12 font-bold rounded-lg text-base shadow-sm hover:bg-primary/90 transition-all">
+          <Button type="submit" disabled={isLoading} className="w-full bg-primary text-primary-foreground h-12 font-semibold rounded-md text-base shadow-sm">
             {isLoading ? (
               <>
                 <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                Generating Recipe Data...
+                Creating Recipe...
               </>
             ) : (
-              'Finalize & Generate Recipe'
+              'Generate Recipe'
             )}
           </Button>
         </form>

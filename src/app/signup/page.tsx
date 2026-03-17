@@ -23,14 +23,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Chrome, User, Mail, Lock } from 'lucide-react';
+import { Loader2, Chrome } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
 const signupSchema = z.object({
   displayName: z.string().min(2, 'Name must be at least 2 characters.'),
-  email: z.string().email('Please enter a valid email.'),
+  email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
@@ -110,10 +109,10 @@ export default function SignupPage() {
       <div className="w-full max-w-[400px] space-y-8">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Create an account</h1>
-          <p className="text-sm text-muted-foreground">Begin your professional culinary journey.</p>
+          <p className="text-sm text-secondary-foreground">Create your account to start cooking.</p>
         </div>
 
-        <div className="saas-card p-6 md:p-8">
+        <div className="bg-card border border-border p-8 rounded-lg shadow-sm">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSignup)} className="space-y-5">
               <FormField
@@ -121,7 +120,7 @@ export default function SignupPage() {
                 name="displayName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[13px] font-medium text-muted-foreground">Full name</FormLabel>
+                    <FormLabel className="text-[13px] font-medium text-foreground">Full name</FormLabel>
                     <FormControl>
                       <Input placeholder="Alex Chef" className="input-saas" {...field} />
                     </FormControl>
@@ -134,7 +133,7 @@ export default function SignupPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[13px] font-medium text-muted-foreground">Email address</FormLabel>
+                    <FormLabel className="text-[13px] font-medium text-foreground">Email address</FormLabel>
                     <FormControl>
                       <Input placeholder="name@example.com" className="input-saas" {...field} />
                     </FormControl>
@@ -147,7 +146,7 @@ export default function SignupPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[13px] font-medium text-muted-foreground">Password</FormLabel>
+                    <FormLabel className="text-[13px] font-medium text-foreground">Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" className="input-saas" {...field} />
                     </FormControl>
@@ -156,7 +155,7 @@ export default function SignupPage() {
                 )}
               />
               <Button type="submit" className="w-full bg-primary text-primary-foreground h-10 font-medium" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Account'}
+                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Sign Up'}
               </Button>
             </form>
           </Form>
@@ -166,11 +165,11 @@ export default function SignupPage() {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-secondary-foreground">Or continue with</span>
             </div>
           </div>
 
-          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full h-10 border-border">
+          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full h-10">
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -180,10 +179,10 @@ export default function SignupPage() {
           </Button>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-secondary-foreground">
           Already have an account?{" "}
           <Link href="/login" className="text-primary font-medium hover:underline">
-            Sign in
+            Log In
           </Link>
         </p>
       </div>

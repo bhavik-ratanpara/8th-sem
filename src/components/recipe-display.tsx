@@ -1,7 +1,6 @@
 'use client';
 
-import { ChefHat, Loader2, RefreshCw, Sparkles, Settings2 } from 'lucide-react';
-import { Card, CardContent, CardHeader } from './ui/card';
+import { Loader2, Settings2 } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { RecipeCard } from './recipe-card';
 import { useEffect, useState } from 'react';
@@ -19,8 +18,8 @@ type RecipeDisplayProps = {
 };
 
 const RecipeSkeleton = () => (
-  <div className="saas-card overflow-hidden">
-    <div className="p-8 bg-muted/10 border-b border-border">
+  <div className="border border-border rounded-lg overflow-hidden bg-card">
+    <div className="p-8 bg-secondary/30 border-b border-border">
       <Skeleton className="h-8 w-1/3 rounded-md" />
       <Skeleton className="h-4 w-full max-w-lg rounded-md mt-4" />
     </div>
@@ -108,7 +107,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
       <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Loader2 className="h-4 w-4 text-primary animate-spin" />
-          <h2 className="text-sm font-medium">Generating technical output...</h2>
+          <h2 className="text-sm font-medium">Writing your recipe...</h2>
         </div>
         <RecipeSkeleton />
       </div>
@@ -117,8 +116,8 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
   if (!displayedRecipe) {
     return (
-       <div className="text-center py-24 border border-border border-dashed rounded-lg bg-card/30">
-        <h3 className="text-sm font-medium text-muted-foreground">Output will be displayed here</h3>
+       <div className="text-center py-24 border border-border border-dashed rounded-lg bg-secondary/10">
+        <h3 className="text-sm font-medium text-secondary-foreground">Your recipe will appear here</h3>
       </div>
     );
   }
@@ -135,27 +134,27 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         onServingsChange={setServings}
       />
 
-      <div className="saas-card p-6 md:p-8 bg-muted/20">
+      <div className="bg-card border border-border p-6 rounded-lg shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Settings2 className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Refine Parameters</h3>
+            <h3 className="text-[13px] font-semibold text-foreground uppercase tracking-wider">Make Changes</h3>
           </div>
           <Textarea
             value={modificationText}
             onChange={(e) => setModificationText(e.target.value)}
-            placeholder="Describe adjustments (e.g. 'substitute butter with olive oil', 'reduce acidity')..."
-            className="input-saas min-h-[100px] bg-background"
+            placeholder="Want to change something? (e.g. 'no nuts', 'make it spicy')"
+            className="input-saas min-h-[100px]"
           />
           <div className="mt-6 flex justify-end">
             <Button
               onClick={handleRecipeRegenerate}
               disabled={isLoading || !modificationText.trim()}
-              className="bg-foreground text-background font-medium h-10"
+              className="font-medium h-10 px-6"
             >
               {isLoading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</>
               ) : (
-                'Apply Refinements'
+                'Update Recipe'
               )}
             </Button>
           </div>

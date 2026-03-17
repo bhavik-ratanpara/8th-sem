@@ -22,13 +22,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Chrome, Mail, Lock } from 'lucide-react';
+import { Loader2, Chrome } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email.'),
+  email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
 });
 
@@ -110,11 +109,11 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 bg-background">
       <div className="w-full max-w-[400px] space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold tracking-tight">Sign In</h1>
-          <p className="text-sm text-muted-foreground">Access your culinary academy account.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Welcome Back</h1>
+          <p className="text-sm text-secondary-foreground">Please sign in to your account.</p>
         </div>
 
-        <div className="saas-card p-6 md:p-8">
+        <div className="bg-card border border-border p-8 rounded-lg shadow-sm">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onEmailLogin)} className="space-y-5">
               <FormField
@@ -122,7 +121,7 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[13px] font-medium text-muted-foreground">Email address</FormLabel>
+                    <FormLabel className="text-[13px] font-medium text-foreground">Email address</FormLabel>
                     <FormControl>
                       <Input placeholder="name@example.com" className="input-saas" {...field} />
                     </FormControl>
@@ -135,7 +134,7 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[13px] font-medium text-muted-foreground">Password</FormLabel>
+                    <FormLabel className="text-[13px] font-medium text-foreground">Password</FormLabel>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" className="input-saas" {...field} />
                     </FormControl>
@@ -154,11 +153,11 @@ export default function LoginPage() {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-secondary-foreground">Or continue with</span>
             </div>
           </div>
           
-          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full h-10 border-border">
+          <Button variant="outline" type="button" disabled={isLoading} onClick={onGoogleLogin} className="w-full h-10">
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -168,10 +167,10 @@ export default function LoginPage() {
           </Button>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-secondary-foreground">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="text-primary font-medium hover:underline">
-            Get started
+            Sign Up
           </Link>
         </p>
       </div>
