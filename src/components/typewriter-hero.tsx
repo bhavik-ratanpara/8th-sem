@@ -62,7 +62,7 @@ export function TypewriterHero() {
   return (
     <section
       style={{
-        minHeight: '480px',
+        minHeight: '520px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -71,16 +71,16 @@ export function TypewriterHero() {
         padding: '80px 24px',
         position: 'relative',
         overflow: 'hidden',
-        background: 'var(--background)',
+        background: 'hsl(var(--background))',
       }}
     >
       {/* Radial Glow Background */}
       <div
         style={{
           position: 'absolute',
-          width: '600px',
-          height: '300px',
-          background: 'radial-gradient(ellipse, rgba(249,115,22,0.12) 0%, transparent 70%)',
+          width: '800px',
+          height: '400px',
+          background: 'radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
@@ -94,17 +94,17 @@ export function TypewriterHero() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '6px',
-            background: 'rgba(249, 115, 22, 0.1)',
-            border: '1px solid rgba(249, 115, 22, 0.25)',
-            color: '#f97316',
-            fontSize: '12px',
+            gap: '8px',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.2)',
+            color: '#3b82f6',
+            fontSize: '13px',
             fontWeight: 600,
-            letterSpacing: '0.08em',
+            letterSpacing: '0.05em',
             textTransform: 'uppercase',
-            padding: '6px 14px',
+            padding: '8px 16px',
             borderRadius: '999px',
-            marginBottom: '24px',
+            marginBottom: '32px',
           }}
         >
           ✦ AI Powered Recipe Generator
@@ -112,7 +112,7 @@ export function TypewriterHero() {
 
         <h1
           style={{
-            fontSize: 'clamp(36px, 6vw, 64px)',
+            fontSize: 'clamp(36px, 6vw, 60px)',
             fontWeight: 800,
             lineHeight: 1.1,
             letterSpacing: '-0.04em',
@@ -130,18 +130,18 @@ export function TypewriterHero() {
 
           <span
             style={{
-              color: '#f97316',
+              color: '#3b82f6',
               display: 'block',
-              minHeight: '1.1em',
+              minHeight: '1.2em',
             }}
           >
             {currentWord}
             <span
               style={{
                 opacity: showCursor ? 1 : 0,
-                color: '#f97316',
+                color: '#3b82f6',
                 fontWeight: 300,
-                marginLeft: '2px',
+                marginLeft: '4px',
                 transition: 'opacity 0.1s',
               }}
             >
@@ -152,12 +152,12 @@ export function TypewriterHero() {
 
         <p
           style={{
-            fontSize: '17px',
+            fontSize: '18px',
             color: 'hsl(var(--muted-foreground))',
             fontWeight: 400,
-            maxWidth: '520px',
-            margin: '20px auto 0',
-            lineHeight: 1.7,
+            maxWidth: '580px',
+            margin: '24px auto 0',
+            lineHeight: 1.6,
           }}
         >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
@@ -166,8 +166,8 @@ export function TypewriterHero() {
         <div
           style={{
             display: 'flex',
-            gap: '12px',
-            marginTop: '32px',
+            gap: '16px',
+            marginTop: '40px',
             flexWrap: 'wrap',
             justifyContent: 'center',
           }}
@@ -176,17 +176,18 @@ export function TypewriterHero() {
             <button
               onClick={handleScrollToForm}
               style={{
-                background: '#f97316',
+                background: '#2563eb',
                 color: '#ffffff',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '12px 28px',
+                borderRadius: '6px',
+                padding: '14px 32px',
                 fontWeight: 600,
-                fontSize: '15px',
+                fontSize: '16px',
                 cursor: 'pointer',
-                letterSpacing: '-0.01em',
-                boxShadow: '0 4px 14px 0 rgba(249,115,22,0.3)',
+                transition: 'background 0.2s',
               }}
+              onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
+              onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
             >
               Generate a Recipe
             </button>
@@ -194,17 +195,18 @@ export function TypewriterHero() {
             <Link href="/signup" style={{ textDecoration: 'none' }}>
               <button
                 style={{
-                  background: '#f97316',
+                  background: '#2563eb',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 28px',
+                  borderRadius: '6px',
+                  padding: '14px 32px',
                   fontWeight: 600,
-                  fontSize: '15px',
+                  fontSize: '16px',
                   cursor: 'pointer',
-                  letterSpacing: '-0.01em',
-                  boxShadow: '0 4px 14px 0 rgba(249,115,22,0.3)',
+                  transition: 'background 0.2s',
                 }}
+                onMouseOver={(e) => (e.currentTarget.style.background = '#1d4ed8')}
+                onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
               >
                 Generate a Recipe
               </button>
@@ -216,12 +218,15 @@ export function TypewriterHero() {
               background: 'transparent',
               color: 'hsl(var(--foreground))',
               border: '1px solid hsl(var(--border))',
-              borderRadius: '8px',
-              padding: '12px 28px',
+              borderRadius: '6px',
+              padding: '14px 32px',
               fontWeight: 500,
-              fontSize: '15px',
+              fontSize: '16px',
               cursor: 'pointer',
+              transition: 'background 0.2s',
             }}
+            onMouseOver={(e) => (e.currentTarget.style.background = 'hsl(var(--secondary))')}
+            onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
           >
             See How It Works
           </button>
