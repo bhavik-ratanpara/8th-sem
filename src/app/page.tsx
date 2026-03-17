@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DishSuggester } from '@/components/dish-suggester';
 import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
+import { TypewriterHero } from '@/components/typewriter-hero';
 import Link from 'next/link';
 
 export default function Home() {
@@ -60,27 +61,8 @@ export default function Home() {
 
   return (
     <div className="bg-background">
-      {/* Hero Section */}
-      <section className="section-padding border-b border-border bg-background">
-        <div className="max-content px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground tracking-tight">
-            Your Personal AI Chef
-          </h1>
-          <p className="text-secondary-foreground text-lg max-w-2xl mx-auto font-normal leading-relaxed mb-10">
-            Create perfect recipes and learn new cooking skills with our easy AI assistant.
-          </p>
-          {!user && (
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button asChild className="bg-primary text-primary-foreground h-11 px-8 rounded-md" size="lg">
-                <Link href="/signup">Start Cooking</Link>
-              </Button>
-              <Button asChild variant="outline" className="h-11 px-8 rounded-md" size="lg">
-                <Link href="/login">Sign In</Link>
-              </Button>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Typewriter Hero Section */}
+      <TypewriterHero />
 
       <main className="max-content px-4 py-16 space-y-24">
         {isUserLoading ? (
