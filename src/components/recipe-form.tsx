@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Vegan, Beef } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { type CreateRecipeInput } from '@/ai/schemas';
 import { useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   dishName: z.string().min(1, 'Please enter a recipe name.'),
@@ -59,8 +60,8 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-10">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Create Your Recipe</h2>
-            <p className="text-sm text-secondary-foreground">Fill in the details below to generate your recipe.</p>
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Create Your Recipe</h2>
+            <p className="text-[15px] text-muted-foreground">Fill in the details below to generate your recipe.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -128,24 +129,59 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="flex flex-col sm:flex-row gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                   >
-                    <FormItem className="flex items-center space-x-3 border border-border rounded-md px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 transition-colors">
-                      <FormControl>
-                        <RadioGroupItem value="Vegetarian" />
-                      </FormControl>
-                      <FormLabel className="font-medium text-sm cursor-pointer flex items-center gap-3">
-                        <Vegan className="w-5 h-5 text-primary" /> Vegetarian
-                      </FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-3 border border-border rounded-md px-5 py-4 flex-1 cursor-pointer bg-secondary/20 hover:bg-secondary/40 transition-colors">
-                      <FormControl>
-                        <RadioGroupItem value="Non-Vegetarian" />
-                      </FormControl>
-                      <FormLabel className="font-medium text-sm cursor-pointer flex items-center gap-3">
-                        <Beef className="w-5 h-5 text-primary" /> Non-Vegetarian
-                      </FormLabel>
-                    </FormItem>
+                    {/* Vegetarian Card */}
+                    <div 
+                      className={cn(
+                        "flex items-center justify-between border rounded-lg px-4 h-14 cursor-pointer transition-all duration-200 group",
+                        field.value === "Vegetarian" 
+                          ? "bg-[#f0fdf4] border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]" 
+                          : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
+                      )}
+                      onClick={() => field.onChange("Vegetarian")}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 border-[1.5px] border-[#16a34a] flex items-center justify-center shrink-0 rounded-[2px] bg-transparent">
+                          <div className="w-3.5 h-3.5 rounded-full bg-[#16a34a]" />
+                        </div>
+                        <span className="text-[15px] font-semibold">Vegetarian</span>
+                      </div>
+                      <RadioGroupItem 
+                        value="Vegetarian" 
+                        className={cn(
+                          "h-4 w-4",
+                          field.value === "Vegetarian" ? "border-[#16a34a] text-[#16a34a]" : "border-muted-foreground/30"
+                        )} 
+                      />
+                    </div>
+
+                    {/* Non-Vegetarian Card */}
+                    <div 
+                      className={cn(
+                        "flex items-center justify-between border rounded-lg px-4 h-14 cursor-pointer transition-all duration-200 group",
+                        field.value === "Non-Vegetarian" 
+                          ? "bg-[#fff1f2] border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]" 
+                          : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
+                      )}
+                      onClick={() => field.onChange("Non-Vegetarian")}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 border-[1.5px] border-[#dc2626] flex items-center justify-center shrink-0 rounded-[2px] bg-transparent">
+                          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="translate-y-[-0.5px]">
+                            <path d="M7 1L13 12H1L7 1Z" fill="#dc2626" />
+                          </svg>
+                        </div>
+                        <span className="text-[15px] font-semibold">Non-Vegetarian</span>
+                      </div>
+                      <RadioGroupItem 
+                        value="Non-Vegetarian" 
+                        className={cn(
+                          "h-4 w-4",
+                          field.value === "Non-Vegetarian" ? "border-[#dc2626] text-[#dc2626]" : "border-muted-foreground/30"
+                        )} 
+                      />
+                    </div>
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
@@ -153,7 +189,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
             )}
           />
 
-          <Button type="submit" disabled={isLoading} className="w-full bg-primary text-primary-foreground h-12 font-semibold rounded-md text-base shadow-sm">
+          <Button type="submit" disabled={isLoading} className="w-full bg-primary text-primary-foreground h-12 font-semibold rounded-md text-base shadow-sm hover:brightness-110 active:scale-[0.98] transition-all">
             {isLoading ? (
               <>
                 <Loader2 className="mr-3 h-5 w-5 animate-spin" />
