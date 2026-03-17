@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,7 +23,6 @@ export function TypewriterHero() {
   const [showCursor, setShowCursor] = useState(true);
   const { user } = useUser();
 
-  // Find the hero image from the placeholder library (mapped to local path /hero-food.png)
   const heroImageData = PlaceHolderImages.find(img => img.id === 'hero-food-cutout');
 
   useEffect(() => {
@@ -70,18 +70,17 @@ export function TypewriterHero() {
       {/* Left Side - Cutout Image */}
       <div className="w-full md:w-[48%] order-1 flex justify-start">
         <div className="relative w-full max-w-[480px]">
-          {/* Using the local image reference from public folder */}
           <img
             src={heroImageData?.imageUrl || "/hero-food.png"}
             alt="Chef"
-            className="w-full h-auto object-contain bg-transparent border-none"
+            className="w-full h-auto object-contain bg-transparent border-none max-h-[280px] md:max-h-full"
             style={{ background: 'none' }}
           />
         </div>
       </div>
 
       {/* Right Side - Content */}
-      <div className="w-full md:w-[52%] flex flex-col items-start text-left md:pl-[48px] order-2">
+      <div className="w-full md:w-[52%] flex flex-col items-center md:items-start text-center md:text-left md:pl-[48px] order-2">
         {/* Heading */}
         <h1 
           className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
@@ -90,8 +89,8 @@ export function TypewriterHero() {
             fontSize: 'clamp(36px, 4vw, 56px)' 
           }}
         >
-          <span className="block text-foreground">Cook Smarter,</span>
-          <span className="block min-h-[1.2em] text-[#60a5fa]">
+          <span className="block text-[#0f0f0f] dark:text-[#ffffff]">Cook Smarter,</span>
+          <span className="block min-h-[1.2em] text-[#2563eb] dark:text-[#60a5fa]">
             {currentWord}
             <span className={cn(
               "inline-block ml-1 font-light transition-opacity duration-100", 
@@ -102,14 +101,14 @@ export function TypewriterHero() {
 
         {/* Subtext with Crustaceans Signature font */}
         <p 
-          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#a1a1aa] dark:text-[#a1a1aa] max-w-[420px]"
+          className="mt-4 text-[22px] font-normal leading-[1.8] text-[#6b7280] dark:text-[#a1a1aa] max-w-[420px]"
           style={{ fontFamily: "'Crustaceans Signature', cursive" }}
         >
           Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
         </p>
 
         {/* Buttons */}
-        <div className="mt-7 flex flex-wrap items-center justify-start gap-[10px]">
+        <div className="mt-7 flex flex-wrap items-center justify-center md:justify-start gap-[10px]">
           <Button 
             onClick={user ? handleScrollToForm : undefined}
             asChild={!user}
@@ -123,7 +122,7 @@ export function TypewriterHero() {
           </Button>
           <Button 
             variant="outline" 
-            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-border bg-transparent text-[#71717a] hover:text-foreground transition-all"
+            className="h-auto py-[11px] px-6 text-sm font-medium rounded-lg border-border bg-transparent text-[#6b7280] dark:text-[#71717a] hover:text-foreground transition-all"
           >
             See How It Works
           </Button>
