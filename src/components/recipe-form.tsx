@@ -72,7 +72,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                 <FormItem>
                   <FormLabel className="text-[13px] font-medium text-foreground">Recipe Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Pasta Carbonara" className="input-saas" {...field} />
+                    <Input placeholder="e.g. Pasta Carbonara" className="input-saas h-12" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -85,7 +85,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                 <FormItem>
                   <FormLabel className="text-[13px] font-medium text-foreground">Number of Servings</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="4" className="input-saas" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : +e.target.value)} value={field.value ?? ''} />
+                    <Input type="number" placeholder="4" className="input-saas h-12" {...field} onChange={e => field.onChange(e.target.value === '' ? undefined : +e.target.value)} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -98,7 +98,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                 <FormItem>
                   <FormLabel className="text-[13px] font-medium text-foreground">Cuisine / Region</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Italian, Indian, Mexican" className="input-saas" {...field} />
+                    <Input placeholder="e.g. Italian, Indian, Mexican" className="input-saas h-12" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -111,7 +111,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                 <FormItem>
                   <FormLabel className="text-[13px] font-medium text-foreground">Language</FormLabel>
                   <FormControl>
-                    <Input placeholder="English" className="input-saas" {...field} />
+                    <Input placeholder="English" className="input-saas h-12" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,59 +128,62 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
                     className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                   >
                     {/* Vegetarian Card */}
                     <div 
                       className={cn(
-                        "flex items-center justify-between border rounded-lg px-4 h-14 cursor-pointer transition-all duration-200 group",
+                        "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
                         field.value === "Vegetarian" 
-                          ? "bg-[#f0fdf4] border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]" 
+                          ? "bg-[#f0fdf4] border-2 border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]" 
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
                       onClick={() => field.onChange("Vegetarian")}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 border-[1.5px] border-[#16a34a] flex items-center justify-center shrink-0 rounded-[2px] bg-transparent">
-                          <div className="w-3.5 h-3.5 rounded-full bg-[#16a34a]" />
+                      <RadioGroupItem value="Vegetarian" className="sr-only" />
+                      <div className="flex items-center gap-3 w-full">
+                        <div className={cn(
+                          "w-5 h-5 border flex items-center justify-center shrink-0 rounded-[2px] bg-transparent transition-colors",
+                          field.value === "Vegetarian" ? "border-[#16a34a]" : "border-gray-400"
+                        )}>
+                          <div className={cn(
+                            "w-3 h-3 rounded-full transition-colors",
+                            field.value === "Vegetarian" ? "bg-[#16a34a]" : "bg-gray-400"
+                          )} />
                         </div>
-                        <span className="text-[15px] font-semibold">Vegetarian</span>
+                        <span className="text-[14px] font-semibold">Vegetarian</span>
                       </div>
-                      <RadioGroupItem 
-                        value="Vegetarian" 
-                        className={cn(
-                          "h-4 w-4",
-                          field.value === "Vegetarian" ? "border-[#16a34a] text-[#16a34a]" : "border-muted-foreground/30"
-                        )} 
-                      />
                     </div>
 
                     {/* Non-Vegetarian Card */}
                     <div 
                       className={cn(
-                        "flex items-center justify-between border rounded-lg px-4 h-14 cursor-pointer transition-all duration-200 group",
+                        "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
                         field.value === "Non-Vegetarian" 
-                          ? "bg-[#fff1f2] border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]" 
+                          ? "bg-[#fff1f2] border-2 border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]" 
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
                       onClick={() => field.onChange("Non-Vegetarian")}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 border-[1.5px] border-[#dc2626] flex items-center justify-center shrink-0 rounded-[2px] bg-transparent">
-                          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="translate-y-[-0.5px]">
-                            <path d="M7 1L13 12H1L7 1Z" fill="#dc2626" />
+                      <RadioGroupItem value="Non-Vegetarian" className="sr-only" />
+                      <div className="flex items-center gap-3 w-full">
+                        <div className={cn(
+                          "w-5 h-5 border flex items-center justify-center shrink-0 rounded-[2px] bg-transparent transition-colors",
+                          field.value === "Non-Vegetarian" ? "border-[#dc2626]" : "border-gray-400"
+                        )}>
+                          <svg width="10" height="10" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path 
+                              d="M7 1L13 12H1L7 1Z" 
+                              className={cn(
+                                "transition-colors",
+                                field.value === "Non-Vegetarian" ? "fill-[#dc2626]" : "fill-gray-400"
+                              )}
+                            />
                           </svg>
                         </div>
-                        <span className="text-[15px] font-semibold">Non-Vegetarian</span>
+                        <span className="text-[14px] font-semibold">Non-Vegetarian</span>
                       </div>
-                      <RadioGroupItem 
-                        value="Non-Vegetarian" 
-                        className={cn(
-                          "h-4 w-4",
-                          field.value === "Non-Vegetarian" ? "border-[#dc2626] text-[#dc2626]" : "border-muted-foreground/30"
-                        )} 
-                      />
                     </div>
                   </RadioGroup>
                 </FormControl>
