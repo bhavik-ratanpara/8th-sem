@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithRedirect,
   getRedirectResult
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,14 +46,13 @@ export default function LoginPage() {
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      setDocumentNonBlocking(userRef, {
+      await setDoc(userRef, {
         id: user.uid,
         email: user.email,
         displayName: user.displayName || 'Chef',
         profilePictureUrl: user.photoURL || '',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        fridgeIngredientIds: [],
       }, { merge: true });
     }
   };
@@ -61,7 +60,6 @@ export default function LoginPage() {
   useEffect(() => {
     setIsMounted(true);
     
-    // Check if we just came back from a Google redirect
     const checkRedirect = async () => {
       try {
         const result = await getRedirectResult(auth);
@@ -71,19 +69,11 @@ export default function LoginPage() {
         }
       } catch (error: any) {
         console.error("Auth redirect error:", error);
-        if (error.code === 'auth/unauthorized-domain') {
-          toast({
-            variant: "destructive",
-            title: "Domain Not Authorized",
-            description: "Please add this domain to the Authorized Domains list in the Firebase Console.",
-          });
-        } else if (error.code !== 'auth/popup-closed-by-user') {
-          toast({
-            variant: "destructive",
-            title: "Login Error",
-            description: error.message,
-          });
-        }
+        toast({
+          variant: "destructive",
+          title: "Login Error",
+          description: error.message || "Failed to sign in with Google.",
+        });
       } finally {
         setIsVerifyingRedirect(false);
       }
@@ -121,7 +111,6 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      // Use redirect instead of popup for better reliability in production
       await signInWithRedirect(auth, provider);
     } catch (error: any) {
       toast({
@@ -139,7 +128,7 @@ export default function LoginPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-sm text-muted-foreground animate-pulse">Authenticating...</p>
+        <p className="text-sm text-muted-foreground animate-pulse">Checking authentication...</p>
       </div>
     );
   }

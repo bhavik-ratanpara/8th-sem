@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
 import { 
   createUserWithEmailAndPassword, 
   updateProfile,
@@ -9,7 +9,7 @@ import {
   signInWithRedirect,
   getRedirectResult
 } from 'firebase/auth';
-import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,14 +48,13 @@ export default function SignupPage() {
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      setDocumentNonBlocking(userRef, {
+      await setDoc(userRef, {
         id: user.uid,
         email: user.email,
         displayName: name,
         profilePictureUrl: user.photoURL || '',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        fridgeIngredientIds: [],
       }, { merge: true });
     }
   };
@@ -72,13 +71,11 @@ export default function SignupPage() {
         }
       } catch (error: any) {
         console.error("Signup redirect error:", error);
-        if (error.code === 'auth/unauthorized-domain') {
-          toast({
-            variant: "destructive",
-            title: "Domain Not Authorized",
-            description: "Please add this domain to the Authorized Domains list in the Firebase Console.",
-          });
-        }
+        toast({
+          variant: "destructive",
+          title: "Signup Error",
+          description: error.message || "Failed to sign up with Google.",
+        });
       } finally {
         setIsVerifyingRedirect(false);
       }

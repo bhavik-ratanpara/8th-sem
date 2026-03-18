@@ -11,7 +11,6 @@ import { signOut } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import Link from 'next/link';
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import { cn } from '@/lib/utils';
 
 export function Header() {
   const [query, setQuery] = useState('');
