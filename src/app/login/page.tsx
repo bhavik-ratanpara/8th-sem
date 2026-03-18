@@ -35,7 +35,6 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
@@ -58,8 +57,6 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    setIsMounted(true);
-    
     const checkRedirect = async () => {
       try {
         const result = await getRedirectResult(auth);
@@ -72,7 +69,7 @@ export default function LoginPage() {
         toast({
           variant: "destructive",
           title: "Login Error",
-          description: error.message || "Failed to sign in with Google.",
+          description: "Failed to sign in with Google. Please try again.",
         });
       } finally {
         setIsVerifyingRedirect(false);
@@ -80,7 +77,7 @@ export default function LoginPage() {
     };
 
     checkRedirect();
-  }, [auth, router, toast]);
+  }, [auth, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -100,29 +97,25 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: error.message || "Invalid email or password.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const onGoogleLogin = async () => {
+  const onGoogleLogin = () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    try {
-      await signInWithRedirect(auth, provider);
-    } catch (error: any) {
+    signInWithRedirect(auth, provider).catch((error) => {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
       setIsLoading(false);
-    }
+    });
   };
-
-  if (!isMounted) return null;
 
   if (isVerifyingRedirect) {
     return (
