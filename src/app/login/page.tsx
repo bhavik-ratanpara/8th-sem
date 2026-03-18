@@ -5,8 +5,7 @@ import { useAuth, useFirestore, useUser } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
-  signInWithRedirect,
-  getRedirectResult
+  signInWithPopup
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -34,7 +33,6 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(true);
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
@@ -57,36 +55,12 @@ export default function LoginPage() {
     }
   };
 
-  // 1. Automatically redirect if user is already logged in
+  // Automatically redirect if user is already logged in
   useEffect(() => {
     if (!isUserLoading && user) {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
-
-  // 2. Catch the result of a Google redirect sign-in
-  useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          await syncUserToFirestore(result.user);
-          router.push("/");
-        }
-      } catch (error: any) {
-        console.error("Auth redirect error:", error);
-        toast({
-          variant: "destructive",
-          title: "Login Error",
-          description: "Failed to sign in with Google. Please try again.",
-        });
-      } finally {
-        setIsVerifyingRedirect(false);
-      }
-    };
-
-    checkRedirect();
-  }, [auth, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -113,21 +87,31 @@ export default function LoginPage() {
     }
   };
 
-  const onGoogleLogin = () => {
+  const onGoogleLogin = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    // Using redirect for better compatibility with live production environments
-    signInWithRedirect(auth, provider).catch((error) => {
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    try {
+      const result = await signInWithPopup(auth, provider);
+      if (result.user) {
+        await syncUserToFirestore(result.user);
+        router.push('/');
+      }
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
-  if (isVerifyingRedirect || (isUserLoading && !user)) {
+  if (isUserLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
