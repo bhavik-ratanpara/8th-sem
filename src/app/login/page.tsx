@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth, useFirestore, useUser } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
@@ -39,6 +39,7 @@ export default function LoginPage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
 
   const syncUserToFirestore = async (user: any) => {
     const userRef = doc(db, 'users', user.uid);
@@ -56,6 +57,14 @@ export default function LoginPage() {
     }
   };
 
+  // 1. Automatically redirect if user is already logged in
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router]);
+
+  // 2. Catch the result of a Google redirect sign-in
   useEffect(() => {
     const checkRedirect = async () => {
       try {
@@ -107,6 +116,7 @@ export default function LoginPage() {
   const onGoogleLogin = () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
+    // Using redirect for better compatibility with live production environments
     signInWithRedirect(auth, provider).catch((error) => {
       toast({
         variant: "destructive",
@@ -117,7 +127,7 @@ export default function LoginPage() {
     });
   };
 
-  if (isVerifyingRedirect) {
+  if (isVerifyingRedirect || (isUserLoading && !user)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />

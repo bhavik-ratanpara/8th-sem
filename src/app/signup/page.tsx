@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth, useFirestore, useUser } from '@/firebase';
 import { 
   createUserWithEmailAndPassword, 
   updateProfile,
@@ -41,6 +41,7 @@ export default function SignupPage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
 
   const createUserProfile = async (user: any, name: string) => {
     const userRef = doc(db, 'users', user.uid);
@@ -57,6 +58,13 @@ export default function SignupPage() {
       }, { merge: true });
     }
   };
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!isUserLoading && user) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router]);
 
   useEffect(() => {
     const checkRedirect = async () => {
@@ -121,7 +129,7 @@ export default function SignupPage() {
     });
   };
 
-  if (isVerifyingRedirect) {
+  if (isVerifyingRedirect || (isUserLoading && !user)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
