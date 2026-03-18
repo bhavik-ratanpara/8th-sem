@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +7,7 @@ import { getSavedRecipes, deleteRecipe, toggleFavourite, type SavedRecipe } from
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Trash2, Eye, Search, BookMarked, Filter, ArrowRight } from 'lucide-react';
+import { Star, Trash2, Eye, Search, BookMarked, Filter, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -104,6 +103,15 @@ function HistoryContent() {
 
   return (
     <div className="max-content px-4 py-12">
+      {/* Navigation */}
+      <Link 
+        href="/"
+        className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Generator
+      </Link>
+
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div className="space-y-2">
