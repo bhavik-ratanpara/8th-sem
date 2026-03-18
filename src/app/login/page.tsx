@@ -34,41 +34,12 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-
-  useEffect(() => {
-    setIsMounted(true);
-    // Handle the result after redirect comes back
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result?.user) {
-          await syncUserToFirestore(result.user);
-          router.push("/");
-        }
-      })
-      .catch((error) => {
-        console.error("Auth error:", error);
-        if (error.code === 'auth/unauthorized-domain') {
-          toast({
-            variant: "destructive",
-            title: "Domain Not Authorized",
-            description: "Please add this domain to the Authorized Domains list in the Firebase Console.",
-          });
-        }
-      });
-  }, [auth, router, toast]);
-
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
 
   const syncUserToFirestore = async (user: any) => {
     const userRef = doc(db, 'users', user.uid);
@@ -86,6 +57,48 @@ export default function LoginPage() {
       }, { merge: true });
     }
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+    
+    // Check if we just came back from a Google redirect
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          await syncUserToFirestore(result.user);
+          router.push("/");
+        }
+      } catch (error: any) {
+        console.error("Auth redirect error:", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          toast({
+            variant: "destructive",
+            title: "Domain Not Authorized",
+            description: "Please add this domain to the Authorized Domains list in the Firebase Console.",
+          });
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+          toast({
+            variant: "destructive",
+            title: "Login Error",
+            description: error.message,
+          });
+        }
+      } finally {
+        setIsVerifyingRedirect(false);
+      }
+    };
+
+    checkRedirect();
+  }, [auth, router, toast]);
+
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
   const onEmailLogin = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
@@ -108,6 +121,7 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
+      // Use redirect instead of popup for better reliability in production
       await signInWithRedirect(auth, provider);
     } catch (error: any) {
       toast({
@@ -120,6 +134,15 @@ export default function LoginPage() {
   };
 
   if (!isMounted) return null;
+
+  if (isVerifyingRedirect) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-sm text-muted-foreground animate-pulse">Authenticating...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 bg-background">

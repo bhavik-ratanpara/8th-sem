@@ -6,9 +6,10 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,15 +36,56 @@ const signupSchema = z.object({
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
+  const createUserProfile = async (user: any, name: string) => {
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      setDocumentNonBlocking(userRef, {
+        id: user.uid,
+        email: user.email,
+        displayName: name,
+        profilePictureUrl: user.photoURL || '',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        fridgeIngredientIds: [],
+      }, { merge: true });
+    }
+  };
+
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+
+    const checkRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          await createUserProfile(result.user, result.user.displayName || 'Chef');
+          router.push('/');
+        }
+      } catch (error: any) {
+        console.error("Signup redirect error:", error);
+        if (error.code === 'auth/unauthorized-domain') {
+          toast({
+            variant: "destructive",
+            title: "Domain Not Authorized",
+            description: "Please add this domain to the Authorized Domains list in the Firebase Console.",
+          });
+        }
+      } finally {
+        setIsVerifyingRedirect(false);
+      }
+    };
+
+    checkRedirect();
+  }, [auth, router, toast]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -54,24 +96,12 @@ export default function SignupPage() {
     },
   });
 
-  const createUserProfile = (user: any, name: string) => {
-    setDocumentNonBlocking(doc(db, 'users', user.uid), {
-      id: user.uid,
-      email: user.email,
-      displayName: name,
-      profilePictureUrl: user.photoURL || '',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      fridgeIngredientIds: [],
-    }, { merge: true });
-  };
-
   const onSignup = async (values: z.infer<typeof signupSchema>) => {
     setIsLoading(true);
     try {
       const result = await createUserWithEmailAndPassword(auth, values.email, values.password);
       await updateProfile(result.user, { displayName: values.displayName });
-      createUserProfile(result.user, values.displayName);
+      await createUserProfile(result.user, values.displayName);
       router.push('/');
     } catch (error: any) {
       toast({
@@ -88,21 +118,27 @@ export default function SignupPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      createUserProfile(result.user, result.user.displayName || 'Chef');
-      router.push('/');
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
-    } finally {
       setIsLoading(false);
     }
   };
 
   if (!isMounted) return null;
+
+  if (isVerifyingRedirect) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-sm text-muted-foreground animate-pulse">Checking authentication...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 bg-background">
