@@ -5,6 +5,7 @@ import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { RadarFeatures } from '@/components/RadarFeatures';
 
 const words = [
   'Not Harder.',
@@ -110,26 +111,16 @@ export function TypewriterHero() {
         </div>
       </div>
 
-      {/* Right Side - Cutout Image (45% width) */}
-      <div className="w-full md:w-[45%] order-1 md:order-2 flex justify-center items-center">
-        <img
-          src="/hero-food.png"
-          alt="Indian food platter"
-          style={{
-            width: "100%",
-            maxWidth: "520px",
-            height: "auto",
-            minHeight: "420px",
-            objectFit: "contain",
-            background: "none",
-            backgroundColor: "transparent",
-            border: "none",
-            borderRadius: "0",
-            boxShadow: "none",
-            display: "block"
-          }}
-          className="max-h-[300px] md:max-h-[500px]"
-        />
+      {/* Right Side — Radar */}
+      <div style={{
+        flex: "0 0 45%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        order: "1"
+      }} className="w-full md:w-[45%] order-1 md:order-2">
+        <RadarFeatures />
       </div>
     </section>
   );
