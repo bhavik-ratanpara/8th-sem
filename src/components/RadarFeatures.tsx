@@ -203,13 +203,6 @@ export function RadarFeatures() {
         }}>
           Cooking Lab
         </div>
-        <div style={{
-          fontSize: '10px',
-          color: '#52525b',
-          marginTop: '2px',
-        }}>
-          AI Powered
-        </div>
       </div>
     </div>
   )
