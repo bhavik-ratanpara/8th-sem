@@ -265,13 +265,6 @@ function HistoryContent() {
               <div className="flex justify-between items-start mb-4">
                 <h3 className="font-bold text-lg text-foreground line-clamp-2 pr-2">{recipe.recipeName}</h3>
                 <div className="flex gap-2 items-center">
-                  <button
-                    onClick={() => recipe.id && handleShare(recipe.id, false)}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    title="Share recipe link"
-                  >
-                    <Share2 className="h-5 w-5" />
-                  </button>
                   <button 
                     onClick={() => recipe.id && handleToggleFav(recipe.id, recipe.isFavourite)}
                     className="transition-transform active:scale-125"
@@ -282,6 +275,13 @@ function HistoryContent() {
                         recipe.isFavourite ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30 hover:text-amber-400"
                       )} 
                     />
+                  </button>
+                  <button
+                    onClick={() => recipe.id && handleShare(recipe.id, false)}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    title="Share recipe link"
+                  >
+                    <Share2 className="h-5 w-5" />
                   </button>
                 </div>
               </div>
