@@ -7,7 +7,7 @@ import { getSavedRecipes, deleteRecipe, toggleFavourite, shareRecipePublic, unsh
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Star, Trash2, Search, BookMarked, Filter, ArrowRight, ArrowLeft, Globe, Loader2, Share2 } from 'lucide-react';
+import { Star, Trash2, Search, BookMarked, Filter, ArrowRight, ArrowLeft, Globe, Loader2, Share2, X } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,11 @@ function HistoryContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [dietFilter, setDietFilter] = useState<'All' | 'Vegetarian' | 'Non-Vegetarian'>('All');
+
+  // Share prompt states
+  const [showSharePrompt, setShowSharePrompt] = useState(false);
+  const [sharePromptRecipe, setSharePromptRecipe] = useState<SavedRecipe | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -142,44 +147,126 @@ function HistoryContent() {
     }
   };
 
-  const handleShare = async (recipeId: string, isExplore: boolean) => {
-    const baseUrl = window.location.origin;
-    const shareUrl = isExplore
-      ? `${baseUrl}/explore/recipe/${recipeId}`
-      : `${baseUrl}/recipe/${recipeId}`;
+  const handleShare = async (recipe: SavedRecipe) => {
+    if (!recipe.id) return;
 
-    const shareData = {
-      title: 'Check out this recipe on Cooking Lab!',
-      text: 'I found this amazing recipe on Cooking Lab — AI powered recipe generator!',
-      url: shareUrl,
-    };
+    // Case 2 — Recipe already shared to Explore
+    // Share the public explore link directly
+    if (recipe.isPublic) {
+      const shareUrl = `${window.location.origin}/explore/recipe/${recipe.id}`;
+      
+      const shareData = {
+        title: `${recipe.recipeName} — Cooking Lab`,
+        text: `Check out this amazing recipe on Cooking Lab!`,
+        url: shareUrl,
+      };
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link Copied! 🔗",
-          description: "Recipe link copied to clipboard.",
-          duration: 2000,
-        });
-      }
-    } catch (error) {
       try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link Copied! 🔗",
-          description: "Recipe link copied to clipboard.",
-          duration: 2000,
-        });
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          await navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Link Copied! 🔗",
+            description: "Public recipe link copied to clipboard.",
+            duration: 2000,
+          });
+        }
       } catch {
-        toast({
-          variant: "destructive",
-          title: "Could not share",
-          description: "Please copy the link manually.",
-        });
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Link Copied! 🔗",
+            description: "Public recipe link copied to clipboard.",
+            duration: 2000,
+          });
+        } catch {
+          toast({
+            variant: "destructive",
+            title: "Could not share",
+            description: "Please try again.",
+          });
+        }
       }
+      return;
+    }
+
+    // Case 1 — Recipe NOT shared to Explore
+    // Show modal asking to share to Explore first
+    setSharePromptRecipe(recipe);
+    setShowSharePrompt(true);
+  };
+
+  const handleShareToExploreAndShare = async () => {
+    if (!user || !sharePromptRecipe?.id) return;
+    
+    setIsSharing(true);
+    
+    try {
+      // Step 1 — Share to Explore first
+      await shareRecipePublic(
+        user.uid,
+        user.displayName || 'Anonymous Chef',
+        sharePromptRecipe.id,
+        sharePromptRecipe
+      );
+      
+      // Step 2 — Update local state
+      setRecipes(prev => prev.map(r =>
+        r.id === sharePromptRecipe.id
+          ? { ...r, isPublic: true }
+          : r
+      ));
+      
+      // Step 3 — Close modal
+      setShowSharePrompt(false);
+      
+      // Step 4 — Share the public explore link
+      const shareUrl = `${window.location.origin}/explore/recipe/${sharePromptRecipe.id}`;
+      
+      const shareData = {
+        title: `${sharePromptRecipe.recipeName} — Cooking Lab`,
+        text: `Check out this amazing recipe on Cooking Lab!`,
+        url: shareUrl,
+      };
+
+      toast({
+        title: "Recipe Shared to Explore! 🌍",
+        description: "Now sharing the public link...",
+        duration: 2000,
+      });
+
+      setTimeout(async () => {
+        try {
+          if (navigator.share) {
+            await navigator.share(shareData);
+          } else {
+            await navigator.clipboard.writeText(shareUrl);
+            toast({
+              title: "Link Copied! 🔗",
+              description: "Public recipe link copied.",
+              duration: 2000,
+            });
+          }
+        } catch {
+          await navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Link Copied! 🔗",
+            description: "Public recipe link copied.",
+            duration: 2000,
+          });
+        }
+      }, 500);
+
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Could not share",
+        description: "Please try again.",
+      });
+    } finally {
+      setIsSharing(false);
+      setSharePromptRecipe(null);
     }
   };
 
@@ -277,7 +364,7 @@ function HistoryContent() {
                     />
                   </button>
                   <button
-                    onClick={() => recipe.id && handleShare(recipe.id, false)}
+                    onClick={() => handleShare(recipe)}
                     className="text-muted-foreground hover:text-primary transition-colors"
                     title="Share recipe link"
                   >
@@ -362,6 +449,176 @@ function HistoryContent() {
           <Button asChild className="bg-primary text-white font-bold h-12 px-8 rounded-xl shadow-lg hover:shadow-primary/20 transition-all">
             <Link href="/">Generate Your First Recipe</Link>
           </Button>
+        </div>
+      )}
+
+      {/* Share Prompt Modal */}
+      {showSharePrompt && sharePromptRecipe && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.6)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={() => {
+            setShowSharePrompt(false);
+            setSharePromptRecipe(null);
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "420px",
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {/* Close Icon */}
+            <button
+              onClick={() => {
+                setShowSharePrompt(false);
+                setSharePromptRecipe(null);
+              }}
+              style={{
+                position: "absolute",
+                top: "16px",
+                right: "16px",
+                color: "var(--muted-foreground)",
+                cursor: "pointer",
+              }}
+            >
+              <X style={{ width: "20px", height: "20px" }} />
+            </button>
+
+            {/* Icon */}
+            <div style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "12px",
+              background: "rgba(37,99,235,0.1)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "20px",
+            }}>
+              <Share2 
+                style={{ 
+                  width: "24px", 
+                  height: "24px", 
+                  color: "#2563eb" 
+                }} 
+              />
+            </div>
+
+            {/* Title */}
+            <h3 style={{
+              fontSize: "18px",
+              fontWeight: 700,
+              color: "var(--foreground)",
+              marginBottom: "8px",
+            }}>
+              Share this recipe?
+            </h3>
+
+            {/* Description */}
+            <p style={{
+              fontSize: "14px",
+              color: "var(--muted-foreground)",
+              lineHeight: 1.6,
+              marginBottom: "24px",
+            }}>
+              <strong style={{ color: "var(--foreground)" }}>
+                {sharePromptRecipe.recipeName}
+              </strong>
+              {" "}is currently private. To share it 
+              with others, it needs to be published 
+              to Explore first — then anyone with 
+              the link can view it.
+            </p>
+
+            {/* Buttons */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+            }}>
+              {/* Primary — Share to Explore and share link */}
+              <button
+                onClick={handleShareToExploreAndShare}
+                disabled={isSharing}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: "#2563eb",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  cursor: isSharing ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  opacity: isSharing ? 0.7 : 1,
+                  transition: "opacity 0.2s",
+                }}
+              >
+                {isSharing ? (
+                  <>
+                    <Loader2 
+                      style={{ 
+                        width: "16px", 
+                        height: "16px",
+                      }} 
+                      className="animate-spin"
+                    />
+                    Publishing to Explore...
+                  </>
+                ) : (
+                  <>
+                    <Globe 
+                      style={{ width: "16px", height: "16px" }} 
+                    />
+                    Publish to Explore & Share Link
+                  </>
+                )}
+              </button>
+
+              {/* Secondary — Cancel */}
+              <button
+                onClick={() => {
+                  setShowSharePrompt(false);
+                  setSharePromptRecipe(null);
+                }}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  background: "transparent",
+                  color: "var(--muted-foreground)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
