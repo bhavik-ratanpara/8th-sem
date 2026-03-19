@@ -7,6 +7,7 @@ import {
   getPublicRecipes,
   unshareRecipePublic,
   saveFromExplore,
+  getSavedRecipes,
   type SavedRecipe
 } from '@/lib/save-recipe'
 import { Button } from '@/components/ui/button'
@@ -53,10 +54,26 @@ export default function ExploreRecipeDetailPage() {
       router.push('/login')
       return
     }
-    if (!recipe) return
+    if (!recipe || isSaved) return
 
     setIsSaving(true)
     try {
+      // Check if already saved
+      const existingRecipes = await getSavedRecipes(user.uid)
+      const alreadySaved = existingRecipes.some(r =>
+        r.originalSharedBy === recipe.sharedBy &&
+        r.recipeName === recipe.recipeName
+      )
+
+      if (alreadySaved) {
+        setIsSaved(true)
+        toast({
+          title: "Already in Cookbook",
+          description: "You already have this recipe saved.",
+        })
+        return
+      }
+
       await saveFromExplore(
         user.uid,
         user.displayName || 'Chef',
@@ -163,10 +180,15 @@ export default function ExploreRecipeDetailPage() {
             <Button
               onClick={handleSaveToCookbook}
               disabled={isSaving || isSaved}
-              className="bg-primary text-white font-bold"
+              className={cn(
+                "bg-primary text-white font-bold",
+                isSaved && "bg-green-600 hover:bg-green-700"
+              )}
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : isSaved ? (
+                null
               ) : (
                 <BookMarked className="h-4 w-4 mr-2" />
               )}

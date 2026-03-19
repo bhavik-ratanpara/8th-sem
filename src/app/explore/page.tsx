@@ -6,6 +6,7 @@ import {
   getPublicRecipes,
   unshareRecipePublic,
   saveFromExplore,
+  getSavedRecipes,
   type SavedRecipe 
 } from '@/lib/save-recipe'
 import { Button } from '@/components/ui/button'
@@ -107,9 +108,34 @@ export default function ExplorePage() {
 
     if (!recipe.id) return
     
+    // Check if already saved in current session
+    if (isSaved(recipe.id)) {
+      toast({
+        title: "Already Saved",
+        description: "This recipe is already in your cookbook.",
+      })
+      return
+    }
+    
     setSavingIds(prev => [...prev, recipe.id!])
     
     try {
+      // Check in Firestore if already saved previously
+      const existingRecipes = await getSavedRecipes(user.uid)
+      const alreadySaved = existingRecipes.some(r => 
+        r.originalSharedBy === recipe.sharedBy &&
+        r.recipeName === recipe.recipeName
+      )
+
+      if (alreadySaved) {
+        toast({
+          title: "Already in Cookbook",
+          description: "You already have this recipe saved.",
+        })
+        setSavedIds(prev => [...prev, recipe.id!])
+        return
+      }
+
       await saveFromExplore(
         user.uid,
         user.displayName || 'Chef',
@@ -270,7 +296,10 @@ export default function ExplorePage() {
                       size="sm"
                       onClick={() => handleSaveToCookbook(recipe)}
                       disabled={isSaving(recipe.id!) || isSaved(recipe.id!)}
-                      className="h-9 px-3 rounded-md text-[13px] font-medium border transition-colors flex items-center gap-2 flex-shrink-0 whitespace-nowrap"
+                      className={cn(
+                        "h-9 px-3 rounded-md text-[13px] font-medium border transition-colors flex items-center gap-2 flex-shrink-0 whitespace-nowrap",
+                        isSaved(recipe.id!) && "border-green-500 text-green-500 bg-green-500/10"
+                      )}
                     >
                       {isSaving(recipe.id!) ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
