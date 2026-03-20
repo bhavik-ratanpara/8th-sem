@@ -189,21 +189,18 @@ export default function ExploreRecipeDetailPage() {
           {recipe.recipeName}
         </h1>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          <span className="text-[11px] font-bold px-3 py-1 bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800">
-            {recipe.cuisine}
-          </span>
-          <span className="text-[11px] font-bold px-3 py-1 bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-full border border-green-100 dark:border-green-800">
-            {recipe.servings} Servings
-          </span>
-          <span className={cn(
-            "text-[11px] font-bold px-3 py-1 rounded-full border",
-            recipe.dietType === 'Vegetarian'
-              ? "bg-green-50 text-green-600 border-green-100 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
-              : "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800"
-          )}>
-            {recipe.dietType}
-          </span>
+        <div className="mb-6">
+          <p className="text-[14px] font-medium text-muted-foreground">
+            {recipe.cuisine} · {recipe.servings} Servings ·{' '}
+            <span className={cn(
+              "font-semibold",
+              recipe.dietType === 'Vegetarian' 
+                ? "text-green-600 dark:text-green-400" 
+                : "text-red-600 dark:text-red-400"
+            )}>
+              {recipe.dietType}
+            </span>
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
