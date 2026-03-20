@@ -34,7 +34,7 @@ export function RadarFeatures() {
       }}
     >
 
-      {/* ── OUTER ROTATING RING ── */}
+      {/* ── SINGLE OUTER ROTATING RING ── */}
       <div
         style={{
           position: 'absolute',
@@ -85,46 +85,12 @@ export function RadarFeatures() {
         </svg>
       </div>
 
-      {/* ── SECOND COUNTER ROTATING RING ── */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: '30px',
-          borderRadius: '50%',
-          animation: 'spinRingReverse 12s linear infinite',
-        }}
-      >
-        <svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 360 360"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ position: 'absolute', inset: 0 }}
-        >
-          <circle
-            cx="180"
-            cy="180"
-            r="170"
-            stroke="#60a5fa"
-            strokeWidth="0.8"
-            strokeDasharray="4 12"
-            strokeLinecap="round"
-            opacity="0.2"
-          />
-          <circle cx="180" cy="10" r="3" fill="#60a5fa" opacity="0.4"/>
-          <circle cx="350" cy="180" r="3" fill="#60a5fa" opacity="0.4"/>
-          <circle cx="180" cy="350" r="3" fill="#60a5fa" opacity="0.4"/>
-          <circle cx="10" cy="180" r="3" fill="#60a5fa" opacity="0.4"/>
-        </svg>
-      </div>
-
       {/* ── CHEF ANIMATION IN CENTER ── */}
       <div
         className="lottie-blend"
         style={{
-          width: '92%',
-          height: '92%',
+          width: '78%',
+          height: '78%',
           position: 'relative',
           zIndex: 2,
           borderRadius: '50%',
