@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import Link from 'next/navigation';
+import Link from 'next/link';
 import { RadarFeatures } from '@/components/RadarFeatures';
 
 const words = [
