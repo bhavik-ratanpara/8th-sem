@@ -59,7 +59,10 @@ export function TypewriterHero() {
   }, [currentWord, isDeleting, wordIndex]);
 
   const handleScrollToForm = () => {
-    document.getElementById('recipe-form')?.scrollIntoView({ behavior: 'smooth' });
+    const element = document.getElementById('recipe-form');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -67,7 +70,7 @@ export function TypewriterHero() {
       {/* Left Side - Content */}
       <div 
         style={{ flex: '0 0 50%' }}
-        className="flex flex-col items-start text-left md:pl-24"
+        className="flex flex-col items-start text-left md:pl-40"
       >
         <h1 
           className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
