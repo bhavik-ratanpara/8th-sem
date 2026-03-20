@@ -52,13 +52,13 @@ export function RadarFeatures() {
           xmlns="http://www.w3.org/2000/svg"
           style={{ position: 'absolute', inset: 0 }}
         >
-          {/* Outer dashed circle */}
+          {/* Outer dashed circle - thickness decreased to 0.8 */}
           <circle
             cx="210"
             cy="210"
             r="200"
             stroke="#2563eb"
-            strokeWidth="1.5"
+            strokeWidth="0.8"
             strokeDasharray="8 6"
             strokeLinecap="round"
             opacity="0.4"
@@ -69,7 +69,7 @@ export function RadarFeatures() {
             cy="210"
             r="185"
             stroke="#2563eb"
-            strokeWidth="0.5"
+            strokeWidth="0.4"
             opacity="0.15"
           />
           {/* Dot markers on ring */}
@@ -89,8 +89,8 @@ export function RadarFeatures() {
       <div
         className="lottie-blend"
         style={{
-          width: '78%',
-          height: '78%',
+          width: '90%',
+          height: '90%',
           position: 'relative',
           zIndex: 2,
           borderRadius: '50%',
