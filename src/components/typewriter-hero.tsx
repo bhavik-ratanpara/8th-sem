@@ -106,7 +106,7 @@ export function TypewriterHero() {
               className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
               style={{ 
                 fontFamily: "'Cal Sans', Inter, sans-serif", 
-                fontSize: 'clamp(20px, 5vw, 56px)' 
+                fontSize: 'clamp(28px, 8vw, 56px)' 
               }}
             >
               <span className="block text-foreground">Cook Smarter,</span>
@@ -123,7 +123,7 @@ export function TypewriterHero() {
               className="mt-8 md:mt-12 font-normal leading-[1.6] md:leading-[1.8] text-muted-foreground max-w-full md:max-w-[420px] block"
               style={{ 
                 fontFamily: "'Crustaceans Signature', cursive",
-                fontSize: 'clamp(13px, 3vw, 22px)',
+                fontSize: 'clamp(16px, 4.5vw, 22px)',
                 marginBottom: '0px'
               }}
             >
@@ -135,7 +135,7 @@ export function TypewriterHero() {
                 display: 'flex',
                 flexDirection: 'row',
                 gap: '8px',
-                marginTop: '92px',
+                marginTop: '56px',
                 flexWrap: 'nowrap',
                 alignItems: 'center',
               }}
