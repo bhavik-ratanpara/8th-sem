@@ -66,66 +66,104 @@ export function TypewriterHero() {
   };
 
   return (
-    <section className="w-full flex flex-row items-center justify-center pt-6 md:pt-12 px-4 pb-0 min-h-fit md:min-h-[520px] bg-background overflow-hidden gap-2">
-      {/* Left Side - Content */}
-      <div 
-        style={{ flex: '0 0 50%' }}
-        className="flex flex-col items-start text-left md:pl-40"
+    <section
+      style={{
+        display: "flex",
+        width: "100%",
+        minHeight: "520px",
+        paddingTop: "48px",
+        paddingBottom: "48px",
+        background: "transparent",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        className="flex flex-col md:flex-row"
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          maxWidth: "960px",
+          margin: "0 auto",
+          gap: "24px",
+          padding: "0 32px",
+        }}
       >
-        <h1 
-          className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
-          style={{ 
-            fontFamily: "'Cal Sans', Inter, sans-serif", 
-            fontSize: 'clamp(22px, 5vw, 56px)' 
+        {/* LEFT — Text 50% */}
+        <div
+          className="w-full md:w-1/2"
+          style={{
+            flex: "0 0 50%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "inherit", // Controlled by className responsiveness
           }}
         >
-          <span className="block text-foreground">Cook Smarter,</span>
-          <span className="block min-h-[1.2em] text-primary">
-            {currentWord}
-            <span className={cn(
-              "inline-block ml-1 font-light transition-opacity duration-100", 
-              showCursor ? "opacity-100" : "opacity-0"
-            )}>|</span>
-          </span>
-        </h1>
+          <div className="flex flex-col items-center md:items-start text-center md:text-left w-full">
+            <h1 
+              className="font-extrabold leading-[1.08] tracking-[-0.04em] mb-0" 
+              style={{ 
+                fontFamily: "'Cal Sans', Inter, sans-serif", 
+                fontSize: 'clamp(22px, 5vw, 56px)' 
+              }}
+            >
+              <span className="block text-foreground">Cook Smarter,</span>
+              <span className="block min-h-[1.2em] text-primary">
+                {currentWord}
+                <span className={cn(
+                  "inline-block ml-1 font-light transition-opacity duration-100", 
+                  showCursor ? "opacity-100" : "opacity-0"
+                )}>|</span>
+              </span>
+            </h1>
 
-        <p 
-          className="mt-2 md:mt-4 font-normal leading-[1.6] md:leading-[1.8] text-muted-foreground max-w-full md:max-w-[420px] block"
-          style={{ 
-            fontFamily: "'Crustaceans Signature', cursive",
-            fontSize: 'clamp(13px, 3vw, 22px)'
-          }}
-        >
-          Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
-        </p>
+            <p 
+              className="mt-2 md:mt-4 font-normal leading-[1.6] md:leading-[1.8] text-muted-foreground max-w-full md:max-w-[420px] block"
+              style={{ 
+                fontFamily: "'Crustaceans Signature', cursive",
+                fontSize: 'clamp(13px, 3vw, 22px)'
+              }}
+            >
+              Get accurate recipes, exact quantities, and step-by-step guidance — powered by AI.
+            </p>
 
-        <div className="mt-4 md:mt-8 flex flex-row flex-wrap items-center justify-start gap-2 md:gap-[10px]">
-          <Button 
-            onClick={user ? handleScrollToForm : undefined}
-            asChild={!user}
-            className="h-auto px-[14px] py-[9px] md:h-12 md:px-7 text-[13px] md:text-sm font-semibold rounded-lg bg-primary hover:bg-primary/90 text-white border-none shadow-sm transition-all whitespace-nowrap"
-          >
-            {user ? (
-              <span>Generate a Recipe</span>
-            ) : (
-              <Link href="/signup">Generate a Recipe</Link>
-            )}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-auto px-[14px] py-[9px] md:h-12 md:px-7 text-[13px] md:text-sm font-medium rounded-lg border-border bg-transparent text-muted-foreground hover:text-foreground hover:border-foreground transition-all whitespace-nowrap"
-          >
-            See How It Works
-          </Button>
+            <div className="mt-4 md:mt-8 flex flex-row flex-wrap items-center justify-center md:justify-start gap-2 md:gap-[10px]">
+              <Button 
+                onClick={user ? handleScrollToForm : undefined}
+                asChild={!user}
+                className="h-auto px-[14px] py-[9px] md:h-12 md:px-7 text-[13px] md:text-sm font-semibold rounded-lg bg-primary hover:bg-primary/90 text-white border-none shadow-sm transition-all whitespace-nowrap"
+              >
+                {user ? (
+                  <span>Generate a Recipe</span>
+                ) : (
+                  <Link href="/signup">Generate a Recipe</Link>
+                )}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-auto px-[14px] py-[9px] md:h-12 md:px-7 text-[13px] md:text-sm font-medium rounded-lg border-border bg-transparent text-muted-foreground hover:text-foreground hover:border-foreground transition-all whitespace-nowrap"
+              >
+                See How It Works
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Right Side - Radar/Animation */}
-      <div 
-        style={{ flex: '0 0 50%' }}
-        className="flex items-center justify-start flex-shrink-0 pl-4"
-      >
-        <RadarFeatures />
+        {/* RIGHT — Animation 50% */}
+        <div
+          className="w-full md:w-1/2 mt-8 md:mt-0"
+          style={{
+            flex: "0 0 50%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div className="w-[min(280px,80vw)] md:w-full flex justify-center">
+            <RadarFeatures />
+          </div>
+        </div>
       </div>
     </section>
   );
