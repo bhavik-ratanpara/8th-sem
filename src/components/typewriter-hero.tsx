@@ -120,7 +120,7 @@ export function TypewriterHero() {
             </h1>
 
             <p 
-              className="mt-2 md:mt-4 font-normal leading-[1.6] md:leading-[1.8] text-muted-foreground max-w-full md:max-w-[420px] block"
+              className="mt-8 md:mt-12 font-normal leading-[1.6] md:leading-[1.8] text-muted-foreground max-w-full md:max-w-[420px] block"
               style={{ 
                 fontFamily: "'Crustaceans Signature', cursive",
                 fontSize: 'clamp(13px, 3vw, 22px)',
