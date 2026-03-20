@@ -90,12 +90,12 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border h-[56px]">
-      <div className="w-full flex items-center px-6 h-full">
+      <div className="w-full flex items-center px-4 md:px-6 h-full">
         {/* LEFT - Logo */}
-        <div className="flex items-center mr-8 shrink-0">
-          <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden sm:flex")}>
+        <div className="flex items-center mr-2 md:mr-8 shrink-0">
+          <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden xs:flex")}>
             <ChefHat className="h-6 w-6 text-primary" />
-            <span className="font-bold text-[16px] tracking-tight text-foreground">
+            <span className="font-bold text-[15px] md:text-[16px] tracking-tight text-foreground whitespace-nowrap">
               Cooking Lab
             </span>
           </Link>
@@ -121,17 +121,20 @@ export function Header() {
         </nav>
 
         {/* RIGHT - Actions */}
-        <div className="flex items-center ml-auto gap-2 shrink-0">
+        <div className="flex items-center ml-auto gap-1 md:gap-2 shrink-0">
           {!isUserLoading && user && (
-            <div className={cn("w-[160px] sm:w-[200px]", !isMobileSearchOpen && "hidden md:block")}>
+            <div className={cn(
+              "transition-all duration-300 overflow-hidden md:overflow-visible shrink-0",
+              isMobileSearchOpen ? "w-[150px] sm:w-[220px]" : "w-0 md:w-[180px]"
+            )}>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <div className="relative w-full">
                   <form onSubmit={handleSearch} className="flex items-center gap-2">
                     <PopoverPrimitive.Anchor asChild>
                       <Input
                         type="search"
-                        placeholder="Search recipes..."
-                        className="pr-10 h-10 bg-secondary/50 border-border text-[13px] py-1.5 px-3"
+                        placeholder="Search..."
+                        className="pr-10 h-9 md:h-10 bg-secondary/50 border-border text-[13px] py-1.5 px-3"
                         autoFocus={isMobileSearchOpen}
                         value={query}
                         onChange={(e) => {
@@ -146,7 +149,7 @@ export function Header() {
                       type="submit"
                       size="icon"
                       variant="ghost"
-                      className="absolute right-0 top-0 h-full w-10 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full w-9 md:w-10 hover:bg-transparent"
                       disabled={isLoading}
                     >
                       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4 text-muted-foreground" />}
@@ -160,12 +163,12 @@ export function Header() {
             </div>
           )}
 
-          <nav className="flex items-center gap-2">
+          <nav className="flex items-center gap-1 md:gap-2 shrink-0">
             {!isUserLoading && user && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden h-10 w-10"
+                className="md:hidden h-9 w-9"
                 onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
               >
                 {isMobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
@@ -176,7 +179,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-md hover:bg-secondary"
+                className="h-9 w-9 md:h-10 md:w-10 rounded-md hover:bg-secondary"
                 onClick={toggleTheme}
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -186,11 +189,11 @@ export function Header() {
             {!isUserLoading && !isMobileSearchOpen && (
               <>
                 {user ? (
-                  <div className="relative flex items-center gap-4" ref={dropdownRef}>
+                  <div className="relative flex items-center shrink-0" ref={dropdownRef}>
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      className="relative rounded-full overflow-hidden border border-border p-0"
+                      className="relative h-9 w-9 md:h-10 md:w-10 rounded-full overflow-hidden border border-border p-0"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
                       <Avatar className="h-full w-full">
@@ -206,7 +209,7 @@ export function Header() {
                     </Button>
 
                     {dropdownOpen && (
-                      <div className="absolute right-0 top-12 w-64 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="absolute right-0 top-[48px] md:top-[52px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                         <div className="px-4 py-3 border-b border-border bg-secondary/10">
                           <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
                           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
@@ -252,13 +255,12 @@ export function Header() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex gap-2">
-                    <Link href="/explore" className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center px-4 md:hidden">Explore</Link>
-                    <Button asChild variant="ghost" size="sm" className="font-medium text-sm h-10 px-4">
+                  <div className="flex gap-2 shrink-0">
+                    <Button asChild variant="ghost" size="sm" className="font-medium text-[11px] md:text-sm h-9 md:h-10 px-2 md:px-4">
                       <Link href="/login">Sign In</Link>
                     </Button>
-                    <Button asChild size="sm" className="font-medium text-sm bg-primary text-primary-foreground h-10 px-5 rounded-md">
-                      <Link href="/signup">Start Cooking</Link>
+                    <Button asChild size="sm" className="font-medium text-[11px] md:text-sm bg-primary text-primary-foreground h-9 md:h-10 px-2 md:px-5 rounded-md">
+                      <Link href="/signup">Sign Up</Link>
                     </Button>
                   </div>
                 )}
