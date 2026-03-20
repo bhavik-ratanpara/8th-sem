@@ -89,8 +89,8 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border h-[56px]">
-      <div className="w-full flex items-center px-6 h-full">
+    <header className="sticky top-0 left-0 right-0 z-50 w-full bg-background border-b border-border h-[56px]">
+      <div className="w-full flex items-center px-6 h-full overflow-hidden">
         {/* LEFT - Logo */}
         <div className="flex items-center mr-8 shrink-0">
           <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden sm:flex")}>
@@ -121,9 +121,9 @@ export function Header() {
         </nav>
 
         {/* RIGHT - Actions */}
-        <div className="flex items-center ml-auto gap-[10px] shrink-0">
+        <div className="flex items-center ml-auto gap-2 shrink-0">
           {!isUserLoading && user && (
-            <div className={cn("w-[200px]", !isMobileSearchOpen && "hidden md:block")}>
+            <div className={cn("w-[160px] sm:w-[200px]", !isMobileSearchOpen && "hidden md:block")}>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <div className="relative w-full">
                   <form onSubmit={handleSearch} className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export function Header() {
             </div>
           )}
 
-          <nav className="flex items-center space-x-2">
+          <nav className="flex items-center gap-2">
             {!isUserLoading && user && (
               <Button
                 variant="ghost"
