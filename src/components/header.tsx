@@ -10,6 +10,7 @@ import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn } from '@/lib/utils';
 
@@ -23,6 +24,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
   
   const [isDark, setIsDark] = useState<boolean>(false);
 
@@ -88,167 +90,182 @@ export function Header() {
 
   return (
     <header className="fixed top-0 z-50 w-full bg-background border-b border-border min-h-[4rem]">
-      <div className="max-content flex h-16 items-center px-4 justify-between">
-        <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden sm:flex")}>
-          <ChefHat className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl tracking-tight text-foreground">
-            Cooking Lab
-          </span>
-        </Link>
+      <div className="max-content relative flex h-16 items-center px-4">
+        {/* LEFT - Logo */}
+        <div className="flex items-center mr-auto">
+          <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden sm:flex")}>
+            <ChefHat className="h-6 w-6 text-primary" />
+            <span className="font-bold text-xl tracking-tight text-foreground">
+              Cooking Lab
+            </span>
+          </Link>
+        </div>
 
-        <div className={cn("flex items-center space-x-2 md:space-x-4 flex-1 justify-end")}>
-            <nav className="hidden md:flex items-center gap-6 mr-6">
-              <Link href="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Home</Link>
-              <Link href="/explore" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Explore</Link>
-              {!isUserLoading && user && (
-                <Link href="/history" className="text-sm font-medium text-foreground hover:text-primary transition-colors">My Recipes</Link>
-              )}
-            </nav>
+        {/* CENTER - Nav links */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center">
+          <Link href="/" className={cn("nav-link", pathname === "/" && "active")}>
+            Home
+          </Link>
+          <span className="nav-separator">/</span>
+          <Link href="/explore" className={cn("nav-link", pathname === "/explore" && "active")}>
+            Explore
+          </Link>
+          {!isUserLoading && user && (
+            <>
+              <span className="nav-separator">/</span>
+              <Link href="/history" className={cn("nav-link", pathname.startsWith("/history") && "active")}>
+                My Recipes
+              </Link>
+            </>
+          )}
+        </nav>
 
+        {/* RIGHT - Actions */}
+        <div className="flex items-center ml-auto gap-2">
+          {!isUserLoading && user && (
+            <div className={cn("w-full max-w-[200px] md:max-w-sm", !isMobileSearchOpen && "hidden md:block")}>
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <div className="relative w-full">
+                  <form onSubmit={handleSearch} className="flex items-center gap-2">
+                    <PopoverPrimitive.Anchor asChild>
+                      <Input
+                        type="search"
+                        placeholder="Search recipes..."
+                        className="pr-10 h-10 bg-secondary/50 border-border"
+                        autoFocus={isMobileSearchOpen}
+                        value={query}
+                        onChange={(e) => {
+                          setQuery(e.target.value);
+                          if(!e.target.value.trim()){
+                            setPopoverOpen(false);
+                          }
+                        }}
+                      />
+                    </PopoverPrimitive.Anchor>
+                    <Button
+                      type="submit"
+                      size="icon"
+                      variant="ghost"
+                      className="absolute right-0 top-0 h-full w-10 hover:bg-transparent"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4 text-muted-foreground" />}
+                    </Button>
+                  </form>
+                </div>
+                <PopoverContent className="w-[calc(100vw-2rem)] md:w-[400px] mt-2 p-0 rounded-lg shadow-xl bg-popover border-border" align="end">
+                  <YoutubeSearchResults videos={videos} isLoading={isLoading} error={error} />
+                </PopoverContent>
+              </Popover>
+            </div>
+          )}
+
+          <nav className="flex items-center space-x-2">
             {!isUserLoading && user && (
-              <div className={cn("flex-1 max-w-sm", !isMobileSearchOpen && "hidden md:block")}>
-                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-                    <div className="relative w-full">
-                        <form onSubmit={handleSearch} className="flex items-center gap-2">
-                            <PopoverPrimitive.Anchor asChild>
-                                <Input
-                                    type="search"
-                                    placeholder="Search tutorials..."
-                                    className="pr-10 h-10 bg-secondary/50 border-border"
-                                    autoFocus={isMobileSearchOpen}
-                                    value={query}
-                                    onChange={(e) => {
-                                        setQuery(e.target.value);
-                                        if(!e.target.value.trim()){
-                                            setPopoverOpen(false);
-                                        }
-                                    }}
-                                />
-                            </PopoverPrimitive.Anchor>
-                            <Button
-                                type="submit"
-                                size="icon"
-                                variant="ghost"
-                                className="absolute right-0 top-0 h-full w-10 hover:bg-transparent"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4 text-muted-foreground" />}
-                            </Button>
-                        </form>
-                    </div>
-                    <PopoverContent className="w-[calc(100vw-2rem)] md:w-[400px] mt-2 p-0 rounded-lg shadow-xl bg-popover border-border" align="end">
-                        <YoutubeSearchResults videos={videos} isLoading={isLoading} error={error} />
-                    </PopoverContent>
-                </Popover>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-10 w-10"
+                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              >
+                {isMobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              </Button>
             )}
 
-            <nav className="flex items-center space-x-2">
-              {!isUserLoading && user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden h-10 w-10"
-                  onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-                >
-                  {isMobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-                </Button>
-              )}
+            {mounted && !isMobileSearchOpen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 rounded-md hover:bg-secondary"
+                onClick={toggleTheme}
+              >
+                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+            )}
 
-              {mounted && !isMobileSearchOpen && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 rounded-md hover:bg-secondary"
-                  onClick={toggleTheme}
-                >
-                  {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-              )}
+            {!isUserLoading && !isMobileSearchOpen && (
+              <>
+                {user ? (
+                  <div className="relative flex items-center gap-4" ref={dropdownRef}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="relative rounded-full overflow-hidden border border-border p-0"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                      <Avatar className="h-full w-full">
+                        <AvatarImage 
+                          src={user.photoURL || ''} 
+                          alt={user.displayName || 'User'} 
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="text-xs font-medium bg-secondary flex items-center justify-center h-full w-full">
+                          {user.displayName?.charAt(0) || user.email?.charAt(0) || <UserIcon className="h-5 w-5" />}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
 
-              {!isUserLoading && !isMobileSearchOpen && (
-                <>
-                  {user ? (
-                    <div className="relative flex items-center gap-4" ref={dropdownRef}>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="relative rounded-full overflow-hidden border border-border p-0"
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                      >
-                        <Avatar className="h-full w-full">
-                          <AvatarImage 
-                            src={user.photoURL || ''} 
-                            alt={user.displayName || 'User'} 
-                            className="object-cover"
-                          />
-                          <AvatarFallback className="text-xs font-medium bg-secondary flex items-center justify-center h-full w-full">
-                            {user.displayName?.charAt(0) || user.email?.charAt(0) || <UserIcon className="h-5 w-5" />}
-                          </AvatarFallback>
-                        </Avatar>
-                      </Button>
-
-                      {dropdownOpen && (
-                        <div className="absolute right-0 top-12 w-64 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="px-4 py-3 border-b border-border bg-secondary/10">
-                            <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
-                            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                          </div>
-                          
-                          <div className="p-1">
-                            <Link 
-                              href="/history" 
-                              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
-                              onClick={() => setDropdownOpen(false)}
-                            >
-                              <BookMarked className="h-4 w-4 text-primary" />
-                              My Recipes
-                            </Link>
-                            <Link 
-                              href="/history?filter=favourite" 
-                              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
-                              onClick={() => setDropdownOpen(false)}
-                            >
-                              <Star className="h-4 w-4 text-amber-500" />
-                              Favourites
-                            </Link>
-                            <Link 
-                              href="/explore" 
-                              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors md:hidden"
-                              onClick={() => setDropdownOpen(false)}
-                            >
-                              <Globe className="h-4 w-4 text-blue-500" />
-                              Explore Feed
-                            </Link>
-                          </div>
-                          
-                          <div className="border-t border-border p-1 bg-secondary/5">
-                            <button 
-                              onClick={handleLogout}
-                              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                            >
-                              <LogOut className="h-4 w-4" />
-                              Sign Out
-                            </button>
-                          </div>
+                    {dropdownOpen && (
+                      <div className="absolute right-0 top-12 w-64 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="px-4 py-3 border-b border-border bg-secondary/10">
+                          <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Link href="/explore" className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center px-4 md:hidden">Explore</Link>
-                      <Button asChild variant="ghost" size="sm" className="font-medium text-sm h-10 px-4">
-                        <Link href="/login">Sign In</Link>
-                      </Button>
-                      <Button asChild size="sm" className="font-medium text-sm bg-primary text-primary-foreground h-10 px-5 rounded-md">
-                        <Link href="/signup">Start Cooking</Link>
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-              {isUserLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-            </nav>
+                        
+                        <div className="p-1">
+                          <Link 
+                            href="/history" 
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <BookMarked className="h-4 w-4 text-primary" />
+                            My Recipes
+                          </Link>
+                          <Link 
+                            href="/history?filter=favourite" 
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <Star className="h-4 w-4 text-amber-500" />
+                            Favourites
+                          </Link>
+                          <Link 
+                            href="/explore" 
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors md:hidden"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <Globe className="h-4 w-4 text-blue-500" />
+                            Explore Feed
+                          </Link>
+                        </div>
+                        
+                        <div className="border-t border-border p-1 bg-secondary/5">
+                          <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Sign Out
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Link href="/explore" className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center px-4 md:hidden">Explore</Link>
+                    <Button asChild variant="ghost" size="sm" className="font-medium text-sm h-10 px-4">
+                      <Link href="/login">Sign In</Link>
+                    </Button>
+                    <Button asChild size="sm" className="font-medium text-sm bg-primary text-primary-foreground h-10 px-5 rounded-md">
+                      <Link href="/signup">Start Cooking</Link>
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+            {isUserLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+          </nav>
         </div>
       </div>
     </header>
