@@ -74,7 +74,7 @@ export function FoodDecorations() {
         overflow: 'hidden',
       }}
     >
-      {/* LEFT SVG LINE — Shallower curves as requested */}
+      {/* LEFT SVG LINE — Shallower curves */}
       <svg
         className="hidden lg:block"
         style={{
@@ -162,21 +162,21 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* LEFT SIDE FOOD — Distributed for full visibility */}
+      {/* LEFT SIDE FOOD — 4 Items */}
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '20px', '20px')}>
         <img src="/pizza.png" alt="" style={imgStyle('220px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '300px', '85px')}>
-        <img src="/garlicbread.png" alt="" style={imgStyle('190px')} />
+        <img src="/sandwich.png" alt="" style={imgStyle('190px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '620px', '15px')}>
         <img src="/sub.png" alt="" style={imgStyle('160px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '950px', '75px')}>
-        <img src="/sandwich.png" alt="" style={imgStyle('175px')} />
+        <img src="/garlicbread.png" alt="" style={imgStyle('175px')} />
       </div>
 
-      {/* RIGHT SIDE FOOD — Distributed for full visibility */}
+      {/* RIGHT SIDE FOOD — 3 Items */}
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '20px', '20px')}>
         <img src="/burger.png" alt="" style={imgStyle('225px')} />
       </div>
