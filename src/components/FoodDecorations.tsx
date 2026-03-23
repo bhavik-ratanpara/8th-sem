@@ -1,74 +1,67 @@
-'use client';
-import { useEffect, useRef } from 'react';
+'use client'
 
-/**
- * @fileOverview FoodDecorations component
- * Adds flowing decorative lines and food images to the sides of the page.
- */
+import { useEffect, useRef } from 'react'
 
 export function FoodDecorations() {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current
+    if (!el) return
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return;
+        if (!entry.isIntersecting) return
 
-        // Step 1 — draw lines first
         el.querySelectorAll('.food-line').forEach((line, i) => {
           setTimeout(() => {
-            (line as HTMLElement).style.strokeDashoffset = '0';
-          }, i * 180);
-        });
+            ;(line as HTMLElement).style.strokeDashoffset = '0'
+          }, i * 180)
+        })
 
-        // Step 2 — slide left food in
         el.querySelectorAll('.food-left-wrapper').forEach((item, i) => {
           setTimeout(() => {
-            const f = item as HTMLElement;
-            f.style.opacity = '1';
-            f.style.transform = 'translateX(0px)';
-          }, 500 + i * 150);
-        });
+            const f = item as HTMLElement
+            f.style.opacity = '1'
+            f.style.transform = 'translateX(0px)'
+          }, 500 + i * 150)
+        })
 
-        // Step 3 — slide right food in
         el.querySelectorAll('.food-right-wrapper').forEach((item, i) => {
           setTimeout(() => {
-            const f = item as HTMLElement;
-            f.style.opacity = '1';
-            f.style.transform = 'translateX(0px)';
-          }, 500 + i * 150);
-        });
+            const f = item as HTMLElement
+            f.style.opacity = '1'
+            f.style.transform = 'translateX(0px)'
+          }, 500 + i * 150)
+        })
 
-        observer.disconnect();
+        observer.disconnect()
       },
       { threshold: 0.03 }
-    );
+    )
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const wrapperStyle = (isLeft: boolean, top: string, offset: string): React.CSSProperties => ({
     position: 'absolute',
     top,
     [isLeft ? 'left' : 'right']: offset,
     opacity: 0,
-    transform: isLeft ? 'translateX(-90px)' : 'translateX(90px)',
+    transform: `translateX(${isLeft ? '-90px' : '90px'})`,
     transition: 'opacity 0.6s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
     pointerEvents: 'none',
     zIndex: 0,
-  });
+  })
 
   const imgStyle = (width: string): React.CSSProperties => ({
     width,
     height: 'auto',
     display: 'block',
-    filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.25))',
+    filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))',
     objectFit: 'contain',
-  });
+  })
 
   return (
     <div
@@ -81,11 +74,7 @@ export function FoodDecorations() {
         overflow: 'hidden',
       }}
     >
-      {/* ══════════════════════════════════ */}
-      {/* LEFT SVG LINE                      */}
-      {/* Curves outward at 120, 600, 1050   */}
-      {/* Curves inward at 360, 840          */}
-      {/* ══════════════════════════════════ */}
+      {/* LEFT SVG LINE */}
       <svg
         className="hidden lg:block"
         style={{
@@ -129,9 +118,7 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* ══════════════════════════════════ */}
-      {/* RIGHT SVG LINE — mirror of left    */}
-      {/* ══════════════════════════════════ */}
+      {/* RIGHT SVG LINE */}
       <svg
         className="hidden lg:block"
         style={{
@@ -175,40 +162,36 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* ══════════════════════════════════ */}
-      {/* LEFT FOOD                          */}
-      {/* ══════════════════════════════════ */}
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '80px', '90px')}>
-        <img src="/pizza.png" alt="pizza" style={imgStyle('220px')} />
+      {/* LEFT SIDE FOOD */}
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '20px', '90px')}>
+        <img src="/pizza.png" alt="" style={imgStyle('220px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '555px', '85px')}>
-        <img src="/sandwich.png" alt="sandwich" style={imgStyle('190px')} />
+        <img src="/sandwich.png" alt="" style={imgStyle('190px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '750px', '55px')}>
-        <img src="/sub.png" alt="sub" style={imgStyle('160px')} />
+        <img src="/sub.png" alt="" style={imgStyle('160px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '1000px', '75px')}>
-        <img src="/garlicbread.png" alt="garlicbread" style={imgStyle('175px')} />
+        <img src="/garlicbread.png" alt="" style={imgStyle('175px')} />
       </div>
 
-      {/* ══════════════════════════════════ */}
-      {/* RIGHT FOOD                         */}
-      {/* ══════════════════════════════════ */}
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '80px', '20px')}>
-        <img src="/burger.png" alt="burger" style={imgStyle('225px')} />
+      {/* RIGHT SIDE FOOD */}
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '20px', '20px')}>
+        <img src="/burger.png" alt="" style={imgStyle('225px')} />
       </div>
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '320px', '55px')}>
-        <img src="/chilli.png" alt="chilli" style={imgStyle('135px')} />
+        <img src="/chilli.png" alt="" style={imgStyle('135px')} />
       </div>
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '555px', '20px')}>
-        <img src="/sushi.png" alt="sushi" style={imgStyle('190px')} />
+        <img src="/sushi.png" alt="" style={imgStyle('190px')} />
       </div>
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '790px', '45px')}>
-        <img src="/mousse.png" alt="mousse" style={imgStyle('150px')} />
+        <img src="/mousse.png" alt="" style={imgStyle('150px')} />
       </div>
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '1000px', '20px')}>
-        <img src="/sundae.png" alt="sundae" style={imgStyle('180px')} />
+        <img src="/sundae.png" alt="" style={imgStyle('180px')} />
       </div>
     </div>
-  );
+  )
 }
