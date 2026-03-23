@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useEffect, useRef } from 'react'
@@ -74,7 +75,7 @@ export function FoodDecorations() {
         overflow: 'hidden',
       }}
     >
-      {/* LEFT SVG LINE */}
+      {/* LEFT SVG LINE — Smooth Curves */}
       <svg
         className="hidden lg:block"
         style={{
@@ -92,7 +93,7 @@ export function FoodDecorations() {
       >
         <path
           className="food-line"
-          d="M 30 0 C 30 100, 140 150, 140 300 C 140 450, 30 500, 30 650 C 30 800, 140 850, 140 1000 C 140 1150, 30 1200, 30 1400"
+          d="M 30 0 C 30 100, 140 150, 140 300 C 140 450, 30 500, 30 650 C 30 800, 140 850, 140 1000"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeOpacity="0.2"
@@ -105,7 +106,7 @@ export function FoodDecorations() {
         />
         <path
           className="food-line"
-          d="M 50 0 C 50 100, 160 150, 160 300 C 160 450, 50 500, 50 650 C 50 800, 160 850, 160 1000 C 160 1150, 50 1200, 50 1400"
+          d="M 50 0 C 50 100, 160 150, 160 300 C 160 450, 50 500, 50 650"
           stroke="currentColor"
           strokeWidth="0.7"
           strokeOpacity="0.08"
@@ -118,7 +119,7 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* RIGHT SVG LINE */}
+      {/* RIGHT SVG LINE — Smooth Curves */}
       <svg
         className="hidden lg:block"
         style={{
@@ -136,7 +137,7 @@ export function FoodDecorations() {
       >
         <path
           className="food-line"
-          d="M 180 0 C 180 100, 70 150, 70 300 C 70 450, 180 500, 180 650 C 180 800, 70 850, 70 1000 C 70 1150, 180 1200, 180 1400"
+          d="M 180 0 C 180 100, 70 150, 70 300 C 70 450, 180 500, 180 650 C 180 800, 70 850, 70 1000"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeOpacity="0.2"
@@ -149,7 +150,7 @@ export function FoodDecorations() {
         />
         <path
           className="food-line"
-          d="M 160 0 C 160 100, 50 150, 50 300 C 50 450, 160 500, 160 650 C 160 800, 50 850, 50 1000 C 50 1150, 160 1200, 160 1400"
+          d="M 160 0 C 160 100, 50 150, 50 300 C 50 450, 160 500, 160 650"
           stroke="currentColor"
           strokeWidth="0.7"
           strokeOpacity="0.08"
@@ -162,26 +163,26 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* LEFT SIDE FOOD — 3 Items (Matched to markings) */}
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '20px', '20px')}>
-        <img src="/pizza.png" alt="pizza" style={imgStyle('220px')} />
+      {/* LEFT SIDE FOOD — 3 Items (Aligned with marks) */}
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '60px', '20px')}>
+        <img src="/pizza.png" alt="pizza" style={imgStyle('160px')} />
       </div>
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '300px', '85px')}>
-        <img src="/sandwich.png" alt="sandwich" style={imgStyle('190px')} />
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '250px', '85px')}>
+        <img src="/garlicbread.png" alt="garlic bread" style={imgStyle('140px')} />
       </div>
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '620px', '15px')}>
-        <img src="/sub.png" alt="sub" style={imgStyle('160px')} />
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '520px', '15px')}>
+        <img src="/sub.png" alt="sub" style={imgStyle('130px')} />
       </div>
 
-      {/* RIGHT SIDE FOOD — 3 Items (Matched to markings) */}
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '20px', '20px')}>
-        <img src="/burger.png" alt="burger" style={imgStyle('225px')} />
+      {/* RIGHT SIDE FOOD — 3 Items (Aligned with marks) */}
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '60px', '20px')}>
+        <img src="/burger.png" alt="burger" style={imgStyle('165px')} />
       </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '300px', '85px')}>
-        <img src="/chilli.png" alt="chilli" style={imgStyle('135px')} />
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '250px', '85px')}>
+        <img src="/chilli.png" alt="chilli" style={imgStyle('110px')} />
       </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '620px', '15px')}>
-        <img src="/sushi.png" alt="sushi" style={imgStyle('190px')} />
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '520px', '15px')}>
+        <img src="/sushi.png" alt="sushi" style={imgStyle('155px')} />
       </div>
     </div>
   )
