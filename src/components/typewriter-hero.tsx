@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { RadarFeatures } from '@/components/RadarFeatures';
+import { FoodDecorations } from '@/components/FoodDecorations';
 
 const words = [
   'Not Harder.',
@@ -67,7 +68,7 @@ export function TypewriterHero() {
 
   return (
     <section
-      className="flex flex-row items-center py-4 md:py-12 px-0 md:pl-[60px] min-h-0 md:min-h-[540px]"
+      className="flex flex-row items-center py-4 md:py-12 px-0 md:pl-[60px] min-h-0 md:min-h-[540px] relative overflow-hidden"
       style={{
         display: "flex",
         width: "100%",
@@ -75,11 +76,12 @@ export function TypewriterHero() {
         background: "transparent",
         justifyContent: "center",
         marginBottom: '32px',
-        overflow: 'hidden'
       }}
     >
+      <FoodDecorations />
+      
       <div
-        className="flex flex-row"
+        className="flex flex-row relative z-10"
         style={{
           alignItems: "center",
           justifyContent: "center",
