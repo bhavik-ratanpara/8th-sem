@@ -179,15 +179,49 @@ export default function ExplorePage() {
       })
       return
     }
-    
+
     if (likingId) return
+
+    const alreadyLiked = isRecipeLikedByUser(
+      recipe, user.uid
+    )
+
+    // UPDATE UI INSTANTLY — dont wait server
+    setRecipes(prev => prev.map(r => {
+      if (r.id !== recipe.id) return r
+      return {
+        ...r,
+        likes: alreadyLiked
+          ? Math.max(0, (r.likes || 0) - 1)
+          : (r.likes || 0) + 1,
+        likedBy: alreadyLiked
+          ? (r.likedBy || []).filter(
+              (id: string) => id !== user.uid
+            )
+          : [...(r.likedBy || []), user.uid]
+      }
+    }))
+
+    // THEN update server in background
     setLikingId(recipe.id)
-    
     try {
       await toggleRecipeLike(recipe.id, user.uid)
-      // Refresh recipes to show updated count
-      fetchRecipes()
     } catch (error) {
+      // If server fails — revert UI back
+      setRecipes(prev => prev.map(r => {
+        if (r.id !== recipe.id) return r
+        return {
+          ...r,
+          likes: alreadyLiked
+            ? (r.likes || 0) + 1
+            : Math.max(0, (r.likes || 0) - 1),
+          likedBy: alreadyLiked
+            ? [...(r.likedBy || []), user.uid]
+            : (r.likedBy || []).filter(
+                (id: string) => id !== user.uid
+              )
+        }
+      }))
       toast({
         title: 'Failed to like recipe',
         variant: 'destructive'
