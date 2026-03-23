@@ -290,7 +290,7 @@ export default function ExplorePage() {
           {filteredRecipes.map((recipe) => (
             <div
               key={recipe.id}
-              className="group relative bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-xl hover:border-primary/50 hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+              className="group relative bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full"
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-1.5">
@@ -314,7 +314,7 @@ export default function ExplorePage() {
                 </button>
               </div>
 
-              <h3 className="font-bold text-lg text-foreground line-clamp-2 mb-2">
+              <h3 className="font-bold text-base text-foreground line-clamp-2 mb-2 pr-2">
                 {recipe.recipeName}
               </h3>
 
@@ -333,16 +333,16 @@ export default function ExplorePage() {
               </div>
 
               <div className="mt-auto space-y-4">
-                <p className="text-[12px] text-muted-foreground font-medium">
+                <p className="text-[11px] text-muted-foreground font-medium">
                   Shared on{' '}
                   {recipe.sharedAt?.toDate ? format(recipe.sharedAt.toDate(), 'dd MMM yyyy') : 'Recently'}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2 mt-4">
-                  <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-5 rounded-lg flex-1 flex-shrink-0 whitespace-nowrap">
+                  <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-md flex-1 flex-shrink-0 whitespace-nowrap">
                     <Link href={`/explore/recipe/${recipe.id}`}>
                       View Recipe
-                      <ArrowRight className="ml-2 h-3 w-3" />
+                      <ArrowRight className="ml-1.5 h-3 w-3" />
                     </Link>
                   </Button>
 
@@ -378,7 +378,7 @@ export default function ExplorePage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleRemoveFromExplore(recipe)}
-                      className="h-9 px-3 border-destructive text-destructive hover:bg-destructive/10 rounded-lg flex-shrink-0 whitespace-nowrap"
+                      className="h-9 px-3 border-destructive text-destructive hover:bg-destructive/10 rounded-md flex-shrink-0 whitespace-nowrap"
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
                       Remove
