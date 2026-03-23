@@ -90,30 +90,30 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border h-[56px]">
-      <div className="w-full flex items-center px-4 md:px-6 h-full">
+      <div className="w-full flex items-center px-8 h-full">
         {/* LEFT - Logo */}
-        <div className="flex items-center mr-2 md:mr-8 shrink-0">
+        <div className="flex-shrink-0">
           <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden xs:flex")}>
             <ChefHat className="h-6 w-6 text-primary" />
-            <span className="font-bold text-[17px] md:text-[18px] tracking-tight text-foreground whitespace-nowrap">
+            <span className="font-bold text-[18px] tracking-tight text-foreground whitespace-nowrap">
               Cooking Lab
             </span>
           </Link>
         </div>
 
         {/* MIDDLE - Nav links */}
-        <nav className="hidden md:flex flex-1 items-center h-full">
-          <Link href="/" className={cn("nav-link", pathname === "/" && "active")}>
+        <nav className="hidden md:flex flex-1 items-center ml-8 h-full">
+          <Link href="/" className={cn("nav-link text-[16px]", pathname === "/" && "active")}>
             Home
           </Link>
           <span className="nav-separator">/</span>
-          <Link href="/explore" className={cn("nav-link", pathname === "/explore" && "active")}>
+          <Link href="/explore" className={cn("nav-link text-[16px]", pathname === "/explore" && "active")}>
             Explore
           </Link>
           {!isUserLoading && user && (
             <>
               <span className="nav-separator">/</span>
-              <Link href="/history" className={cn("nav-link", pathname.startsWith("/history") && "active")}>
+              <Link href="/history" className={cn("nav-link text-[16px]", pathname.startsWith("/history") && "active")}>
                 My Recipes
               </Link>
             </>
@@ -121,7 +121,7 @@ export function Header() {
         </nav>
 
         {/* RIGHT - Actions */}
-        <div className="flex items-center ml-auto gap-1 md:gap-2 shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {!isUserLoading && user && (
             <div className={cn(
               "transition-all duration-300 overflow-hidden md:overflow-visible shrink-0",
