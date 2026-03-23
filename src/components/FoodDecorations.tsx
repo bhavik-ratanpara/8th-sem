@@ -143,7 +143,7 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* LEFT SIDE FOOD — Uses xl:block to hide when screen space is tight */}
+      {/* LEFT SIDE FOOD — Visible on xl screens and above */}
       <div className="food-left-wrapper hidden xl:block" style={wrapperStyle(true, '5px', '20px')}>
         <img src="/pizza.png" alt="pizza" style={imgStyle('320px')} />
       </div>
@@ -152,11 +152,11 @@ export function FoodDecorations() {
       </div>
       
 
-      {/* RIGHT SIDE FOOD — Uses xl:block to hide when screen space is tight */}
-      <div className="food-right-wrapper hidden xl:block" style={wrapperStyle(false, '5px', '20px')}>
+      {/* RIGHT SIDE FOOD — Visible on xl screens and above */}
+      <div className="food-right-wrapper hidden xl:block" style={wrapperStyle(false, '0px', '20px')}>
         <img src="/burger.png" alt="burger" style={imgStyle('330px')} />
       </div>
-      <div className="food-right-wrapper hidden xl:block" style={wrapperStyle(false, '350px', '15px')}>
+      <div className="food-right-wrapper hidden xl:block" style={wrapperStyle(false, '280px', '15px')}>
         <img src="/sushi.png" alt="sushi" style={imgStyle('290px')} />
       </div>
     </div>
