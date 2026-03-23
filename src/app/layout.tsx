@@ -77,9 +77,22 @@ export default function RootLayout({
                 <div className="border-t border-border mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-muted-foreground">
                   <div>&copy; {new Date().getFullYear()} Cooking Lab Academy. Engineered for excellence.</div>
                   <div className="flex gap-8">
-                    <span className="cursor-pointer hover:text-foreground transition-colors">Twitter</span>
-                    <span className="cursor-pointer hover:text-foreground transition-colors">GitHub</span>
-                    <span className="cursor-pointer hover:text-foreground transition-colors">LinkedIn</span>
+                    <a 
+                      href="https://github.com/bhavik-ratanpara"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      GitHub
+                    </a>
+                    <a 
+                      href="https://www.linkedin.com/in/bhavik-ratanpara-500011377/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-foreground transition-colors"
+                    >
+                      LinkedIn
+                    </a>
                   </div>
                 </div>
               </div>
