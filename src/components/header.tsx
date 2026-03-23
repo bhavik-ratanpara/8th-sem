@@ -90,7 +90,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full h-[52px] bg-background border-b border-border">
-      <div className="flex items-center w-full h-full px-6 overflow-hidden relative">
+      <div className="flex items-center w-full h-full px-6 relative">
         
         {/* LEFT - Logo */}
         <div className="flex-shrink-0 mr-auto">
@@ -198,10 +198,11 @@ export function Header() {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    className="h-8 w-8 md:h-9 md:w-9 rounded-full overflow-hidden border border-border p-0"
+                    className="h-11 w-11 md:h-9 md:w-9 rounded-full overflow-hidden border border-border p-0 touch-manipulation"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                   >
-                    <Avatar className="h-full w-full">
+                    <Avatar className="h-full w-full pointer-events-none">
                       <AvatarImage 
                         src={user.photoURL || ''} 
                         alt={user.displayName || 'User'} 
@@ -214,7 +215,7 @@ export function Header() {
                   </Button>
 
                   {dropdownOpen && (
-                    <div className="absolute right-0 top-[40px] md:top-[44px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 top-[48px] md:top-[44px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="px-4 py-3 border-b border-border bg-secondary/10">
                         <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
