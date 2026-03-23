@@ -89,11 +89,12 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full bg-background border-b border-border h-[56px]">
-      <div className="w-full flex items-center px-8 h-full">
+    <header className="sticky top-0 z-50 w-full h-[52px] bg-background border-b border-border">
+      <div className="flex items-center w-full h-full px-6 overflow-hidden relative">
+        
         {/* LEFT - Logo */}
-        <div className="flex-shrink-0">
-          <Link href="/" className={cn("flex items-center gap-2", isMobileSearchOpen && "hidden xs:flex")}>
+        <div className="flex-shrink-0 mr-auto">
+          <Link href="/" className="flex items-center gap-2">
             <ChefHat className="h-6 w-6 text-primary" />
             <span className="font-bold text-[18px] tracking-tight text-foreground whitespace-nowrap">
               Cooking Lab
@@ -101,19 +102,19 @@ export function Header() {
           </Link>
         </div>
 
-        {/* MIDDLE - Nav links */}
-        <nav className="hidden md:flex flex-1 items-center ml-8 h-full">
-          <Link href="/" className={cn("nav-link text-[16px]", pathname === "/" && "active")}>
+        {/* CENTER - Nav links (Desktop only) */}
+        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center h-full">
+          <Link href="/" className={cn("nav-link text-[15px]", pathname === "/" && "active")}>
             Home
           </Link>
           <span className="nav-separator">/</span>
-          <Link href="/explore" className={cn("nav-link text-[16px]", pathname === "/explore" && "active")}>
+          <Link href="/explore" className={cn("nav-link text-[15px]", pathname === "/explore" && "active")}>
             Explore
           </Link>
           {!isUserLoading && user && (
             <>
               <span className="nav-separator">/</span>
-              <Link href="/history" className={cn("nav-link text-[16px]", pathname.startsWith("/history") && "active")}>
+              <Link href="/history" className={cn("nav-link text-[15px]", pathname.startsWith("/history") && "active")}>
                 My Recipes
               </Link>
             </>
@@ -121,20 +122,22 @@ export function Header() {
         </nav>
 
         {/* RIGHT - Actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+          
+          {/* Search */}
           {!isUserLoading && user && (
             <div className={cn(
-              "transition-all duration-300 overflow-hidden md:overflow-visible shrink-0",
-              isMobileSearchOpen ? "w-[150px] sm:w-[220px]" : "w-0 md:w-[180px]"
+              "transition-all duration-300",
+              isMobileSearchOpen ? "w-[130px] sm:w-[180px]" : "w-0 md:w-[150px] overflow-hidden"
             )}>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <div className="relative w-full">
-                  <form onSubmit={handleSearch} className="flex items-center gap-2">
+                  <form onSubmit={handleSearch} className="flex items-center">
                     <PopoverPrimitive.Anchor asChild>
                       <Input
                         type="search"
                         placeholder="Search..."
-                        className="pr-10 h-9 md:h-10 bg-secondary/50 border-border text-[13px] py-1.5 px-3"
+                        className="pr-8 h-8 md:h-9 bg-secondary/50 border-border text-[12px]"
                         autoFocus={isMobileSearchOpen}
                         value={query}
                         onChange={(e) => {
@@ -149,10 +152,10 @@ export function Header() {
                       type="submit"
                       size="icon"
                       variant="ghost"
-                      className="absolute right-0 top-0 h-full w-9 md:w-10 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full w-8 hover:bg-transparent"
                       disabled={isLoading}
                     >
-                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4 text-muted-foreground" />}
+                      {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3.5 w-3.5 text-muted-foreground" />}
                     </Button>
                   </form>
                 </div>
@@ -163,111 +166,104 @@ export function Header() {
             </div>
           )}
 
-          <nav className="flex items-center gap-1 md:gap-2 shrink-0">
-            {!isUserLoading && user && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden h-9 w-9"
-                onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              >
-                {isMobileSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-              </Button>
-            )}
+          {/* Search Toggle (Mobile) */}
+          {!isUserLoading && user && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8"
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+            >
+              {isMobileSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
+            </Button>
+          )}
 
-            {mounted && !isMobileSearchOpen && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 md:h-10 md:w-10 rounded-md hover:bg-secondary"
-                onClick={toggleTheme}
-              >
-                {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-            )}
+          {/* Theme Toggle */}
+          {mounted && !isMobileSearchOpen && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 md:h-9 md:w-9"
+              onClick={toggleTheme}
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+          )}
 
-            {!isUserLoading && !isMobileSearchOpen && (
-              <>
-                {user ? (
-                  <div className="relative flex items-center shrink-0" ref={dropdownRef}>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="relative h-9 w-9 md:h-10 md:w-10 rounded-full overflow-hidden border border-border p-0"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                    >
-                      <Avatar className="h-full w-full">
-                        <AvatarImage 
-                          src={user.photoURL || ''} 
-                          alt={user.displayName || 'User'} 
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="text-xs font-medium bg-secondary flex items-center justify-center h-full w-full">
-                          {user.displayName?.charAt(0) || user.email?.charAt(0) || <UserIcon className="h-5 w-5" />}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
+          {/* Profile Dropdown */}
+          {!isUserLoading && !isMobileSearchOpen && (
+            <>
+              {user ? (
+                <div className="relative flex items-center" ref={dropdownRef}>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8 md:h-9 md:w-9 rounded-full overflow-hidden border border-border p-0"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    <Avatar className="h-full w-full">
+                      <AvatarImage 
+                        src={user.photoURL || ''} 
+                        alt={user.displayName || 'User'} 
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="text-[10px] bg-secondary flex items-center justify-center h-full w-full">
+                        {user.displayName?.charAt(0) || user.email?.charAt(0) || <UserIcon className="h-4 w-4" />}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
 
-                    {dropdownOpen && (
-                      <div className="absolute right-0 top-[48px] md:top-[52px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="px-4 py-3 border-b border-border bg-secondary/10">
-                          <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
-                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                        </div>
-                        
-                        <div className="p-1">
-                          <Link 
-                            href="/history" 
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            <BookMarked className="h-4 w-4 text-primary" />
-                            My Recipes
-                          </Link>
-                          <Link 
-                            href="/history?filter=favourite" 
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            <Star className="h-4 w-4 text-amber-500" />
-                            Favourites
-                          </Link>
-                          <Link 
-                            href="/explore" 
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors md:hidden"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            <Globe className="h-4 w-4 text-blue-500" />
-                            Explore Feed
-                          </Link>
-                        </div>
-                        
-                        <div className="border-t border-border p-1 bg-secondary/5">
-                          <button 
-                            onClick={handleLogout}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                          >
-                            <LogOut className="h-4 w-4" />
-                            Sign Out
-                          </button>
-                        </div>
+                  {dropdownOpen && (
+                    <div className="absolute right-0 top-[40px] md:top-[44px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div className="px-4 py-3 border-b border-border bg-secondary/10">
+                        <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex gap-2 shrink-0">
-                    <Button asChild variant="ghost" size="sm" className="font-medium text-[11px] md:text-sm h-9 md:h-10 px-2 md:px-4">
-                      <Link href="/login">Sign In</Link>
-                    </Button>
-                    <Button asChild size="sm" className="font-medium text-[11px] md:text-sm bg-primary text-primary-foreground h-9 md:h-10 px-2 md:px-5 rounded-md">
-                      <Link href="/signup">Sign Up</Link>
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-            {isUserLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-          </nav>
+                      
+                      <div className="p-1">
+                        <Link 
+                          href="/history" 
+                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <BookMarked className="h-4 w-4 text-primary" />
+                          My Recipes
+                        </Link>
+                        <Link 
+                          href="/history?filter=favourite" 
+                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Star className="h-4 w-4 text-amber-500" />
+                          Favourites
+                        </Link>
+                      </div>
+                      
+                      <div className="border-t border-border p-1 bg-secondary/5">
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex gap-1.5">
+                  <Button asChild variant="ghost" size="sm" className="h-8 md:h-9 text-[12px] px-2 md:px-3">
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button asChild size="sm" className="h-8 md:h-9 text-[12px] bg-primary text-primary-foreground px-2 md:px-4">
+                    <Link href="/signup">Sign Up</Link>
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+          {isUserLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
       </div>
     </header>
