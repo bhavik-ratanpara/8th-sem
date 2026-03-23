@@ -74,7 +74,7 @@ export function FoodDecorations() {
         overflow: 'hidden',
       }}
     >
-      {/* LEFT SVG LINE — Shallower curves */}
+      {/* LEFT SVG LINE — Smoother curves */}
       <svg
         className="hidden lg:block"
         style={{
@@ -118,7 +118,7 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* RIGHT SVG LINE — Shallower curves */}
+      {/* RIGHT SVG LINE — Smoother curves */}
       <svg
         className="hidden lg:block"
         style={{
@@ -162,35 +162,29 @@ export function FoodDecorations() {
         />
       </svg>
 
-      {/* LEFT SIDE FOOD — Aligned to new shallow curves */}
+      {/* LEFT SIDE FOOD — Perfectly distributed */}
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '20px', '20px')}>
         <img src="/pizza.png" alt="" style={imgStyle('220px')} />
       </div>
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '260px', '85px')}>
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '300px', '85px')}>
         <img src="/sandwich.png" alt="" style={imgStyle('190px')} />
       </div>
-      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '580px', '15px')}>
+      <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '620px', '15px')}>
         <img src="/sub.png" alt="" style={imgStyle('160px')} />
       </div>
       <div className="food-left-wrapper hidden lg:block" style={wrapperStyle(true, '950px', '75px')}>
         <img src="/garlicbread.png" alt="" style={imgStyle('175px')} />
       </div>
 
-      {/* RIGHT SIDE FOOD — Aligned to new shallow curves */}
+      {/* RIGHT SIDE FOOD — Perfectly distributed */}
       <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '20px', '20px')}>
         <img src="/burger.png" alt="" style={imgStyle('225px')} />
       </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '260px', '85px')}>
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '300px', '85px')}>
         <img src="/chilli.png" alt="" style={imgStyle('135px')} />
       </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '580px', '15px')}>
+      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '620px', '15px')}>
         <img src="/sushi.png" alt="" style={imgStyle('190px')} />
-      </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '950px', '45px')}>
-        <img src="/mousse.png" alt="" style={imgStyle('150px')} />
-      </div>
-      <div className="food-right-wrapper hidden lg:block" style={wrapperStyle(false, '1150px', '20px')}>
-        <img src="/sundae.png" alt="" style={imgStyle('180px')} />
       </div>
     </div>
   )
