@@ -67,21 +67,21 @@ export function FoodDecorations() {
       }}
     >
       <style jsx global>{`
-        /* Default Sizes for Large Screens */
-        .food-img-pizza { width: 260px; }
-        .food-img-sub { width: 210px; }
-        .food-img-burger { width: 190px; }
-        .food-img-sushi { width: 170px; }
+        /* Default Sizes for Large Screens (Windows / High-Res Desktop) */
+        .food-img-pizza { width: 220px; }
+        .food-img-sub { width: 180px; }
+        .food-img-burger { width: 160px; }
+        .food-img-sushi { width: 140px; }
 
-        /* Smaller than laptop: Decrease 2x size */
+        /* Smaller than laptop (1400px): Decrease exactly 2x size to prevent text merge */
         @media (max-width: 1400px) {
-          .food-img-pizza { width: 130px; }
-          .food-img-sub { width: 105px; }
-          .food-img-burger { width: 95px; }
-          .food-img-sushi { width: 85px; }
+          .food-img-pizza { width: 110px; }
+          .food-img-sub { width: 90px; }
+          .food-img-burger { width: 80px; }
+          .food-img-sushi { width: 70px; }
         }
 
-        /* If no empty space left: Hide all */
+        /* If no empty space left (1200px): Hide all decorations */
         @media (max-width: 1200px) {
           .food-decoration-container {
             display: none !important;
@@ -91,7 +91,6 @@ export function FoodDecorations() {
 
       <div className="food-decoration-container w-full h-full relative">
         <svg
-          className="hidden xl:block"
           style={{
             position: 'absolute',
             left: 0,
@@ -110,7 +109,7 @@ export function FoodDecorations() {
             d="M 30 0 C 30 100, 140 150, 140 300 C 140 450, 30 500, 30 650 C 30 800, 140 850, 140 1000"
             stroke="currentColor"
             strokeWidth="1.5"
-            strokeOpacity="0.2"
+            strokeOpacity="0.15"
             fill="none"
             style={{
               strokeDasharray: 4500,
@@ -121,7 +120,6 @@ export function FoodDecorations() {
         </svg>
 
         <svg
-          className="hidden xl:block"
           style={{
             position: 'absolute',
             right: 0,
@@ -140,7 +138,7 @@ export function FoodDecorations() {
             d="M 180 0 C 180 100, 70 150, 70 300 C 70 450, 180 500, 180 650 C 180 800, 70 850, 70 1000"
             stroke="currentColor"
             strokeWidth="1.5"
-            strokeOpacity="0.2"
+            strokeOpacity="0.15"
             fill="none"
             style={{
               strokeDasharray: 4500,
@@ -150,35 +148,35 @@ export function FoodDecorations() {
           />
         </svg>
 
-        {/* Left Side Items */}
-        <div className="food-left-wrapper" style={wrapperStyle(true, '5px', '20px')}>
+        {/* Left Side Items - Positioned perfectly on SVG path peaks */}
+        <div className="food-left-wrapper" style={wrapperStyle(true, '10px', '25px')}>
           <img 
             src="/pizza.png" 
             alt="pizza" 
-            className="food-img-pizza h-auto block drop-shadow-2xl object-contain" 
+            className="food-img-pizza h-auto block drop-shadow-xl object-contain" 
           />
         </div>
-        <div className="food-left-wrapper" style={wrapperStyle(true, '240px', '-12px')}>
+        <div className="food-left-wrapper" style={wrapperStyle(true, '250px', '45px')}>
           <img 
             src="/sub.png" 
             alt="sub" 
-            className="food-img-sub h-auto block drop-shadow-2xl object-contain" 
+            className="food-img-sub h-auto block drop-shadow-xl object-contain" 
           />
         </div>
         
-        {/* Right Side Items */}
-        <div className="food-right-wrapper" style={wrapperStyle(false, '0px', '20px')}>
+        {/* Right Side Items - Positioned perfectly on SVG path peaks */}
+        <div className="food-right-wrapper" style={wrapperStyle(false, '10px', '25px')}>
           <img 
             src="/burger.png" 
             alt="burger" 
-            className="food-img-burger h-auto block drop-shadow-2xl object-contain" 
+            className="food-img-burger h-auto block drop-shadow-xl object-contain" 
           />
         </div>
-        <div className="food-right-wrapper" style={wrapperStyle(false, '280px', '-20px')}>
+        <div className="food-right-wrapper" style={wrapperStyle(false, '280px', '45px')}>
           <img 
             src="/sushi.png" 
             alt="sushi" 
-            className="food-img-sushi h-auto block drop-shadow-2xl object-contain" 
+            className="food-img-sushi h-auto block drop-shadow-xl object-contain" 
           />
         </div>
       </div>
