@@ -38,6 +38,7 @@ export interface SavedRecipe {
   originalSharedByName?: string;
   originalRecipeId?: string;
   likes?: number;
+  likedBy?: string[];
 }
 
 // Save a recipe to Firestore
@@ -110,6 +111,7 @@ export async function shareRecipePublic(
     sharedAt: serverTimestamp(),
     originalRecipeId: recipeId,
     likes: 0,
+    likedBy: [],
   });
 
   const userRecipeRef = doc(db, 'users', userId, 'savedRecipes', recipeId);
@@ -167,4 +169,42 @@ export async function saveFromExplore(
     originalRecipeId: recipe.id,
   });
   return docRef.id;
+}
+
+// Toggle like on a public recipe
+export async function toggleRecipeLike(
+  recipeId: string,
+  userId: string
+): Promise<void> {
+  const ref = doc(db, 'publicRecipes', recipeId);
+  const snap = await getDoc(ref);
+  
+  if (!snap.exists()) return;
+  
+  const data = snap.data();
+  const likedBy: string[] = data.likedBy || [];
+  const alreadyLiked = likedBy.includes(userId);
+  
+  if (alreadyLiked) {
+    // Unlike
+    await updateDoc(ref, {
+      likes: Math.max(0, (data.likes || 0) - 1),
+      likedBy: likedBy.filter(id => id !== userId)
+    });
+  } else {
+    // Like
+    await updateDoc(ref, {
+      likes: (data.likes || 0) + 1,
+      likedBy: [...likedBy, userId]
+    });
+  }
+}
+
+// Check if user liked a recipe
+export function isRecipeLikedByUser(
+  recipe: any,
+  userId: string
+): boolean {
+  const likedBy: string[] = recipe.likedBy || [];
+  return likedBy.includes(userId);
 }

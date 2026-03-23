@@ -7,6 +7,8 @@ import {
   unshareRecipePublic,
   saveFromExplore,
   getSavedRecipes,
+  toggleRecipeLike,
+  isRecipeLikedByUser,
   type SavedRecipe 
 } from '@/lib/save-recipe'
 import { Button } from '@/components/ui/button'
@@ -20,7 +22,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Loader2,
-  Share2
+  Share2,
+  Heart
 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
@@ -41,19 +44,22 @@ export default function ExplorePage() {
   const [savingIds, setSavingIds] = useState<string[]>([])
   const [savedIds, setSavedIds] = useState<string[]>([])
   const [userSavedIds, setUserSavedIds] = useState<string[]>([])
+  const [likingId, setLikingId] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<'latest' | 'mostLiked'>('latest')
+
+  const fetchRecipes = async () => {
+    try {
+      const data = await getPublicRecipes()
+      setRecipes(data)
+      setFilteredRecipes(data)
+    } catch (error) {
+      console.error('Error fetching public recipes:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const data = await getPublicRecipes()
-        setRecipes(data)
-        setFilteredRecipes(data)
-      } catch (error) {
-        console.error('Error fetching public recipes:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
     fetchRecipes()
   }, [])
 
@@ -165,6 +171,32 @@ export default function ExplorePage() {
     }
   }
 
+  const handleLike = async (recipe: any) => {
+    if (!user) {
+      toast({
+        title: 'Sign in to like recipes',
+        variant: 'destructive'
+      })
+      return
+    }
+    
+    if (likingId) return
+    setLikingId(recipe.id)
+    
+    try {
+      await toggleRecipeLike(recipe.id, user.uid)
+      // Refresh recipes to show updated count
+      fetchRecipes()
+    } catch (error) {
+      toast({
+        title: 'Failed to like recipe',
+        variant: 'destructive'
+      })
+    } finally {
+      setLikingId(null)
+    }
+  }
+
   const handleShare = async (recipeId: string, isExplore: boolean) => {
     const baseUrl = window.location.origin;
     const shareUrl = isExplore
@@ -212,6 +244,16 @@ export default function ExplorePage() {
   const isAlreadySaved = (recipeId: string) => {
     return userSavedIds.includes(recipeId) || savedIds.includes(recipeId)
   }
+
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
+    if (sortBy === 'mostLiked') {
+      return (b.likes || 0) - (a.likes || 0)
+    }
+    // Default latest first
+    const timeA = a.sharedAt?.seconds || 0
+    const timeB = b.sharedAt?.seconds || 0
+    return timeB - timeA
+  })
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -277,6 +319,21 @@ export default function ExplorePage() {
                 Shared by Me
               </Button>
             )}
+
+            <div className="h-6 w-px bg-border mx-2 hidden md:block" />
+
+            <button
+              onClick={() => setSortBy(sortBy === 'latest' ? 'mostLiked' : 'latest')}
+              className={cn(
+                "flex items-center gap-2 px-4 h-9 rounded-full text-xs font-semibold border transition-all duration-200 whitespace-nowrap",
+                sortBy === 'mostLiked'
+                  ? "border-red-500 text-red-500 bg-red-500/10 shadow-sm"
+                  : "border-border text-muted-foreground hover:border-muted-foreground/50"
+              )}
+            >
+              <Heart className={cn("h-3.5 w-3.5", sortBy === 'mostLiked' && "fill-current")} />
+              Most Liked
+            </button>
           </div>
 
           <div className="relative w-full lg:w-[320px]">
@@ -294,9 +351,9 @@ export default function ExplorePage() {
           <div className="flex items-center justify-center min-h-[40vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : filteredRecipes.length > 0 ? (
+        ) : sortedRecipes.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredRecipes.map((recipe) => (
+            {sortedRecipes.map((recipe) => (
               <div
                 key={recipe.id}
                 className="group relative bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full"
@@ -395,6 +452,37 @@ export default function ExplorePage() {
                         Remove
                       </Button>
                     )}
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleLike(recipe)
+                      }}
+                      disabled={likingId === recipe.id}
+                      className={cn(
+                        "flex items-center gap-1.5 h-9 px-3 py-1.5",
+                        "rounded-md text-[13px] font-medium transition-all duration-200 border",
+                        isRecipeLikedByUser(recipe, user?.uid || '')
+                          ? "text-red-500 bg-red-500/10 border-red-500/20"
+                          : "text-muted-foreground border-border hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20"
+                      )}
+                    >
+                      {likingId === recipe.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Heart
+                          className="h-4 w-4"
+                          fill={
+                            isRecipeLikedByUser(recipe, user?.uid || '')
+                              ? 'currentColor'
+                              : 'none'
+                          }
+                        />
+                      )}
+                      <span className="tabular-nums">
+                        {recipe.likes || 0}
+                      </span>
+                    </button>
                   </div>
                 </div>
               </div>
