@@ -58,7 +58,6 @@ export function FoodDecorations() {
 
   const imgStyle = (maxWidth: string): React.CSSProperties => {
     return {
-      // Fluid width that shrinks aggressively as space decreases
       width: `clamp(60px, 14vw, ${maxWidth})`,
       height: 'auto',
       display: 'block',
@@ -151,15 +150,15 @@ export function FoodDecorations() {
         <div className="food-left-wrapper" style={wrapperStyle(true, '5px', '20px')}>
           <img src="/pizza.png" alt="pizza" style={imgStyle('320px')} />
         </div>
-        <div className="food-left-wrapper" style={wrapperStyle(true, '240px', '40px')}>
+        <div className="food-left-wrapper" style={wrapperStyle(true, '240px', '20px')}>
           <img src="/sub.png" alt="sub" style={imgStyle('260px')} />
         </div>
         
-        {/* Right Side Items (Reduced Sizes) */}
+        {/* Right Side Items */}
         <div className="food-right-wrapper" style={wrapperStyle(false, '0px', '20px')}>
           <img src="/burger.png" alt="burger" style={imgStyle('220px')} />
         </div>
-        <div className="food-right-wrapper" style={wrapperStyle(false, '280px', '15px')}>
+        <div className="food-right-wrapper" style={wrapperStyle(false, '280px', '5px')}>
           <img src="/sushi.png" alt="sushi" style={imgStyle('200px')} />
         </div>
       </div>
