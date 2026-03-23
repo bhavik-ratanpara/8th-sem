@@ -55,17 +55,6 @@ export function FoodDecorations() {
     zIndex: 0,
   })
 
-  const imgStyle = (maxWidth: string): React.CSSProperties => {
-    return {
-      // Significantly reduced size and scaling factor to fit blank spaces better
-      width: `clamp(40px, 8vw, ${maxWidth})`,
-      height: 'auto',
-      display: 'block',
-      filter: 'drop-shadow(0 15px 30px rgba(0,0,0,0.25))',
-      objectFit: 'contain',
-    };
-  }
-
   return (
     <div
       ref={ref}
@@ -78,7 +67,22 @@ export function FoodDecorations() {
       }}
     >
       <style jsx global>{`
-        @media (max-width: 1160px) {
+        /* Default Sizes for Large Screens */
+        .food-img-pizza { width: 260px; }
+        .food-img-sub { width: 210px; }
+        .food-img-burger { width: 190px; }
+        .food-img-sushi { width: 170px; }
+
+        /* Smaller than laptop: Decrease 2x size */
+        @media (max-width: 1400px) {
+          .food-img-pizza { width: 130px; }
+          .food-img-sub { width: 105px; }
+          .food-img-burger { width: 95px; }
+          .food-img-sushi { width: 85px; }
+        }
+
+        /* If no empty space left: Hide all */
+        @media (max-width: 1200px) {
           .food-decoration-container {
             display: none !important;
           }
@@ -146,20 +150,36 @@ export function FoodDecorations() {
           />
         </svg>
 
-        {/* Left Side Items - Sizes reduced by ~50% */}
+        {/* Left Side Items */}
         <div className="food-left-wrapper" style={wrapperStyle(true, '5px', '20px')}>
-          <img src="/pizza.png" alt="pizza" style={imgStyle('160px')} />
+          <img 
+            src="/pizza.png" 
+            alt="pizza" 
+            className="food-img-pizza h-auto block drop-shadow-2xl object-contain" 
+          />
         </div>
         <div className="food-left-wrapper" style={wrapperStyle(true, '240px', '-12px')}>
-          <img src="/sub.png" alt="sub" style={imgStyle('130px')} />
+          <img 
+            src="/sub.png" 
+            alt="sub" 
+            className="food-img-sub h-auto block drop-shadow-2xl object-contain" 
+          />
         </div>
         
-        {/* Right Side Items - Sizes reduced by ~50% */}
+        {/* Right Side Items */}
         <div className="food-right-wrapper" style={wrapperStyle(false, '0px', '20px')}>
-          <img src="/burger.png" alt="burger" style={imgStyle('110px')} />
+          <img 
+            src="/burger.png" 
+            alt="burger" 
+            className="food-img-burger h-auto block drop-shadow-2xl object-contain" 
+          />
         </div>
         <div className="food-right-wrapper" style={wrapperStyle(false, '280px', '-20px')}>
-          <img src="/sushi.png" alt="sushi" style={imgStyle('100px')} />
+          <img 
+            src="/sushi.png" 
+            alt="sushi" 
+            className="food-img-sushi h-auto block drop-shadow-2xl object-contain" 
+          />
         </div>
       </div>
     </div>
