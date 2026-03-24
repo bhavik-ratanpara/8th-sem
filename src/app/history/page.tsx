@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -610,19 +611,6 @@ function HistoryContent() {
                   </svg>
                 </button>
               </div>
-            )}
-
-            {/* Page info */}
-            {filteredRecipes.length > 0 && (
-              <p style={{
-                textAlign: 'center',
-                fontSize: '12px',
-                color: 'hsl(var(--muted-foreground))',
-                marginTop: '-16px',
-                marginBottom: '32px',
-              }}>
-                Page {currentPage} of {totalPages} · {filteredRecipes.length} total recipes
-              </p>
             )}
           </>
         ) : (
