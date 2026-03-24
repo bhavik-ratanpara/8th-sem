@@ -4,9 +4,11 @@
 
 @layer base {
   :root {
+    /* Primary Background: #f5f0eb (Warm Beige) */
     --background: 30 25% 94.1%;
     --foreground: 0 0% 6%;
     
+    /* Cards: Keep pure white for contrast against beige background */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 7%;
     
@@ -16,25 +18,25 @@
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     
-    --secondary: 30 20% 90%;
+    /* Secondary elements: Slightly deeper shade of beige for depth */
+    --secondary: 30 15% 90%;
     --secondary-foreground: 0 0% 7%;
     
-    --muted: 30 20% 90%;
+    --muted: 30 15% 90%;
     --muted-foreground: 215.4 16.3% 46.9%;
     
-    --accent: 30 20% 90%;
+    --accent: 30 15% 90%;
     --accent-foreground: 0 0% 7%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 30 15% 85%;
-    --input: 30 15% 85%;
+    --border: 30 10% 85%;
+    --input: 30 10% 85%;
     --ring: 221.2 83.2% 53.3%;
     
     --radius: 0.5rem;
 
-    /* Light mode smoke color - matching warm off-white */
     --smoke-color: rgba(245, 240, 235, 1);
     --page-bg: #F5F0EB;
   }
@@ -68,7 +70,6 @@
     --input: 0 0% 16%;
     --ring: 221.2 83.2% 53.3%;
 
-    /* Dark mode smoke color */
     --smoke-color: rgba(10, 10, 10, 1);
     --page-bg: #0a0a0a;
   }
