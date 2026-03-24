@@ -96,13 +96,12 @@ export function FoodDecorations() {
             left: 0,
             top: 0,
             width: '210px',
-            height: '100%',
+            height: '1300px',
             overflow: 'visible',
             zIndex: 0,
           }}
           viewBox="0 0 210 1300"
           fill="none"
-          preserveAspectRatio="none"
         >
           <path
             className="food-line"
@@ -125,13 +124,12 @@ export function FoodDecorations() {
             right: 0,
             top: 0,
             width: '210px',
-            height: '100%',
+            height: '1300px',
             overflow: 'visible',
             zIndex: 0,
           }}
           viewBox="0 0 210 1300"
           fill="none"
-          preserveAspectRatio="none"
         >
           <path
             className="food-line"
