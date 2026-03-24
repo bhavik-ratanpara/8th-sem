@@ -117,6 +117,10 @@ export function Header() {
               <Link href="/history" className={cn("nav-link text-[15px]", pathname.startsWith("/history") && "active")}>
                 My Recipes
               </Link>
+              <span className="nav-separator">/</span>
+              <Link href="/favourites" className={cn("nav-link text-[15px]", pathname === "/favourites" && "active")}>
+                Favourites
+              </Link>
             </>
           )}
           <span className="nav-separator">/</span>
