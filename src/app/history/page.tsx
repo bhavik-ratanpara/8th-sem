@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -332,6 +331,21 @@ function HistoryContent() {
     }
   };
 
+  const filterButtonStyle = (isActive: boolean) => ({
+    fontSize: '12px',
+    padding: '4px 10px',
+    height: 'auto',
+    borderRadius: '6px',
+    border: '0.5px solid',
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+    borderColor: isActive ? 'hsl(var(--primary))' : 'hsl(var(--border))',
+    color: isActive ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+    background: isActive ? 'hsl(var(--primary) / 0.1)' : 'transparent',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  } as const);
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <FoodDecorations />
@@ -346,33 +360,43 @@ function HistoryContent() {
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>My Recipes</h1>
-            <p className="text-muted-foreground text-lg">All your saved recipes in one place</p>
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
+              {searchParams.get('filter') === 'favourite' ? 'My Favourites' : 'My Recipes'}
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {searchParams.get('filter') === 'favourite' ? 'Your top picks in one place' : 'All your saved recipes in one place'}
+            </p>
           </div>
           {!isLoading && (
             <div className="text-sm font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground">
-              {recipes.length} recipes saved
+              {filteredRecipes.length} recipes {searchParams.get('filter') === 'favourite' ? 'favourited' : 'saved'}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-10 bg-card p-6 rounded-xl border border-border shadow-sm">
-          <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0">
-            <Filter className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-10 bg-card p-4 md:p-6 rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0">
             {(['All', 'Vegetarian', 'Non-Vegetarian'] as const).map((filter) => (
-              <Button
+              <button
                 key={filter}
-                variant={dietFilter === filter ? 'default' : 'outline'}
-                size="sm"
                 onClick={() => setDietFilter(filter)}
-                className={cn(
-                  "rounded-full px-5 h-9 text-xs font-semibold whitespace-nowrap",
-                  dietFilter === filter ? "bg-primary text-white shadow-md" : "text-muted-foreground"
-                )}
+                style={filterButtonStyle(dietFilter === filter)}
               >
                 {filter}
-              </Button>
+              </button>
             ))}
+            
+            <div className="w-[1px] h-4 bg-border mx-1 flex-shrink-0" />
+            
+            <Link href={searchParams.get('filter') === 'favourite' ? '/history' : '/history?filter=favourite'}>
+              <button
+                style={filterButtonStyle(searchParams.get('filter') === 'favourite')}
+                className="flex items-center gap-1.5"
+              >
+                <Star className={cn("h-3 w-3", searchParams.get('filter') === 'favourite' && "fill-current")} />
+                Favourites Only
+              </button>
+            </Link>
           </div>
 
           <div className="relative w-full lg:w-[320px]">
