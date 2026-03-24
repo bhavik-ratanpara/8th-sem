@@ -451,13 +451,13 @@ export default function ExplorePage() {
                       top: '100%',
                       left: 0,
                       marginTop: '6px',
-                      backgroundColor: 'var(--background)',
-                      border: '1px solid var(--border)',
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
                       zIndex: 50,
                       minWidth: '160px',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                      overflow: 'visible',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                      overflow: 'hidden',
                     }}
                   >
                     <button
@@ -468,33 +468,36 @@ export default function ExplorePage() {
                       style={{
                         width: '100%',
                         textAlign: 'left',
-                        padding: '8px 12px',
+                        padding: '10px 14px',
                         fontSize: '13px',
                         color: selectedLanguage === 'All'
-                          ? 'var(--primary)'
-                          : 'var(--muted-foreground)',
+                          ? 'hsl(var(--primary))'
+                          : 'hsl(var(--foreground))',
                         fontWeight: selectedLanguage === 'All'
                           ? 600 : 400,
-                        background: 'none',
+                        backgroundColor: selectedLanguage === 'All'
+                          ? 'hsl(var(--primary) / 0.05)'
+                          : 'transparent',
                         border: 'none',
                         cursor: 'pointer',
-                        borderRadius: '8px 8px 0 0',
+                        borderRadius: '0',
                       }}
+                      className="hover:bg-secondary/50 transition-colors"
                     >
                       All Languages
                     </button>
 
                     <div style={{
                       height: '1px',
-                      background: 'var(--border)',
+                      background: 'hsl(var(--border))',
                       margin: '0',
                     }}/>
 
                     {availableLanguages.length === 0 ? (
                       <div style={{
-                        padding: '8px 12px',
+                        padding: '10px 14px',
                         fontSize: '13px',
-                        color: 'var(--muted-foreground)',
+                        color: 'hsl(var(--muted-foreground))',
                       }}>
                         No languages found
                       </div>
@@ -509,18 +512,21 @@ export default function ExplorePage() {
                           style={{
                             width: '100%',
                             textAlign: 'left',
-                            padding: '8px 12px',
+                            padding: '10px 14px',
                             fontSize: '13px',
                             color: selectedLanguage === lang
-                              ? 'var(--primary)'
-                              : 'var(--muted-foreground)',
+                              ? 'hsl(var(--primary))'
+                              : 'hsl(var(--foreground))',
                             fontWeight: selectedLanguage === lang
                               ? 600 : 400,
-                            background: 'none',
+                            backgroundColor: selectedLanguage === lang
+                              ? 'hsl(var(--primary) / 0.05)'
+                              : 'transparent',
                             border: 'none',
                             cursor: 'pointer',
                             display: 'block',
                           }}
+                          className="hover:bg-secondary/50 transition-colors"
                         >
                           {lang}
                         </button>
