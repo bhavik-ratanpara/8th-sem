@@ -1,4 +1,7 @@
 'use client'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+
 /**
  * @fileOverview Privacy Policy page for Cooking Lab.
  */
@@ -7,6 +10,14 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-6 py-20">
         
+        <Link 
+          href="/"
+          className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+
         <div className="mb-12">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Legal
