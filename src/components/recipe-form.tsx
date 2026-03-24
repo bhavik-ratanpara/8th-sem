@@ -62,7 +62,7 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
       <img 
         src="/chefsee.png" 
         alt="Chef looking into form" 
-        className="absolute -top-[96px] left-6 w-[130px] h-auto pointer-events-none z-20" 
+        className="absolute -top-[92px] left-6 w-[130px] h-auto pointer-events-none z-20" 
       />
       
       <Form {...form}>
