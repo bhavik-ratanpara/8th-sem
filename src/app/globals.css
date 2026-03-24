@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    /* Primary Background: #f5f0eb (Warm Beige) */
-    --background: 30 25% 94.1%;
+    /* Primary Background: A soft, clearly pink blush (#fef2f4) */
+    --background: 350 40% 96%;
     --foreground: 0 0% 6%;
     
-    /* Cards: Keep pure white for contrast against beige background */
+    /* Cards: Pure white for contrast against pink background */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 7%;
     
@@ -18,27 +18,27 @@
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     
-    /* Secondary elements: Slightly deeper shade of beige for depth */
-    --secondary: 30 15% 90%;
+    /* Secondary elements: Slightly deeper shade of pink for depth */
+    --secondary: 350 30% 92%;
     --secondary-foreground: 0 0% 7%;
     
-    --muted: 30 15% 90%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 350 30% 92%;
+    --muted-foreground: 350 10% 45%;
     
-    --accent: 30 15% 90%;
+    --accent: 350 30% 92%;
     --accent-foreground: 0 0% 7%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 30 10% 85%;
-    --input: 30 10% 85%;
+    --border: 350 20% 88%;
+    --input: 350 20% 88%;
     --ring: 221.2 83.2% 53.3%;
     
     --radius: 0.5rem;
 
-    --smoke-color: rgba(245, 240, 235, 1);
-    --page-bg: #F5F0EB;
+    --smoke-color: rgba(254, 242, 244, 1);
+    --page-bg: #fef2f4;
   }
 
   [data-theme="dark"] {
