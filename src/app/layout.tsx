@@ -129,9 +129,6 @@ export default function RootLayout({
                     © {new Date().getFullYear()} Cooking Lab.
                     Built by Bhavik Ratanpara.
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    8th Semester Project · Computer Engineering
-                  </div>
                   <div className="flex gap-6">
                     <a
                       href="https://github.com/bhavik-ratanpara"
