@@ -22,7 +22,7 @@ export default function AboutPage() {
       {/* ══════════════════════════════ */}
       <section className="
         relative overflow-hidden
-        pt-24 pb-20 px-6
+        pt-20 pb-16 px-6
         border-b border-border
       ">
         <div className="
@@ -34,7 +34,7 @@ export default function AboutPage() {
             px-3 py-1.5 rounded-full
             border border-border
             text-xs text-muted-foreground
-            mb-8
+            mb-6
           ">
             <Sparkles className="h-3 w-3" />
             Powered by Gemini AI
@@ -44,7 +44,7 @@ export default function AboutPage() {
             text-5xl md:text-6xl 
             font-bold tracking-tight
             text-foreground
-            leading-tight mb-6
+            leading-tight mb-4
           ">
             Cooking made
             <span className="text-primary">
@@ -68,17 +68,17 @@ export default function AboutPage() {
       {/* SECTION 2 — PROBLEM WE SOLVE */}
       {/* ══════════════════════════════ */}
       <section className="
-        py-20 px-6
+        py-16 px-6
         border-b border-border
       ">
         <div className="max-w-5xl mx-auto">
           <div className="
-            text-center mb-16
+            text-center mb-12
           ">
             <p className="
               text-xs font-semibold 
               uppercase tracking-widest
-              text-muted-foreground mb-4
+              text-muted-foreground mb-3
             ">
               The Problem
             </p>
@@ -120,7 +120,6 @@ export default function AboutPage() {
                 >
                   <div className="
                     mt-0.5 h-5 w-5 rounded-full
-                    border border-destructive/30
                     flex items-center justify-center
                     flex-shrink-0
                   ">
@@ -165,7 +164,6 @@ export default function AboutPage() {
                 >
                   <div className="
                     mt-0.5 h-5 w-5 rounded-full
-                    border border-primary/40
                     flex items-center justify-center
                     flex-shrink-0
                   ">
@@ -191,15 +189,15 @@ export default function AboutPage() {
       {/* SECTION 3 — HOW IT WORKS     */}
       {/* ══════════════════════════════ */}
       <section className="
-        py-20 px-6
+        py-16 px-6
         border-b border-border
       ">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <p className="
               text-xs font-semibold
               uppercase tracking-widest
-              text-muted-foreground mb-4
+              text-muted-foreground mb-3
             ">
               How It Works
             </p>
@@ -273,15 +271,15 @@ export default function AboutPage() {
       {/* SECTION 4 — FEATURES         */}
       {/* ══════════════════════════════ */}
       <section className="
-        py-20 px-6
+        py-16 px-6
         border-b border-border
       ">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <p className="
               text-xs font-semibold
               uppercase tracking-widest
-              text-muted-foreground mb-4
+              text-muted-foreground mb-3
             ">
               Features
             </p>
@@ -361,20 +359,20 @@ export default function AboutPage() {
       {/* SECTION 5 — TECH STACK       */}
       {/* ══════════════════════════════ */}
       <section className="
-        py-20 px-6
+        py-16 px-6
         border-b border-border
       ">
         <div className="max-w-3xl mx-auto text-center">
           <p className="
             text-xs font-semibold
             uppercase tracking-widest
-            text-muted-foreground mb-4
+            text-muted-foreground mb-3
           ">
             Built With
           </p>
           <h2 className="
             text-3xl font-bold
-            tracking-tight mb-12
+            tracking-tight mb-8
           ">
             Modern tech stack.
           </h2>
@@ -413,20 +411,20 @@ export default function AboutPage() {
       {/* SECTION 6 — CREATOR          */}
       {/* ══════════════════════════════ */}
       <section className="
-        py-20 px-6
+        py-16 px-6
         border-b border-border
       ">
         <div className="max-w-3xl mx-auto text-center">
           <p className="
             text-xs font-semibold
             uppercase tracking-widest
-            text-muted-foreground mb-4
+            text-muted-foreground mb-3
           ">
             The Creator
           </p>
           <h2 className="
             text-3xl font-bold
-            tracking-tight mb-12
+            tracking-tight mb-8
           ">
             Built with passion.
           </h2>
@@ -439,7 +437,12 @@ export default function AboutPage() {
             bg-background
           ">
             <div className="
-              text-3xl font-bold text-primary
+              w-20 h-20 rounded-full 
+              bg-primary/10 text-primary 
+              flex items-center justify-center 
+              text-2xl font-bold 
+              border-2 border-primary/20
+              shadow-sm
             ">
               BR
             </div>
@@ -516,7 +519,7 @@ export default function AboutPage() {
       {/* ══════════════════════════════ */}
       {/* SECTION 7 — CTA              */}
       {/* ══════════════════════════════ */}
-      <section className="py-20 px-6">
+      <section className="py-16 px-6">
         <div className="
           max-w-2xl mx-auto text-center
         ">
@@ -527,7 +530,7 @@ export default function AboutPage() {
             Ready to cook smarter?
           </h2>
           <p className="
-            text-muted-foreground mb-10
+            text-muted-foreground mb-8
           ">
             Join the Cooking Lab community
             and start generating perfect
