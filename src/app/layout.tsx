@@ -6,6 +6,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import Link from 'next/link';
 import { FooterAccountLinks } from '@/components/FooterAccountLinks';
 import { FooterAccordion } from '@/components/FooterAccordion';
+import { ChefHat } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Cooking Lab | Professional Culinary Academy',
@@ -53,7 +54,7 @@ export default function RootLayout({
                   <div className="px-6 py-8 border-b border-border">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                        <span className="text-primary-foreground text-sm">🍳</span>
+                        <ChefHat className="text-primary-foreground h-4 w-4" />
                       </div>
                       <span className="font-bold text-foreground">
                         Cooking Lab
@@ -116,7 +117,7 @@ export default function RootLayout({
                   <div className="space-y-4 md:col-span-1">
                     <div className="flex items-center gap-2">
                       <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                        <span className="text-primary-foreground text-sm">🍳</span>
+                        <ChefHat className="text-primary-foreground h-4 w-4" />
                       </div>
                       <span className="font-bold text-foreground">
                         Cooking Lab
