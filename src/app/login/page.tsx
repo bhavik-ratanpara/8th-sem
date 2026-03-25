@@ -5,7 +5,9 @@ import { useAuth, useFirestore, useUser } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
-  signInWithPopup
+  signInWithPopup,
+  linkWithCredential,
+  fetchSignInMethodsForEmail
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -101,11 +103,83 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      // Account exists with different credential
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        try {
+          // Get the email from the error
+          const email = error.customData?.email;
+
+          if (!email) {
+            toast({
+              title: 'Login failed',
+              description: 'Could not get email from Google.',
+              variant: 'destructive',
+            });
+            return;
+          }
+
+          // Check what methods this email uses
+          const methods = await fetchSignInMethodsForEmail(auth, email);
+
+          // If email+pass method exists
+          if (methods.includes('password')) {
+            // Ask user for their password to verify identity before linking
+            const password = window.prompt(
+              `This email is registered with a password.\n\nEnter your password to link both login methods:\n(${email})`
+            );
+
+            if (!password) {
+              setIsLoading(false);
+              return;
+            }
+
+            // Sign in with email+pass first
+            const emailResult = await signInWithEmailAndPassword(auth, email, password);
+
+            // Get Google credential from error
+            const googleCredential = GoogleAuthProvider.credentialFromError(error);
+
+            if (!googleCredential) {
+              setIsLoading(false);
+              return;
+            }
+
+            // Link Google to existing account
+            await linkWithCredential(emailResult.user, googleCredential);
+
+            // Success — both methods now linked
+            toast({
+              title: 'Accounts linked successfully',
+              description: 'You can now login with both Google and email+password.',
+            });
+
+            await syncUserToFirestore(emailResult.user);
+            router.push('/');
+            return;
+          }
+        } catch (linkError: any) {
+          if (linkError.code === 'auth/wrong-password') {
+            toast({
+              title: 'Wrong password',
+              description: 'Incorrect password. Could not link accounts.',
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Could not link accounts',
+              description: linkError.message,
+              variant: 'destructive',
+            });
+          }
+        }
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        // Any other error (ignore popup closed)
+        toast({
+          title: 'Google sign in failed',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
