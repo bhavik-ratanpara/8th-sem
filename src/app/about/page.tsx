@@ -244,19 +244,12 @@ export default function AboutPage() {
                 <div className="
                   text-5xl font-bold
                   text-muted-foreground/10
-                  mb-6 leading-none
+                  mb-4 leading-none
                 ">
                   {item.step}
                 </div>
-                <div className="
-                  h-10 w-10 rounded-lg
-                  border border-primary/20
-                  flex items-center justify-center
-                  mb-4
-                ">
-                  <item.icon className="
-                    h-5 w-5 text-primary
-                  "/>
+                <div className="mb-4">
+                  <item.icon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="
                   font-semibold text-foreground
@@ -343,15 +336,8 @@ export default function AboutPage() {
                 hover:border-primary/30
                 transition-colors duration-200
               ">
-                <div className="
-                  h-9 w-9 rounded-lg
-                  border border-primary/20
-                  flex items-center justify-center
-                  mb-4
-                ">
-                  <item.icon className="
-                    h-4 w-4 text-primary
-                  "/>
+                <div className="mb-4">
+                  <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="
                   font-semibold text-foreground
@@ -453,9 +439,6 @@ export default function AboutPage() {
             bg-background
           ">
             <div className="
-              h-20 w-20 rounded-full
-              border border-primary/20
-              flex items-center justify-center
               text-3xl font-bold text-primary
             ">
               BR
