@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { FoodDecorations } from '@/components/FoodDecorations';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 function HistoryContent() {
   const { user } = useUser();
@@ -77,7 +78,7 @@ function HistoryContent() {
       result = result.filter(r => r.isFavourite);
     }
 
-    // Apply Sorting
+    // Apply Sorting by generatedAt timestamp
     result.sort((a, b) => {
       const dateA = a.generatedAt?.seconds || 0;
       const dateB = b.generatedAt?.seconds || 0;
@@ -344,33 +345,33 @@ function HistoryContent() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <FoodDecorations />
-      <div className="max-content px-4 py-12 relative z-10">
+      <div className="max-content px-4 py-8 relative z-10">
         <Link 
           href="/"
-          className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
+          className="flex items-center gap-2 text-primary font-bold text-sm mb-6 hover:translate-x-[-4px] transition-transform w-fit"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Generator
         </Link>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
               {searchParams.get('filter') === 'favourite' ? 'My Favourites' : 'My Recipes'}
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base">
               {searchParams.get('filter') === 'favourite' ? 'Your top picks in one place' : 'All your saved recipes in one place'}
             </p>
           </div>
           {!isLoading && (
-            <div className="text-sm font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground">
+            <div className="text-xs font-semibold bg-secondary/50 px-3 py-1.5 rounded-full border border-border text-secondary-foreground">
               {filteredRecipes.length} recipes {searchParams.get('filter') === 'favourite' ? 'favourited' : 'saved'}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-between mb-10 bg-card p-4 md:p-6 rounded-xl border border-border shadow-sm">
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto pb-2 lg:pb-0">
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-8 bg-card p-4 rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0">
             {(['All', 'Vegetarian', 'Non-Vegetarian'] as const).map((filter) => (
               <button
                 key={filter}
@@ -383,52 +384,47 @@ function HistoryContent() {
 
             <div className="w-[1px] h-4 bg-border mx-1 flex-shrink-0" />
 
-            <div className="relative">
-              <button
-                onClick={() => setIsSortOpen(!isSortOpen)}
-                style={filterButtonStyle(sortBy !== 'newest')}
-                className="flex items-center gap-1.5"
-              >
-                <ArrowUpDown className="h-3 w-3" />
-                Sort
-                <ChevronDown className={cn("h-3 w-3 transition-transform", isSortOpen && "rotate-180")} />
-              </button>
-
-              {isSortOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)} />
-                  <div className="absolute top-full left-0 mt-1.5 bg-card border border-border rounded-lg shadow-xl z-50 min-w-[140px] overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                    <button
-                      onClick={() => { setSortBy('newest'); setIsSortOpen(false); }}
-                      className={cn(
-                        "w-full text-left px-3 py-2 text-[13px] transition-colors",
-                        sortBy === 'newest' ? "bg-primary/5 text-primary font-semibold" : "text-foreground hover:bg-secondary/50"
-                      )}
-                    >
-                      Newest First
-                    </button>
-                    <button
-                      onClick={() => { setSortBy('oldest'); setIsSortOpen(false); }}
-                      className={cn(
-                        "w-full text-left px-3 py-2 text-[13px] transition-colors",
-                        sortBy === 'oldest' ? "bg-primary/5 text-primary font-semibold" : "text-foreground hover:bg-secondary/50"
-                      )}
-                    >
-                      Oldest First
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <Popover open={isSortOpen} onOpenChange={setIsSortOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  style={filterButtonStyle(sortBy !== 'newest')}
+                  className="flex items-center gap-1.5"
+                >
+                  <ArrowUpDown className="h-3 w-3" />
+                  Sort
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", isSortOpen && "rotate-180")} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[160px] p-1" align="start">
+                <button
+                  onClick={() => { setSortBy('newest'); setIsSortOpen(false); }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 text-[13px] rounded-md transition-colors",
+                    sortBy === 'newest' ? "bg-primary/5 text-primary font-semibold" : "text-foreground hover:bg-secondary/50"
+                  )}
+                >
+                  Newest First
+                </button>
+                <button
+                  onClick={() => { setSortBy('oldest'); setIsSortOpen(false); }}
+                  className={cn(
+                    "w-full text-left px-3 py-2 text-[13px] rounded-md transition-colors",
+                    sortBy === 'oldest' ? "bg-primary/5 text-primary font-semibold" : "text-foreground hover:bg-secondary/50"
+                  )}
+                >
+                  Oldest First
+                </button>
+              </PopoverContent>
+            </Popover>
           </div>
 
-          <div className="relative w-full lg:w-[320px]">
+          <div className="relative w-full lg:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search your recipes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 rounded-lg border-border focus:ring-primary/20 bg-background"
+              className="pl-9 h-9 text-sm rounded-lg border-border focus:ring-primary/20 bg-background"
             />
           </div>
         </div>
