@@ -120,12 +120,12 @@ export default function AboutPage() {
                 >
                   <div className="
                     mt-0.5 h-5 w-5 rounded-full
-                    bg-destructive/10 
+                    border border-destructive/30
                     flex items-center justify-center
                     flex-shrink-0
                   ">
                     <span className="
-                      text-destructive text-xs
+                      text-destructive text-[10px]
                       font-bold
                     ">✕</span>
                   </div>
@@ -165,12 +165,12 @@ export default function AboutPage() {
                 >
                   <div className="
                     mt-0.5 h-5 w-5 rounded-full
-                    bg-primary/20
+                    border border-primary/40
                     flex items-center justify-center
                     flex-shrink-0
                   ">
                     <span className="
-                      text-primary text-xs
+                      text-primary text-[10px]
                       font-bold
                     ">✓</span>
                   </div>
@@ -250,7 +250,7 @@ export default function AboutPage() {
                 </div>
                 <div className="
                   h-10 w-10 rounded-lg
-                  bg-primary/10
+                  border border-primary/20
                   flex items-center justify-center
                   mb-4
                 ">
@@ -345,7 +345,7 @@ export default function AboutPage() {
               ">
                 <div className="
                   h-9 w-9 rounded-lg
-                  bg-primary/10
+                  border border-primary/20
                   flex items-center justify-center
                   mb-4
                 ">
@@ -454,7 +454,7 @@ export default function AboutPage() {
           ">
             <div className="
               h-20 w-20 rounded-full
-              bg-primary/10
+              border border-primary/20
               flex items-center justify-center
               text-3xl font-bold text-primary
             ">
