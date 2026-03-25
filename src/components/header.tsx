@@ -141,7 +141,7 @@ function HeaderContent() {
           {!isUserLoading && user && (
             <div className={cn(
               "transition-all duration-300",
-              isMobileSearchOpen ? "w-[130px] sm:w-[180px]" : "w-0 md:w-[150px] overflow-hidden"
+              isMobileSearchOpen ? "w-[160px] sm:w-[220px]" : "w-0 md:w-[240px] overflow-hidden"
             )}>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <div className="relative w-full">
@@ -149,7 +149,7 @@ function HeaderContent() {
                     <PopoverPrimitive.Anchor asChild>
                       <Input
                         type="search"
-                        placeholder="Search..."
+                        placeholder="Search videos..."
                         className="pr-8 h-8 md:h-9 bg-secondary/50 border-border text-[12px]"
                         autoFocus={isMobileSearchOpen}
                         value={query}
