@@ -6,27 +6,26 @@
   :root {
     /* Primary Background: A soft, clearly pink blush (#fef2f4) */
     --background: 350 40% 96%;
-    --foreground: 0 0% 6%;
     
-    /* Cards: Pure white for contrast against pink background */
+    /* Text colors: Reset to neutral dark shades (Saturation 0%) */
+    --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
-    
+    --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 0 0% 3.9%;
     
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     
-    /* Secondary elements: Slightly deeper shade of pink for depth */
+    /* Secondary elements: Keep a hint of pink for depth, but text remains neutral */
     --secondary: 350 30% 92%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary-foreground: 0 0% 9%;
     
     --muted: 350 30% 92%;
-    --muted-foreground: 350 10% 45%;
+    --muted-foreground: 0 0% 45.1%; /* Neutral grey text */
     
     --accent: 350 30% 92%;
-    --accent-foreground: 0 0% 7%;
+    --accent-foreground: 0 0% 9%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
