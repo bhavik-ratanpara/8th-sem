@@ -45,17 +45,15 @@ export default function RootLayout({
           <Header />
           <div className="pt-16 min-h-screen flex flex-col">
             <main className="flex-1">{children}</main>
-            <footer className="border-t border-border bg-background py-10 mt-auto">
+            <footer className="border-t border-border bg-background py-8 mt-auto">
               <div className="max-w-6xl mx-auto px-6">
                 
                 {/* MOBILE FOOTER — only on small screens */}
                 <div className="md:hidden">
                   {/* Brand section */}
-                  <div className="px-6 py-8 border-b border-border">
+                  <div className="px-6 py-6 border-b border-border">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                        <ChefHat className="text-primary-foreground h-4 w-4" />
-                      </div>
+                      <ChefHat className="text-primary h-6 w-6" />
                       <span className="font-bold text-foreground">
                         Cooking Lab
                       </span>
@@ -103,7 +101,7 @@ export default function RootLayout({
                   <FooterAccordion />
 
                   {/* Bottom bar mobile */}
-                  <div className="px-6 py-6 border-t border-border flex flex-col gap-2 text-center">
+                  <div className="px-6 py-4 border-t border-border flex flex-col gap-2 text-center">
                     <div className="text-xs text-muted-foreground">
                       © {new Date().getFullYear()} Cooking Lab.
                       Built by Bhavik Ratanpara.
@@ -112,13 +110,11 @@ export default function RootLayout({
                 </div>
 
                 {/* DESKTOP FOOTER — only on large screens */}
-                <div className="hidden md:grid md:grid-cols-4 gap-12 mb-16">
+                <div className="hidden md:grid md:grid-cols-4 gap-12 mb-10">
                   {/* Brand */}
                   <div className="space-y-4 md:col-span-1">
                     <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-                        <ChefHat className="text-primary-foreground h-4 w-4" />
-                      </div>
+                      <ChefHat className="text-primary h-6 w-6" />
                       <span className="font-bold text-foreground">
                         Cooking Lab
                       </span>
@@ -132,10 +128,10 @@ export default function RootLayout({
 
                   {/* Navigate */}
                   <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
                       Navigate
                     </h4>
-                    <ul className="space-y-3 text-sm">
+                    <ul className="space-y-2 text-sm">
                       <li>
                         <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
                           Home
@@ -161,7 +157,7 @@ export default function RootLayout({
 
                   {/* Account — dynamic based on auth */}
                   <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
                       Account
                     </h4>
                     <FooterAccountLinks />
@@ -169,10 +165,10 @@ export default function RootLayout({
 
                   {/* Legal */}
                   <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-6">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
                       Legal
                     </h4>
-                    <ul className="space-y-3 text-sm">
+                    <ul className="space-y-2 text-sm">
                       <li>
                         <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
                           Privacy Policy
@@ -188,7 +184,7 @@ export default function RootLayout({
                 </div>
 
                 {/* Bottom bar desktop */}
-                <div className="hidden md:flex border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="hidden md:flex border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                   <div className="text-xs text-muted-foreground">
                     © {new Date().getFullYear()} Cooking Lab.
                     Built by Bhavik Ratanpara.
