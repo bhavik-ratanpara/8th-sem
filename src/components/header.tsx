@@ -196,7 +196,7 @@ function HeaderContent() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 md:h-9 md:w-9 text-foreground border border-border hover:bg-accent transition-colors bg-transparent"
+              className="h-8 w-8 md:h-9 md:w-9 text-foreground hover:bg-transparent transition-colors"
               onClick={toggleTheme}
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
