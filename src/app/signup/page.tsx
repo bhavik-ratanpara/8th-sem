@@ -6,8 +6,7 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   sendEmailVerification
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
@@ -37,7 +36,6 @@ const signupSchema = z.object({
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [isVerifyingRedirect, setIsVerifyingRedirect] = useState(true);
   const auth = useAuth();
   const db = useFirestore();
   const router = useRouter();
@@ -65,29 +63,6 @@ export default function SignupPage() {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
-
-  useEffect(() => {
-    const checkRedirect = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          await createUserProfile(result.user, result.user.displayName || 'Chef');
-          router.push('/');
-        }
-      } catch (error: any) {
-        console.error("Signup redirect error:", error);
-        toast({
-          variant: "destructive",
-          title: "Signup Error",
-          description: "Failed to sign up with Google. Please try again.",
-        });
-      } finally {
-        setIsVerifyingRedirect(false);
-      }
-    };
-
-    checkRedirect();
-  }, [auth, router]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -139,20 +114,40 @@ export default function SignupPage() {
     }
   };
 
-  const onGoogleLogin = () => {
+  const onGoogleLogin = async () => {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider).catch((error) => {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-      setIsLoading(false);
+    provider.setCustomParameters({
+      prompt: 'select_account'
     });
+
+    try {
+      const result = await signInWithPopup(
+        auth, 
+        provider
+      );
+      
+      if (result.user) {
+        await createUserProfile(
+          result.user, 
+          result.user.displayName || 'Chef'
+        );
+        router.push('/');
+      }
+    } catch (error: any) {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (isVerifyingRedirect || (isUserLoading && !user)) {
+  if (isUserLoading && !user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
