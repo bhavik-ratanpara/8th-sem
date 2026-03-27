@@ -75,6 +75,25 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const result = await signInWithEmailAndPassword(auth, values.email, values.password);
+
+      // CHECK IF EMAIL IS VERIFIED
+      if (!result.user.emailVerified) {
+        // Sign out immediately
+        await auth.signOut();
+        
+        toast({
+          variant: "destructive",
+          title: "Email not verified",
+          description: 
+            "Please verify your email first. " +
+            "Check your inbox for the verification link.",
+        });
+        
+        setIsLoading(false);
+        return;
+      }
+
+      // Email verified — proceed to login
       await syncUserToFirestore(result.user);
       router.push('/');
     } catch (error: any) {
@@ -115,7 +134,6 @@ export default function LoginPage() {
         console.log('Account conflict detected!');
         
         try {
-          // Get the email from the error
           const email = error.customData?.email;
 
           if (!email) {
@@ -127,12 +145,9 @@ export default function LoginPage() {
             return;
           }
 
-          // Check what methods this email uses
           const methods = await fetchSignInMethodsForEmail(auth, email);
 
-          // If email+pass method exists
           if (methods.includes('password')) {
-            // Ask user for their password to verify identity before linking
             const password = window.prompt(
               `This email is registered with a password.\n\nEnter your password to link both login methods:\n(${email})`
             );
@@ -142,10 +157,7 @@ export default function LoginPage() {
               return;
             }
 
-            // Sign in with email+pass first
             const emailResult = await signInWithEmailAndPassword(auth, email, password);
-
-            // Get Google credential from error
             const googleCredential = GoogleAuthProvider.credentialFromError(error);
 
             if (!googleCredential) {
@@ -153,10 +165,8 @@ export default function LoginPage() {
               return;
             }
 
-            // Link Google to existing account
             await linkWithCredential(emailResult.user, googleCredential);
 
-            // Success — both methods now linked
             toast({
               title: 'Accounts linked successfully',
               description: 'You can now login with both Google and email+password.',
@@ -183,7 +193,6 @@ export default function LoginPage() {
           }
         }
       } else if (error.code !== 'auth/popup-closed-by-user') {
-        // Any other error (ignore popup closed)
         toast({
           title: 'Google sign in failed',
           description: error.message,

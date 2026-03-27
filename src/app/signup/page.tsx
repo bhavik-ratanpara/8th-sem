@@ -7,7 +7,8 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithRedirect,
-  getRedirectResult
+  getRedirectResult,
+  sendEmailVerification
 } from 'firebase/auth';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -103,7 +104,30 @@ export default function SignupPage() {
       const result = await createUserWithEmailAndPassword(auth, values.email, values.password);
       await updateProfile(result.user, { displayName: values.displayName });
       await createUserProfile(result.user, values.displayName);
-      router.push('/');
+
+      // SEND VERIFICATION EMAIL
+      await sendEmailVerification(result.user, {
+        url: 'https://recipe-craftor.vercel.app/auth/action',
+        handleCodeInApp: false,
+      });
+
+      // SIGN OUT immediately after signup
+      await auth.signOut();
+
+      // Show success message
+      toast({
+        title: 'Verification email sent!',
+        description: 
+          'Please check your email and click ' +
+          'the verification link to activate ' +
+          'your account.',
+      });
+
+      // Redirect to login page after 2 seconds
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+
     } catch (error: any) {
       toast({
         variant: "destructive",
