@@ -302,20 +302,6 @@ export default function LoginPage() {
             }}>
               If you registered with email and password,
               please use that to login — not Google.
-              {' '}
-              <span style={{
-                display: 'block',
-                marginTop: '4px',
-                fontSize: '10px',
-                color: 'hsl(var(--muted-foreground))',
-                opacity: 0.8,
-              }}>
-                Note: If you sign in with Google using 
-                an email already registered with a password,
-                your account will switch to Google login
-                and you will no longer be able to login
-                with your email and password.
-              </span>
             </p>
           </div>
 
