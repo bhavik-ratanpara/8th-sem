@@ -22,29 +22,18 @@ export default function AboutPage() {
       {/* ══════════════════════════════ */}
       <section className="
         relative overflow-hidden
-        pt-20 pb-16 px-6
+        pt-24 pb-16 px-6
         border-b border-border
       ">
         <div className="
           max-w-3xl mx-auto 
           text-center
         ">
-          <div className="
-            inline-flex items-center gap-2
-            px-3 py-1.5 rounded-full
-            border border-border
-            text-xs text-muted-foreground
-            mb-6
-          ">
-            <Sparkles className="h-3 w-3" />
-            Powered by Gemini AI
-          </div>
-
           <h1 className="
             text-5xl md:text-6xl 
             font-bold tracking-tight
             text-foreground
-            leading-tight mb-4
+            leading-tight mb-6
           ">
             Cooking made
             <span className="text-primary">
@@ -240,8 +229,8 @@ export default function AboutPage() {
                 group
               ">
                 <div className="
-                  text-5xl font-bold
-                  text-primary/30
+                  text-5xl font-extrabold
+                  text-primary/20 dark:text-primary/40
                   mb-4 leading-none
                 ">
                   {item.step}
@@ -439,11 +428,11 @@ export default function AboutPage() {
           ">
             <div className="
               w-24 h-24 rounded-full 
-              bg-primary/10 text-primary 
+              bg-primary text-primary-foreground 
               flex items-center justify-center 
               text-3xl font-bold 
               border-4 border-background
-              shadow-lg
+              shadow-xl
             ">
               BR
             </div>
