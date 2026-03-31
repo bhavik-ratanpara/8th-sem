@@ -104,9 +104,10 @@ export function TypewriterHero() {
           </Button>
           <Button 
             variant="outline" 
+            asChild
             className="h-auto px-[14px] py-[9px] md:h-12 md:px-7 text-[12px] md:text-sm font-medium rounded-lg border-border bg-transparent text-muted-foreground hover:text-foreground hover:border-foreground transition-all"
           >
-            See How It Works
+            <Link href="/about">Guide</Link>
           </Button>
         </div>
       </div>

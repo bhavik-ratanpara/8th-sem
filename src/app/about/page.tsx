@@ -177,7 +177,7 @@ export default function AboutPage() {
       {/* ══════════════════════════════ */}
       {/* SECTION 3 — HOW IT WORKS     */}
       {/* ══════════════════════════════ */}
-      <section className="
+      <section id="how-it-works" className="
         py-16 px-6
         border-b border-border
       ">
@@ -230,7 +230,7 @@ export default function AboutPage() {
               ">
                 <div className="
                   text-5xl font-extrabold
-                  text-primary/20 dark:text-primary/40
+                  text-primary/40 dark:text-primary/60
                   mb-4 leading-none
                 ">
                   {item.step}

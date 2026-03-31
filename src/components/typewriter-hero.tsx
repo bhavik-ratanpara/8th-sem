@@ -164,6 +164,7 @@ export function TypewriterHero() {
               <Button 
                 variant="outline" 
                 className="h-auto whitespace-nowrap"
+                asChild
                 style={{
                   padding: '10px 16px',
                   fontSize: '13px',
@@ -171,7 +172,7 @@ export function TypewriterHero() {
                   borderRadius: '8px'
                 }}
               >
-                See How It Works
+                <Link href="/about">Guide</Link>
               </Button>
             </div>
           </div>
