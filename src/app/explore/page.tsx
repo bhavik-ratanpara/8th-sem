@@ -44,7 +44,6 @@ export default function ExplorePage() {
   const [savingIds, setSavingIds] = useState<string[]>([])
   const [savedIds, setSavedIds] = useState<string[]>([])
   const [userSavedIds, setUserSavedIds] = useState<string[]>([])
-  const [likingId, setLikingId] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'latest' | 'mostLiked'>('latest')
 
   const [selectedLanguage, setSelectedLanguage] = useState<string>('All')
@@ -208,20 +207,19 @@ export default function ExplorePage() {
     if (!user) {
       toast({
         title: 'Sign in to like recipes',
-        variant: 'destructive'
+        variant: 'destructive',
       })
       return
     }
 
-    if (likingId) return
+    const recipeId = recipe.id
+    const alreadyLiked = (recipe.likedBy || [])
+      .includes(user.uid)
 
-    const alreadyLiked = isRecipeLikedByUser(
-      recipe, user.uid
-    )
-
-    // UPDATE UI INSTANTLY — dont wait server
+    // STEP 1 — Update UI instantly
+    // Before calling Firestore
     setRecipes(prev => prev.map(r => {
-      if (r.id !== recipe.id) return r
+      if (r.id !== recipeId) return r
       return {
         ...r,
         likes: alreadyLiked
@@ -231,18 +229,17 @@ export default function ExplorePage() {
           ? (r.likedBy || []).filter(
               (id: string) => id !== user.uid
             )
-          : [...(r.likedBy || []), user.uid]
+          : [...(r.likedBy || []), user.uid],
       }
     }))
 
-    // THEN update server in background
-    setLikingId(recipe.id)
+    // STEP 2 — Update Firestore in background
     try {
-      await toggleRecipeLike(recipe.id, user.uid)
+      await toggleRecipeLike(recipeId, user.uid)
     } catch (error) {
-      // If server fails — revert UI back
+      // STEP 3 — If Firestore fails revert UI
       setRecipes(prev => prev.map(r => {
-        if (r.id !== recipe.id) return r
+        if (r.id !== recipeId) return r
         return {
           ...r,
           likes: alreadyLiked
@@ -252,15 +249,13 @@ export default function ExplorePage() {
             ? [...(r.likedBy || []), user.uid]
             : (r.likedBy || []).filter(
                 (id: string) => id !== user.uid
-              )
+              ),
         }
       }))
       toast({
-        title: 'Failed to like recipe',
-        variant: 'destructive'
+        title: 'Failed to update like',
+        variant: 'destructive',
       })
-    } finally {
-      setLikingId(null)
     }
   }
 
@@ -648,28 +643,39 @@ export default function ExplorePage() {
                           e.stopPropagation()
                           handleLike(recipe)
                         }}
-                        disabled={likingId === recipe.id}
-                        className={cn(
-                          "flex items-center gap-1.5 h-9 px-3 py-1.5",
-                          "rounded-md text-[13px] font-medium transition-all duration-200 border",
-                          isRecipeLikedByUser(recipe, user?.uid || '')
-                            ? "text-red-500 bg-red-500/10 border-red-500/20"
-                            : "text-muted-foreground border-border hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/20"
-                        )}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          color: (recipe.likedBy || [])
+                            .includes(user?.uid || '')
+                            ? '#ef4444'
+                            : 'hsl(var(--muted-foreground))',
+                        }}
                       >
-                        {likingId === recipe.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Heart
-                            className="h-4 w-4"
-                            fill={
-                              isRecipeLikedByUser(recipe, user?.uid || '')
-                                ? 'currentColor'
-                                : 'none'
-                            }
-                          />
-                        )}
-                        <span className="tabular-nums">
+                        <Heart
+                          style={{
+                            width: '16px',
+                            height: '16px',
+                            fill: (recipe.likedBy || [])
+                              .includes(user?.uid || '')
+                              ? '#ef4444'
+                              : 'none',
+                            stroke: 'currentColor',
+                            transition: 'all 0.15s ease',
+                          }}
+                        />
+                        <span style={{
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          minWidth: '12px',
+                        }}>
                           {recipe.likes || 0}
                         </span>
                       </button>
