@@ -122,6 +122,10 @@ function HeaderContent() {
               <Link href="/history" className={cn("nav-link text-[15px]", isHistoryActive && "active")}>
                 My Recipes
               </Link>
+              <span className="nav-separator">/</span>
+              <Link href="/history?filter=favourite" className={cn("nav-link text-[15px]", isFavouritesActive && "active")}>
+                Favourites
+              </Link>
             </>
           )}
           <span className="nav-separator">/</span>
