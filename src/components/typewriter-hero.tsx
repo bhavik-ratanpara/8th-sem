@@ -172,7 +172,7 @@ export function TypewriterHero() {
                   borderRadius: '8px'
                 }}
               >
-                <Link href="/about">Guide</Link>
+                <Link href="/guide">Guide</Link>
               </Button>
             </div>
           </div>

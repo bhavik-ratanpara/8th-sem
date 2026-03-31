@@ -122,15 +122,15 @@ function HeaderContent() {
               <Link href="/history" className={cn("nav-link text-[15px]", isHistoryActive && "active")}>
                 My Recipes
               </Link>
-              <span className="nav-separator">/</span>
-              <Link href="/history?filter=favourite" className={cn("nav-link text-[15px]", isFavouritesActive && "active")}>
-                Favourites
-              </Link>
             </>
           )}
           <span className="nav-separator">/</span>
-          <Link href="/about" className={cn("nav-link text-[15px]", pathname === "/about" && "active")}>
+          <Link href="/guide" className={cn("nav-link text-[15px]", pathname === "/guide" && "active")}>
             Guide
+          </Link>
+          <span className="nav-separator">/</span>
+          <Link href="/about" className={cn("nav-link text-[15px]", pathname === "/about" && "active")}>
+            About
           </Link>
         </nav>
 
@@ -236,11 +236,19 @@ function HeaderContent() {
                       
                       <div className="p-1">
                         <Link 
+                          href="/guide" 
+                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <BookOpen className="h-4 w-4 text-blue-500" />
+                          App Guide
+                        </Link>
+                        <Link 
                           href="/explore" 
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <Globe className="h-4 w-4 text-blue-500" />
+                          <Globe className="h-4 w-4 text-primary" />
                           Explore Community
                         </Link>
                         <Link 
@@ -264,8 +272,8 @@ function HeaderContent() {
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <BookOpen className="h-4 w-4 text-muted-foreground" />
-                          App Guide
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                          About Us
                         </Link>
                       </div>
                       

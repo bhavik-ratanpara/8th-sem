@@ -69,6 +69,7 @@ export function FooterAccordion() {
       <AccordionItem title="Navigate">
         {[
           { label: 'Home', href: '/' },
+          { label: 'Guide', href: '/guide' },
           { label: 'Explore', href: '/explore' },
           { label: 'My Recipes', href: '/history' },
           { label: 'About', href: '/about' },
