@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -10,6 +11,19 @@ import {
 import { Button } from '@/components/ui/button';
 
 export default function GuidePage() {
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string>('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLightboxImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const steps = [
     {
       step: 1,
@@ -136,14 +150,53 @@ export default function GuidePage() {
                 <div className={`flex flex-col ${isOdd ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-6 md:gap-20`}>
                   {/* IMAGE SIDE */}
                   <div className="w-full md:w-1/2">
-                    <div className="relative">
+                    <div
+                      onClick={() => {
+                        setLightboxImage(step.image)
+                        setLightboxAlt(step.title)
+                      }}
+                      style={{
+                        cursor: 'zoom-in',
+                        position: 'relative',
+                      }}
+                    >
                       <Image 
                         src={step.image} 
                         alt={step.title}
                         width={800}
                         height={500}
-                        className="rounded-xl w-full object-cover shadow-xl border border-border"
+                        className="rounded-xl w-full object-cover shadow-xl border border-border hover:opacity-90 transition-opacity duration-200"
                       />
+                      
+                      {/* Zoom hint */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '8px',
+                        right: '8px',
+                        background: 'rgba(0,0,0,0.6)',
+                        color: '#fff',
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        pointerEvents: 'none',
+                      }}>
+                        <svg 
+                          width="12" height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <circle cx="11" cy="11" r="8"/>
+                          <line x1="21" x1="21" x2="16.65" y2="16.65"/>
+                          <line x1="11" y1="8" x2="11" y2="14"/>
+                          <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                        Click to zoom
+                      </div>
                     </div>
                   </div>
 
@@ -204,6 +257,121 @@ export default function GuidePage() {
           </div>
         </div>
       </section>
+
+      {/* Lightbox at the end of the page container */}
+      {lightboxImage && (
+        <>
+          {/* Dark overlay */}
+          <div
+            onClick={() => setLightboxImage(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              zIndex: 50,
+              cursor: 'zoom-out',
+            }}
+          />
+
+          {/* Lightbox container */}
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 51,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px',
+              pointerEvents: 'none',
+            }}
+          >
+            {/* Image wrapper */}
+            <div
+              style={{
+                position: 'relative',
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                pointerEvents: 'all',
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setLightboxImage(null)}
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '0',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#fff',
+                  zIndex: 52,
+                }}
+              >
+                <svg
+                  width="18" height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+
+              {/* Alt text label */}
+              <div style={{
+                position: 'absolute',
+                top: '-40px',
+                left: '0',
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: '13px',
+                fontWeight: 500,
+              }}>
+                {lightboxAlt}
+              </div>
+
+              {/* The enlarged image */}
+              <Image
+                src={lightboxImage}
+                width={1200}
+                height={750}
+                alt={lightboxAlt}
+                style={{
+                  maxWidth: '90vw',
+                  maxHeight: '85vh',
+                  width: 'auto',
+                  height: 'auto',
+                  borderRadius: '12px',
+                  objectFit: 'contain',
+                  display: 'block',
+                }}
+              />
+
+              {/* Close hint */}
+              <div style={{
+                position: 'absolute',
+                bottom: '-32px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '12px',
+                whiteSpace: 'nowrap',
+              }}>
+                Press Esc or click outside to close
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
