@@ -141,8 +141,8 @@ export default function GuidePage() {
       </section>
 
       {/* ── GUIDE STEPS ── */}
-      <section className="py-8 md:py-20 px-6">
-        <div className="max-w-6xl mx-auto space-y-12 md:space-y-32">
+      <section className="py-8 md:py-16 px-6">
+        <div className="max-w-6xl mx-auto space-y-12 md:space-y-24">
           {steps.map((step, index) => {
             const isOdd = (index + 1) % 2 !== 0;
             return (
@@ -227,7 +227,7 @@ export default function GuidePage() {
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="h-px w-full bg-border mt-12 md:mt-32" />
+                  <div className="h-px w-full bg-border mt-12 md:mt-24" />
                 )}
               </div>
             );
