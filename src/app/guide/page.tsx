@@ -115,65 +115,65 @@ export default function GuidePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* ── HERO SECTION ── */}
-      <section className="pt-24 pb-16 px-6 border-b border-border">
+      <section className="pt-16 pb-12 md:pt-24 md:pb-16 px-6 border-b border-border">
         <div className="max-w-4xl mx-auto text-center">
           <Link 
             href="/"
-            className="inline-flex items-center gap-2 text-primary font-bold text-sm mb-8 hover:translate-x-[-4px] transition-transform"
+            className="inline-flex items-center gap-2 text-primary font-bold text-sm mb-6 md:mb-8 hover:translate-x-[-4px] transition-transform"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Home
           </Link>
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-foreground mb-6" style={{ fontFamily: "Inter, sans-serif" }}>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground mb-4 md:mb-6" style={{ fontFamily: "Inter, sans-serif" }}>
             App Guide
           </h1>
-          <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             Learn how to use <span className="text-primary font-semibold">Cooking Lab</span> step by step and master our AI-powered culinary platform.
           </p>
         </div>
       </section>
 
       {/* ── GUIDE STEPS ── */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto space-y-32">
+      <section className="py-12 md:py-20 px-6">
+        <div className="max-w-6xl mx-auto space-y-16 md:space-y-24 lg:space-y-32">
           {steps.map((step, index) => {
             const isOdd = (index + 1) % 2 !== 0;
             return (
-              <div key={step.step} className="space-y-32">
-                <div className={`flex flex-col ${isOdd ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 lg:gap-20`}>
+              <div key={step.step} className="group">
+                <div className={`flex flex-col ${isOdd ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-12 lg:gap-20`}>
                   {/* IMAGE SIDE */}
                   <div className="w-full md:w-1/2">
-                    <div className="relative group">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-transparent rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                    <div className="relative">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-transparent rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                       <Image 
                         src={step.image} 
                         alt={step.title}
                         width={800}
                         height={500}
-                        className="relative rounded-xl w-full object-cover shadow-2xl border border-border"
+                        className="relative rounded-xl w-full object-cover shadow-xl border border-border"
                       />
                     </div>
                   </div>
 
                   {/* TEXT SIDE */}
-                  <div className="w-full md:w-1/2 space-y-6">
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase">
+                  <div className="w-full md:w-1/2 space-y-4 md:space-y-6">
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] md:text-xs font-bold tracking-widest uppercase">
                       Step {step.step}
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+                    <h2 className="text-2xl md:text-4xl font-bold text-foreground tracking-tight">
                       {step.title}
                     </h2>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
+                    <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                       {step.description}
                     </p>
-                    <div className="space-y-3 pt-2">
-                      <p className="text-sm font-semibold text-foreground uppercase tracking-wider">Key Highlights:</p>
-                      <ul className="space-y-3">
+                    <div className="space-y-2 md:space-y-3 pt-2">
+                      <p className="text-xs md:text-sm font-semibold text-foreground uppercase tracking-wider">Key Highlights:</p>
+                      <ul className="space-y-2 md:space-y-3">
                         {step.highlights.map((highlight, hIndex) => (
-                          <li key={hIndex} className="flex items-start gap-3 text-muted-foreground text-sm">
+                          <li key={hIndex} className="flex items-start gap-3 text-muted-foreground text-xs md:text-sm">
                             <div className="mt-1 flex-shrink-0">
-                              <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center">
-                                <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                              <div className="h-3.5 w-3.5 md:h-4 md:w-4 rounded-full bg-primary/20 flex items-center justify-center">
+                                <div className="h-1 md:h-1.5 w-1 md:w-1.5 rounded-full bg-primary" />
                               </div>
                             </div>
                             {highlight}
@@ -184,7 +184,7 @@ export default function GuidePage() {
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent" />
+                  <div className="h-px w-full bg-gradient-to-r from-transparent via-border to-transparent mt-16 md:mt-24 lg:mt-32" />
                 )}
               </div>
             );
@@ -193,19 +193,19 @@ export default function GuidePage() {
       </section>
 
       {/* ── FINAL CTA SECTION ── */}
-      <section className="py-24 px-6 bg-secondary/10 border-t border-border">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-4">
-            <ChefHat className="h-10 w-10 text-primary" />
+      <section className="py-16 md:py-24 px-6 bg-secondary/10 border-t border-border">
+        <div className="max-w-3xl mx-auto text-center space-y-6 md:space-y-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/10 mb-2 md:mb-4">
+            <ChefHat className="h-8 w-8 md:h-10 md:w-10 text-primary" />
           </div>
-          <h2 className="text-4xl font-bold text-foreground tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
             You're all set! 🎉
           </h2>
-          <p className="text-xl text-muted-foreground leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
             You now know everything about Cooking Lab. Start generating your first AI recipe today and transform your cooking experience.
           </p>
-          <div className="pt-4">
-            <Button asChild size="lg" className="h-14 px-10 rounded-xl text-lg font-bold shadow-lg shadow-primary/20">
+          <div className="pt-2 md:pt-4">
+            <Button asChild size="lg" className="h-12 md:h-14 px-8 md:px-10 rounded-xl text-base md:text-lg font-bold shadow-lg shadow-primary/20">
               <Link href="/" className="flex items-center gap-2">
                 Generate a Recipe
                 <ChevronRight className="h-5 w-5" />
