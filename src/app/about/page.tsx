@@ -139,8 +139,8 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <div key={i} className="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group relative">
-                {/* Fixed visibility for step numbers: Increased contrast */}
-                <div className="text-5xl font-black text-primary/20 mb-4 group-hover:text-primary/30 transition-colors pointer-events-none select-none">
+                {/* Fixed visibility for step numbers: Increased contrast significantly for both modes */}
+                <div className="text-5xl font-black text-primary/40 dark:text-primary/50 mb-4 group-hover:text-primary/60 transition-colors pointer-events-none select-none">
                   {item.step}
                 </div>
                 <div className="bg-primary/5 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
