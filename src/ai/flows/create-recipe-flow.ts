@@ -69,7 +69,15 @@ Instructions:
 CRITICAL: The user has provided specific modifications. You MUST adapt the recipe above to follow these instructions exactly. They are absolute requirements.
 New Constraints to apply: {{{modifications}}}
 
-Now, provide the complete, updated recipe (title, description, ingredients, and instructions) that incorporates the changes. The ingredient quantities should be for {{{servings}}} servings, but base the modifications on the original recipe provided.
+Return the complete updated recipe in the exact same structured format as the original recipe.
+Format the steps as a numbered list:
+1. First step here
+2. Second step here
+3. Third step here
+Each step must be on its own line. Do not combine multiple steps into one paragraph.
+Do not return steps as a single block of text.
+Return ingredients as a list with exact quantities on separate lines.
+Keep the same JSON structure as the original recipe response.
 {{else}}
 Create a new recipe for the following dish. 
   

@@ -124,7 +124,18 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
     setIsSaving(true);
     try {
       const structuredIngredients = displayedRecipe.ingredients.map(i => `${i.name} (${i.quantity} ${i.unit || ''})`);
-      const structuredSteps = displayedRecipe.instructions.split('\n').filter(s => s.trim().length > 0);
+      
+      // Split instructions by line, then filter for lines starting with numbers to extract individual steps
+      const structuredSteps = displayedRecipe.instructions
+        .split(/\n/)
+        .filter(line => line.trim().length > 0)
+        .filter(line => /^\d+\./.test(line.trim()))
+        .map(line => line.replace(/^\d+\.\s*/, '').trim());
+
+      // If formatting failed to yield numbered lines, fallback to a standard newline split
+      const finalSteps = structuredSteps.length > 0 
+        ? structuredSteps 
+        : displayedRecipe.instructions.split('\n').filter(s => s.trim().length > 0);
 
       await saveRecipe(user.uid, {
         recipeName: displayedRecipe.title,
@@ -133,7 +144,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         dietType: originalInput.diet,
         language: originalInput.language,
         ingredients: structuredIngredients,
-        steps: structuredSteps,
+        steps: finalSteps,
         isFavourite: false
       });
 
