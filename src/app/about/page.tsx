@@ -14,11 +14,15 @@ import {
   Heart,
   CheckCircle2,
   XCircle,
-  Layout
+  Layout,
+  Code2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FoodDecorations } from '@/components/FoodDecorations';
 
+/**
+ * @fileOverview Redesigned About page matching the app's SaaS visual identity.
+ */
 export default function AboutPage() {
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
@@ -70,7 +74,7 @@ export default function AboutPage() {
                   'No easy way to save or share your collection',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
-                    <span className="mt-1 text-destructive">✕</span>
+                    <span className="mt-1 text-destructive font-bold">✕</span>
                     {item}
                   </li>
                 ))}
@@ -134,8 +138,9 @@ export default function AboutPage() {
                 desc: 'Save to your collection, mark favourites, and share with the community.',
               },
             ].map((item, i) => (
-              <div key={i} className="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group">
-                <div className="text-4xl font-black text-primary/10 mb-4 group-hover:text-primary/20 transition-colors">
+              <div key={i} className="bg-card border border-border p-8 rounded-2xl hover:border-primary/40 transition-colors group relative">
+                {/* Fixed visibility for step numbers: Increased contrast */}
+                <div className="text-5xl font-black text-primary/20 mb-4 group-hover:text-primary/30 transition-colors pointer-events-none select-none">
                   {item.step}
                 </div>
                 <div className="bg-primary/5 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
@@ -190,7 +195,7 @@ export default function AboutPage() {
                 desc: 'Mark your top recipes as favourites for quick access.',
               },
             ].map((item, i) => (
-              <div key={i} className="flex gap-4 p-6 bg-card border border-border rounded-xl">
+              <div key={i} className="flex gap-4 p-6 bg-card border border-border rounded-xl shadow-sm">
                 <div className="shrink-0 bg-primary/5 w-10 h-10 rounded-lg flex items-center justify-center">
                   <item.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -207,7 +212,10 @@ export default function AboutPage() {
       {/* ── TECH STACK ── */}
       <section className="relative z-10 py-20 px-6 border-b border-border">
         <div className="max-content text-center">
-          <h2 className="text-2xl font-bold mb-10">Built with a modern stack.</h2>
+          <h2 className="text-2xl font-bold mb-10 flex items-center justify-center gap-2">
+            <Code2 className="h-6 w-6 text-primary" />
+            Built with a modern stack.
+          </h2>
           <div className="flex flex-wrap justify-center gap-3">
             {[
               'Next.js 15',
@@ -219,7 +227,7 @@ export default function AboutPage() {
               'Tailwind CSS',
               'Shadcn UI',
             ].map((tech, i) => (
-              <span key={i} className="px-4 py-2 rounded-full border border-border bg-card text-xs font-semibold text-muted-foreground">
+              <span key={i} className="px-4 py-2 rounded-full border border-border bg-card text-xs font-semibold text-muted-foreground shadow-sm">
                 {tech}
               </span>
             ))}
