@@ -24,7 +24,7 @@ export const CreateRecipeInputSchema = z.object({
         title: z.string(),
         description: z.string(),
         ingredients: z.array(IngredientSchema),
-        instructions: z.string(),
+        instructions: z.array(z.string()),
     }).optional().describe('The current recipe that needs to be modified. If provided, the AI should adapt this recipe based on the new constraints, keeping as much of the original recipe as possible.'),
 });
 export type CreateRecipeInput = z.infer<typeof CreateRecipeInputSchema>;
@@ -33,7 +33,7 @@ export const CreateRecipeOutputSchema = z.object({
     title: z.string().describe('The title of the recipe.'),
     description: z.string().describe('A short, engaging description of the dish.'),
     ingredients: z.array(IngredientSchema).describe('A list of ingredients for the recipe, including name, quantity, and unit.'),
-    instructions: z.string().describe('The step-by-step instructions for the recipe, formatted as a numbered list in markdown.'),
+    instructions: z.array(z.string()).describe('The step-by-step instructions for the recipe as a list of strings.'),
     servings: z.number().describe('The number of servings this recipe is for.'),
 });
 export type CreateRecipeOutput = z.infer<typeof CreateRecipeOutputSchema>;
@@ -46,7 +46,7 @@ export const RegenerateInstructionsInputSchema = z.object({
 export type RegenerateInstructionsInput = z.infer<typeof RegenerateInstructionsInputSchema>;
 
 export const RegenerateInstructionsOutputSchema = z.object({
-  instructions: z.string().describe('The newly generated step-by-step instructions, formatted as a numbered list in markdown.'),
+  instructions: z.array(z.string()).describe('The newly generated step-by-step instructions as a list of strings.'),
 });
 export type RegenerateInstructionsOutput = z.infer<typeof RegenerateInstructionsOutputSchema>;
 

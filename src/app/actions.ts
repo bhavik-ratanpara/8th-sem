@@ -17,7 +17,7 @@ const RecipeSchema = z.object({
         title: z.string(),
         description: z.string(),
         ingredients: z.array(IngredientSchema),
-        instructions: z.string(),
+        instructions: z.array(z.string()),
     }).optional(),
 });
 
@@ -37,7 +37,7 @@ export async function createRecipeAction(input: CreateRecipeInput): Promise<Crea
   }
 }
 
-export async function regenerateInstructionsAction(input: RegenerateInstructionsInput): Promise<string> {
+export async function regenerateInstructionsAction(input: RegenerateInstructionsInput): Promise<string[]> {
     try {
         const result = await regenerateInstructions(input);
         return result.instructions;

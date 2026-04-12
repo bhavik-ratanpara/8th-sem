@@ -64,26 +64,24 @@ Ingredients:
 - {{{this.quantity}}} {{{this.unit}}} {{{this.name}}}
 {{/each}}
 Instructions:
-{{{currentRecipe.instructions}}}
+{{#each currentRecipe.instructions}}
+{{{this}}}
+{{/each}}
 
 CRITICAL: The user has provided specific modifications. You MUST adapt the recipe above to follow these instructions exactly. They are absolute requirements.
 New Constraints to apply: {{{modifications}}}
 
 Return the complete updated recipe in the exact same structured format as the original recipe.
-Format the steps as a numbered list:
-1. First step here
-2. Second step here
-3. Third step here
-Each step must be on its own line. Do not combine multiple steps into one paragraph.
-Do not return steps as a single block of text.
-Return ingredients as a list with exact quantities on separate lines.
+The instructions MUST be returned as a JSON array of strings, where each string is exactly one step.
+Do not combine multiple steps into one string.
+Do not return instructions as a single block of text or a long paragraph.
 Keep the same JSON structure as the original recipe response.
 {{else}}
 Create a new recipe for the following dish. 
   
 The entire output, including the title, description, ingredients, and instructions, must be in the specified language.
-The step-by-step instructions must be a numbered list in markdown format. Crucially, each step must be separated by a newline character (\\n).
-For example: "1. Do this.\\n2. Do that.\\n3. Do another thing."
+The step-by-step instructions MUST be returned as a JSON array of strings. Each item in the array should be one cooking step. 
+For example: ["Preheat oven to 200°C.", "Chop the onions finely.", "Sauté onions in olive oil until translucent."]
 
 Dish Name: {{{dishName}}}
 Number of Servings: {{{servings}}}

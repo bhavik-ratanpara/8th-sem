@@ -109,8 +109,17 @@ export function RecipeCard({
         {/* Instructions Column */}
         <div className="lg:col-span-8 p-8 bg-card">
           <h3 className="text-[13px] font-semibold uppercase tracking-wider text-secondary-foreground mb-6">How to Cook</h3>
-          <div className="prose prose-sm dark:prose-invert prose-slate max-w-none prose-p:text-foreground prose-p:leading-relaxed prose-li:text-foreground prose-li:leading-relaxed prose-li:mb-4">
-            <ReactMarkdown>{recipe.instructions}</ReactMarkdown>
+          <div className="space-y-6">
+            {recipe.instructions.map((step, index) => (
+              <div key={index} className="flex gap-4 group">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-bold">
+                  {index + 1}
+                </div>
+                <div className="text-sm text-foreground leading-relaxed pt-0.5">
+                  <ReactMarkdown>{step.replace(/^\d+\.\s*/, '')}</ReactMarkdown>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

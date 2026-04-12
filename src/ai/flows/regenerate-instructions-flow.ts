@@ -27,8 +27,8 @@ Remaining Ingredients:
 {{/each}}
 
 Please generate new step-by-step instructions for the dish using only the remaining ingredients.
-The instructions must be a numbered list in markdown format. Crucially, each step must be separated by a newline character (\\n).
-For example: "1. Do this.\\n2. Do that.\\n3. Do another thing."
+The instructions MUST be returned as a JSON array of strings. Each item in the array should be one cooking step. 
+For example: ["Boil water in a pot.", "Add the remaining ingredients.", "Cook for 10 minutes."]
 `,
 });
 
