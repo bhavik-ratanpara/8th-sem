@@ -690,13 +690,14 @@ function HistoryContent() {
             <div
               onClick={(e) => e.stopPropagation()}
               style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
+                background: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
                 borderRadius: "16px",
                 padding: "32px",
                 maxWidth: "420px",
                 width: "100%",
                 position: "relative",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
               }}
             >
               {/* Close Icon */}
@@ -709,8 +710,12 @@ function HistoryContent() {
                   position: "absolute",
                   top: "16px",
                   right: "16px",
-                  color: "var(--muted-foreground)",
+                  color: "hsl(var(--muted-foreground))",
+                  background: "transparent",
+                  border: "none",
                   cursor: "pointer",
+                  padding: "4px",
+                  borderRadius: "50%"
                 }}
               >
                 <X style={{ width: "20px", height: "20px" }} />
@@ -740,7 +745,7 @@ function HistoryContent() {
               <h3 style={{
                 fontSize: "18px",
                 fontWeight: 700,
-                color: "var(--foreground)",
+                color: "hsl(var(--foreground))",
                 marginBottom: "8px",
               }}>
                 Share this recipe?
@@ -749,11 +754,11 @@ function HistoryContent() {
               {/* Description */}
               <p style={{
                 fontSize: "14px",
-                color: "var(--muted-foreground)",
+                color: "hsl(var(--muted-foreground))",
                 lineHeight: 1.6,
                 marginBottom: "24px",
               }}>
-                <strong style={{ color: "var(--foreground)" }}>
+                <strong style={{ color: "hsl(var(--foreground))" }}>
                   {sharePromptRecipe.recipeName}
                 </strong>
                 {" "}is currently private. To share it 
@@ -819,8 +824,8 @@ function HistoryContent() {
                     width: "100%",
                     padding: "12px",
                     background: "transparent",
-                    color: "var(--muted-foreground)",
-                    border: "1px solid var(--border)",
+                    color: "hsl(var(--muted-foreground))",
+                    border: "1px solid hsl(var(--border))",
                     borderRadius: "10px",
                     fontSize: "14px",
                     fontWeight: 500,
