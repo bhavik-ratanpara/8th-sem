@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createRecipeAction } from '@/app/actions';
 import { RecipeForm } from '@/components/recipe-form';
 import { RecipeDisplay } from '@/components/recipe-display';
@@ -18,6 +19,7 @@ const RECIPE_STORAGE_KEY = 'cooking_lab_last_recipe';
 const FORM_STORAGE_KEY = 'cooking_lab_last_form';
 
 export default function Home() {
+  const searchParams = useSearchParams();
   const [recipe, setRecipe] = useState<CreateRecipeOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,16 @@ export default function Home() {
   const [restoredFromStorage, setRestoredFromStorage] = useState(false);
 
   const { user, isUserLoading } = useUser();
+
+  // Read ?dish= param from URL
+  useEffect(() => {
+    const dishParam = searchParams.get('dish');
+    if (dishParam) {
+      setSelectedDish(dishParam);
+      // Clean URL parameter
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setIsClient(true);
