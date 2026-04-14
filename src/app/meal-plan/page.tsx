@@ -179,7 +179,8 @@ function MealPlanContent() {
         document.getElementById('grocery-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 200);
     } catch (error) {
-      toast({ variant: "destructive", title: "Failed to generate grocery list" });
+      console.error('Grocery list error:', error);
+      toast({ variant: "destructive", title: "Failed to generate grocery list", description: String(error) });
     } finally {
       setIsGeneratingGrocery(false);
     }
