@@ -31,9 +31,17 @@ type RecipeFormProps = {
   onSubmit: (values: CreateRecipeInput) => void;
   isLoading: boolean;
   selectedDishName?: string | null;
+  selectedServings?: number | null;
+  selectedCuisine?: string | null;
 };
 
-export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeFormProps) {
+export function RecipeForm({ 
+  onSubmit, 
+  isLoading, 
+  selectedDishName, 
+  selectedServings, 
+  selectedCuisine 
+}: RecipeFormProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,6 +59,18 @@ export function RecipeForm({ onSubmit, isLoading, selectedDishName }: RecipeForm
       form.setValue('dishName', selectedDishName);
     }
   }, [selectedDishName, form]);
+
+  useEffect(() => {
+    if (selectedServings) {
+      form.setValue('servings', selectedServings);
+    }
+  }, [selectedServings, form]);
+
+  useEffect(() => {
+    if (selectedCuisine) {
+      form.setValue('location', selectedCuisine);
+    }
+  }, [selectedCuisine, form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
