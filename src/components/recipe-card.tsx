@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   CardHeader,
   CardTitle,
@@ -7,8 +8,11 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { type CreateRecipeOutput, type Ingredient } from '@/ai/schemas';
 import { Button } from './ui/button';
-import { Trash2, RefreshCw, Minus, Plus, Users } from 'lucide-react';
+import { Trash2, RefreshCw, Minus, Plus, Users, ShoppingCart, Loader2, Lightbulb, X } from 'lucide-react';
 import { Badge } from './ui/badge';
+import { addUnavailableItem } from '@/lib/meal-plan';
+import { suggestAlternative } from '@/ai/flows/suggest-alternative-flow';
+import { useToast } from '@/hooks/use-toast';
 
 type RecipeCardProps = {
   recipe: CreateRecipeOutput;
@@ -18,6 +22,7 @@ type RecipeCardProps = {
   ingredientsChanged: boolean;
   servings: number;
   onServingsChange: (servings: number) => void;
+  userId?: string | null;
 };
 
 export function RecipeCard({
@@ -27,8 +32,48 @@ export function RecipeCard({
   isRegenerating,
   ingredientsChanged,
   servings,
-  onServingsChange
+  onServingsChange,
+  userId
 }: RecipeCardProps) {
+  const [missingItem, setMissingItem] = useState<string | null>(null);
+  const [isCheckingAlternative, setIsCheckingAlternative] = useState(false);
+  const [alternativeSuggestion, setAlternativeSuggestion] = useState<{
+    alternativeIngredient: string;
+    alternativeDish: string;
+    reason: string;
+  } | null>(null);
+  const { toast } = useToast();
+
+  const handleMissingIngredient = async (ingredientName: string) => {
+    setMissingItem(ingredientName);
+    setAlternativeSuggestion(null);
+
+    if (userId) {
+      try {
+        await addUnavailableItem(userId, ingredientName);
+        toast({
+          title: `${ingredientName} added to shopping list 🛒`,
+          duration: 2500,
+        });
+      } catch (error) {
+        console.error('Failed to add to shopping list', error);
+      }
+    }
+
+    setIsCheckingAlternative(true);
+    try {
+      const result = await suggestAlternative({
+        dishName: recipe.title,
+        missingIngredient: ingredientName,
+        allIngredients: recipe.ingredients.map(i => i.name),
+      });
+      setAlternativeSuggestion(result);
+    } catch (error) {
+      console.error('Failed to get alternative', error);
+    } finally {
+      setIsCheckingAlternative(false);
+    }
+  };
 
   const scaleIngredient = (ingredient: Ingredient) => {
     const scaleFactor = servings / recipe.servings;
@@ -93,17 +138,100 @@ export function RecipeCard({
                     {scaleIngredient(ingredient)}
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive" 
-                  onClick={() => onIngredientRemove(ingredient)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-amber-600"
+                    title="I don't have this"
+                    onClick={() => handleMissingIngredient(ingredient.name)}
+                  >
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive" 
+                    onClick={() => onIngredientRemove(ingredient)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </li>
             ))}
           </ul>
+
+          {isCheckingAlternative && (
+            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Finding alternatives...
+            </div>
+          )}
+
+          {alternativeSuggestion && !isCheckingAlternative && (
+            <div style={{
+              marginTop: '16px',
+              padding: '14px',
+              borderRadius: '10px',
+              border: '1px solid',
+              borderColor: 'hsl(45 90% 60% / 0.4)',
+              background: 'hsl(45 90% 95% / 0.3)',
+              position: 'relative',
+            }}>
+              <button
+                onClick={() => {
+                  setAlternativeSuggestion(null);
+                  setMissingItem(null);
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'hsl(var(--muted-foreground))',
+                  padding: '2px',
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginBottom: '10px',
+              }}>
+                <Lightbulb className="h-4 w-4" style={{ color: 'hsl(45 90% 50%)' }} />
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  color: 'hsl(var(--foreground))',
+                }}>
+                  Missing: {missingItem}
+                </span>
+              </div>
+
+              <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 600 }}>Use instead: </span>
+                {alternativeSuggestion.alternativeIngredient}
+              </div>
+
+              <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 600 }}>Or make: </span>
+                {alternativeSuggestion.alternativeDish}
+              </div>
+
+              <div style={{
+                fontSize: '11px',
+                color: 'hsl(var(--muted-foreground))',
+                lineHeight: 1.5,
+              }}>
+                {alternativeSuggestion.reason}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Instructions Column */}
