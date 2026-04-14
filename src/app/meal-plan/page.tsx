@@ -74,6 +74,7 @@ function MealPlanContent() {
     name: string;
     quantity: string;
     neededFor: string[];
+    category: string;
   }[] | null>(null);
   const [isGeneratingGrocery, setIsGeneratingGrocery] = useState(false);
 
@@ -547,30 +548,68 @@ function MealPlanContent() {
                 </div>
               )}
 
-              {groceryList && !isGeneratingGrocery && (
-                <div className="divide-y divide-border">
-                  {groceryList.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between px-6 py-4 hover:bg-secondary/5 transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-foreground">{item.name}</span>
-                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                            {item.quantity}
+              {groceryList && !isGeneratingGrocery && (() => {
+                const categoryOrder = [
+                  'Vegetables',
+                  'Fruits', 
+                  'Grains & Cereals',
+                  'Lentils & Pulses',
+                  'Dairy & Eggs',
+                  'Meat & Poultry',
+                  'Seafood',
+                  'Spices & Masalas',
+                  'Oils & Condiments',
+                  'Others',
+                ];
+
+                const grouped = categoryOrder.reduce((acc, cat) => {
+                  const items = groceryList.filter(item => item.category === cat);
+                  if (items.length > 0) acc[cat] = items;
+                  return acc;
+                }, {} as Record<string, typeof groceryList>);
+
+                return (
+                  <div>
+                    {Object.entries(grouped).map(([category, items]) => (
+                      <div key={category}>
+                        <div className="px-6 py-3 bg-secondary/10 border-b border-border">
+                          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                            {category}
+                          </span>
+                          <span className="ml-2 text-xs text-muted-foreground font-medium">
+                            ({items!.length} {items!.length === 1 ? 'item' : 'items'})
                           </span>
                         </div>
-                        <div className="text-[11px] text-muted-foreground mt-1">
-                          Needed for: {item.neededFor.join(', ')}
-                        </div>
+                        {items!.map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start justify-between px-6 py-4 hover:bg-secondary/5 transition-colors border-b border-border/50 last:border-b-0"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 flex-wrap">
+                                <span className="text-sm font-bold text-foreground">
+                                  {item.name}
+                                </span>
+                                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                  {item.quantity}
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-muted-foreground mt-1">
+                                Needed for: {item.neededFor.join(', ')}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
+                    ))}
+                    <div className="px-6 py-4 bg-secondary/5 border-t border-border">
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Total: {groceryList.length} items across {Object.keys(grouped).length} categories · {weekRange}
+                      </p>
                     </div>
-                  ))}
-                  <div className="px-6 py-4 bg-secondary/5">
-                    <p className="text-xs text-muted-foreground font-medium">
-                      Total: {groceryList.length} items for {weekRange}
-                    </p>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {!groceryList && !isGeneratingGrocery && (
                 <div className="flex flex-col items-center justify-center py-12 text-center px-6">
