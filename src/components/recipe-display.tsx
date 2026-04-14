@@ -185,6 +185,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         ingredientsChanged={ingredientsChanged}
         servings={servings}
         onServingsChange={setServings}
+        userId={user?.uid || null}
       />
 
       {/* Action Buttons */}
