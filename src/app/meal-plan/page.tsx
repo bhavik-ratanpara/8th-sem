@@ -64,6 +64,8 @@ function MealPlanContent() {
   // Editing State
   const [editingSlot, setEditingSlot] = useState<{ day: typeof DAYS[number], meal: typeof MEALS[number] } | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [editServings, setEditServings] = useState<number>(2);
+  const [editCuisine, setEditCuisine] = useState('');
 
   const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
 
@@ -117,9 +119,9 @@ function MealPlanContent() {
 
       DAYS.forEach(day => {
         newPlan[day] = {
-          breakfast: { dishName: result[day].breakfast },
-          lunch: { dishName: result[day].lunch },
-          dinner: { dishName: result[day].dinner },
+          breakfast: { dishName: result[day].breakfast, servings: 2, cuisine: cuisinePreference || 'Mixed' },
+          lunch: { dishName: result[day].lunch, servings: 2, cuisine: cuisinePreference || 'Mixed' },
+          dinner: { dishName: result[day].dinner, servings: 2, cuisine: cuisinePreference || 'Mixed' },
         };
       });
 
@@ -133,14 +135,14 @@ function MealPlanContent() {
     }
   };
 
-  const updateSlot = (day: typeof DAYS[number], meal: typeof MEALS[number], dishName: string | null) => {
+  const updateSlot = (day: typeof DAYS[number], meal: typeof MEALS[number], slot: MealSlot | null) => {
     setPlan(prev => {
       if (!prev) return prev;
       const dayPlan = { ...(prev[day] || {}) };
-      if (dishName === null) {
+      if (slot === null) {
         delete dayPlan[meal];
       } else {
-        dayPlan[meal] = { dishName };
+        dayPlan[meal] = slot;
       }
       return { ...prev, [day]: dayPlan };
     });
@@ -148,9 +150,11 @@ function MealPlanContent() {
     setEditingSlot(null);
   };
 
-  const startEditing = (day: typeof DAYS[number], meal: typeof MEALS[number], current?: string) => {
+  const startEditing = (day: typeof DAYS[number], meal: typeof MEALS[number], currentSlot?: MealSlot) => {
     setEditingSlot({ day, meal });
-    setEditValue(current || '');
+    setEditValue(currentSlot?.dishName || '');
+    setEditServings(currentSlot?.servings || 2);
+    setEditCuisine(currentSlot?.cuisine || '');
   };
 
   const weekRange = `${format(weekStart, 'MMM d')} – ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
@@ -291,12 +295,30 @@ function MealPlanContent() {
                                 autoFocus
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && updateSlot(day, meal, editValue)}
-                                className="h-8 text-xs pr-8"
+                                onKeyDown={(e) => e.key === 'Enter' && editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}
+                                className="h-7 text-xs"
                                 placeholder="Dish name..."
                               />
+                              <div className="flex gap-1">
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  max="20"
+                                  value={editServings}
+                                  onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
+                                  className="h-7 text-xs w-16"
+                                  placeholder="Srv"
+                                  title="Servings"
+                                />
+                                <Input
+                                  value={editCuisine}
+                                  onChange={(e) => setEditCuisine(e.target.value)}
+                                  className="h-7 text-xs flex-1"
+                                  placeholder="Cuisine"
+                                />
+                              </div>
                               <div className="flex gap-1 justify-end">
-                                <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => updateSlot(day, meal, editValue)}>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
                                   <Check className="h-3 w-3" />
                                 </Button>
                                 <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => setEditingSlot(null)}>
@@ -306,14 +328,23 @@ function MealPlanContent() {
                             </div>
                           ) : dish ? (
                             <div className="h-full flex flex-col justify-between">
-                              <button 
-                                onClick={() => router.push(`/?dish=${encodeURIComponent(dish)}`)}
-                                className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-3 mb-4"
-                              >
-                                {dish}
-                              </button>
+                              <div>
+                                <button 
+                                  onClick={() => {
+                                    const slot = plan?.[day]?.[meal];
+                                    router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}`);
+                                  }}
+                                  className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2"
+                                >
+                                  {dish}
+                                </button>
+                                <div className="text-[10px] text-muted-foreground mt-1">
+                                  {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
+                                  {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
+                                </div>
+                              </div>
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEditing(day, meal, dish)}>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
                                   <Pencil className="h-3.5 w-3.5" />
                                 </Button>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => updateSlot(day, meal, null)}>
@@ -361,7 +392,7 @@ function MealPlanContent() {
                             dish ? "bg-primary/[0.03] border-primary/20" : "bg-secondary/10 border-dashed"
                           )}>
                             {isEditing ? (
-                              <div className="flex gap-2 w-full">
+                              <div className="flex flex-col gap-2 w-full">
                                 <Input 
                                   autoFocus
                                   value={editValue}
@@ -369,8 +400,25 @@ function MealPlanContent() {
                                   className="h-10 text-sm"
                                   placeholder="Dish name..."
                                 />
-                                <div className="flex gap-1 shrink-0">
-                                  <Button size="icon" className="h-10 w-10 bg-green-600" onClick={() => updateSlot(day, meal, editValue)}>
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    max="20"
+                                    value={editServings}
+                                    onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
+                                    className="h-10 text-sm w-20"
+                                    placeholder="Servings"
+                                  />
+                                  <Input
+                                    value={editCuisine}
+                                    onChange={(e) => setEditCuisine(e.target.value)}
+                                    className="h-10 text-sm flex-1"
+                                    placeholder="Cuisine"
+                                  />
+                                </div>
+                                <div className="flex gap-1 justify-end">
+                                  <Button size="icon" className="h-10 w-10 bg-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
                                     <Check className="h-4 w-4" />
                                   </Button>
                                   <Button size="icon" variant="outline" className="h-10 w-10 border-destructive text-destructive" onClick={() => setEditingSlot(null)}>
@@ -380,14 +428,23 @@ function MealPlanContent() {
                               </div>
                             ) : dish ? (
                               <div className="flex items-center justify-between w-full">
-                                <button 
-                                  onClick={() => router.push(`/?dish=${encodeURIComponent(dish)}`)}
-                                  className="text-sm font-bold text-foreground hover:text-primary transition-colors flex-1 text-left line-clamp-2"
-                                >
-                                  {dish}
-                                </button>
+                                <div className="flex-1">
+                                  <button 
+                                    onClick={() => {
+                                      const slot = plan?.[day]?.[meal];
+                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}`);
+                                    }}
+                                    className="text-sm font-bold text-foreground hover:text-primary transition-colors text-left line-clamp-2"
+                                  >
+                                    {dish}
+                                  </button>
+                                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                                    {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
+                                    {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
+                                  </div>
+                                </div>
                                 <div className="flex gap-1 ml-4 shrink-0">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => startEditing(day, meal, dish)}>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
                                     <Pencil className="h-4 w-4" />
                                   </Button>
                                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => updateSlot(day, meal, null)}>
