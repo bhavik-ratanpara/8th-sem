@@ -20,9 +20,21 @@ const GenerateGroceryListInputSchema = z.object({
 export type GenerateGroceryListInput = z.infer<typeof GenerateGroceryListInputSchema>;
 
 const GroceryItemSchema = z.object({
-  name: z.string().describe('The name of the ingredient.'),
-  quantity: z.string().describe('The combined quantity needed (e.g., "2 kg", "500g").'),
-  neededFor: z.array(z.string()).describe('The list of dishes that require this ingredient.'),
+  name: z.string().describe('The ingredient name.'),
+  quantity: z.string().describe('Realistic practical quantity for home cooking.'),
+  neededFor: z.array(z.string()).describe('Dishes that need this ingredient.'),
+  category: z.enum([
+    'Vegetables',
+    'Fruits',
+    'Grains & Cereals',
+    'Dairy & Eggs',
+    'Meat & Poultry',
+    'Seafood',
+    'Spices & Masalas',
+    'Oils & Condiments',
+    'Lentils & Pulses',
+    'Others'
+  ]).describe('Category this ingredient belongs to.'),
 });
 
 const GenerateGroceryListOutputSchema = z.object({
@@ -41,20 +53,35 @@ const prompt = ai.definePrompt({
   name: 'generateGroceryListPrompt',
   input: { schema: GenerateGroceryListInputSchema },
   output: { schema: GenerateGroceryListOutputSchema },
-  prompt: `Generate a combined grocery/shopping list for these meals:
+  prompt: `Generate a realistic combined grocery/shopping list for a home cook making these meals:
 
 {{#each meals}}
 - {{this.dishName}} ({{this.servings}} servings, {{this.cuisine}} cuisine)
 {{/each}}
 
-Rules:
-- Combine same ingredients across all dishes into one entry
-- Add up quantities for same ingredient
-- Use practical grocery quantities (kg, g, liters, pieces, dozen)
-- Include all ingredients needed: vegetables, spices, grains, dairy, oils, etc
-- For each item, list which dishes need it
-- Sort by category: vegetables first, then grains, then dairy, then spices, then others
-- Keep ingredient names simple and commonly known
+QUANTITY RULES — follow these strictly:
+- Onion: count in pieces (e.g. '2 medium onions') not grams
+- Tomato: count in pieces (e.g. '3 medium tomatoes')
+- Garlic: count in cloves or heads (e.g. '6 cloves' or '1 head')
+- Ginger: realistic small amount (e.g. '1 inch piece' or '2 inch piece')
+- Green chili: count in pieces (e.g. '4 green chilies')
+- Spices (cumin, turmeric, coriander powder etc): small packet or teaspoons (e.g. '1 small packet 50g' or 'as needed')
+- Oils: realistic bottle size (e.g. '250ml' or '500ml')
+- Flour, rice, dal: realistic quantity for the servings (e.g. '500g', '1 kg')
+- Dairy (milk, curd): realistic amount (e.g. '500ml milk', '250g curd')
+- Vegetables (potato, cauliflower etc): realistic pieces or weight
+- Always consider the number of servings when calculating quantity
+- Never say '100 grams packet' for every spice — use realistic small amounts
+
+CATEGORY RULES:
+- Assign each item to exactly one category
+- Use: Vegetables, Fruits, Grains & Cereals, Dairy & Eggs, Meat & Poultry, Seafood, Spices & Masalas, Oils & Condiments, Lentils & Pulses, Others
+
+OTHER RULES:
+- Combine same ingredients across all dishes
+- No duplicate items
+- Keep ingredient names simple and clear
+- Include ALL ingredients needed
 
 Return only valid JSON matching the output schema.
 No extra text. No markdown.`,
