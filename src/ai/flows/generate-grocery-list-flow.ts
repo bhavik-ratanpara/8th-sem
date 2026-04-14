@@ -114,9 +114,11 @@ export async function generateGroceryListBatched(
     batches.push(meals.slice(i, i + BATCH_SIZE));
   }
 
-  const batchResults = await Promise.all(
-    batches.map(batch => generateGroceryList({ meals: batch }))
-  );
+  const batchResults: GenerateGroceryListOutput[] = [];
+  for (const batch of batches) {
+    const result = await generateGroceryList({ meals: batch });
+    batchResults.push(result);
+  }
 
   const mergedMap = new Map<string, {
     name: string;
