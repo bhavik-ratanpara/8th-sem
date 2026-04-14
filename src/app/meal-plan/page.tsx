@@ -1,0 +1,450 @@
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { ProtectedRoute } from '@/components/protected-route';
+import { useUser } from '@/firebase';
+import { 
+  saveMealPlan, 
+  getMealPlan, 
+  type WeeklyMealPlan, 
+  type DayPlan, 
+  type MealSlot 
+} from '@/lib/meal-plan';
+import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
+import { 
+  startOfWeek, 
+  addDays, 
+  format, 
+  addWeeks, 
+  subWeeks, 
+  parseISO 
+} from 'date-fns';
+import { 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  ChevronLeft, 
+  ChevronRight, 
+  Loader2, 
+  ArrowLeft, 
+  Sparkles, 
+  Check,
+  X,
+  Save
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { FoodDecorations } from '@/components/FoodDecorations';
+
+const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+const MEALS = ['breakfast', 'lunch', 'dinner'] as const;
+
+function MealPlanContent() {
+  const { user } = useUser();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  // ── STATE ──
+  const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [plan, setPlan] = useState<WeeklyMealPlan | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // AI Inputs
+  const [dietType, setDietType] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Mixed'>('Mixed');
+  const [cuisinePreference, setCuisinePreference] = useState('');
+  const [specificDishes, setSpecificDishes] = useState('');
+
+  // Editing State
+  const [editingSlot, setEditingSlot] = useState<{ day: typeof DAYS[number], meal: typeof MEALS[number] } | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
+
+  // ── DATA FETCHING ──
+  useEffect(() => {
+    const fetchPlan = async () => {
+      if (!user) return;
+      setIsLoading(true);
+      try {
+        const data = await getMealPlan(user.uid, weekStartDateStr);
+        setPlan(data || { weekStartDate: weekStartDateStr });
+        setHasChanges(false);
+      } catch (error) {
+        console.error("Error fetching meal plan:", error);
+        toast({ variant: "destructive", title: "Failed to load meal plan" });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPlan();
+  }, [user, weekStartDateStr, toast]);
+
+  // ── ACTIONS ──
+  const handleSave = async () => {
+    if (!user || !plan) return;
+    setIsSaving(true);
+    try {
+      await saveMealPlan(user.uid, plan);
+      setHasChanges(false);
+      toast({ title: "Meal plan saved! 🥗", description: "Your week is all planned out." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error saving plan" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleGenerateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const dishesArray = specificDishes ? specificDishes.split(',').map(d => d.trim()) : [];
+      const result = await generateMealPlan({
+        dietType,
+        cuisinePreference: cuisinePreference || 'Mixed',
+        specificDishes: dishesArray
+      });
+
+      const newPlan: WeeklyMealPlan = {
+        weekStartDate: weekStartDateStr,
+      };
+
+      DAYS.forEach(day => {
+        newPlan[day] = {
+          breakfast: { dishName: result[day].breakfast },
+          lunch: { dishName: result[day].lunch },
+          dinner: { dishName: result[day].dinner },
+        };
+      });
+
+      setPlan(newPlan);
+      setHasChanges(true);
+      toast({ title: "Plan generated! ✨", description: "AI has filled your week." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Generation failed", description: "Please try again." });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const updateSlot = (day: typeof DAYS[number], meal: typeof MEALS[number], dishName: string | null) => {
+    setPlan(prev => {
+      if (!prev) return prev;
+      const dayPlan = { ...(prev[day] || {}) };
+      if (dishName === null) {
+        delete dayPlan[meal];
+      } else {
+        dayPlan[meal] = { dishName };
+      }
+      return { ...prev, [day]: dayPlan };
+    });
+    setHasChanges(true);
+    setEditingSlot(null);
+  };
+
+  const startEditing = (day: typeof DAYS[number], meal: typeof MEALS[number], current?: string) => {
+    setEditingSlot({ day, meal });
+    setEditValue(current || '');
+  };
+
+  const weekRange = `${format(weekStart, 'MMM d')} – ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
+
+  return (
+    <div className="relative min-h-screen overflow-hidden">
+      <FoodDecorations />
+      <div className="max-content px-4 py-8 relative z-10">
+        
+        {/* Navigation */}
+        <Link 
+          href="/"
+          className="flex items-center gap-2 text-primary font-bold text-sm mb-6 hover:translate-x-[-4px] transition-transform w-fit"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Generator
+        </Link>
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
+              Weekly Meal Plan
+            </h1>
+            <p className="text-muted-foreground text-base">Plan your healthy meals for the week ahead</p>
+          </div>
+
+          <div className="flex items-center gap-4 bg-card border border-border p-2 rounded-xl shadow-sm">
+            <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <span className="text-sm font-bold min-w-[180px] text-center">{weekRange}</span>
+            <Button variant="ghost" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}>
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* AI Generator Section */}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+            <Sparkles className="h-24 w-24 text-primary" />
+          </div>
+          <h2 className="text-lg font-bold flex items-center gap-2 mb-6">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Generate Plan with AI
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Diet Type</label>
+              <div className="flex gap-2">
+                {(['Vegetarian', 'Non-Vegetarian', 'Mixed'] as const).map(type => (
+                  <button
+                    key={type}
+                    onClick={() => setDietType(type)}
+                    className={cn(
+                      "text-xs px-3 py-2 rounded-md border font-medium flex-1 transition-all",
+                      dietType === type 
+                        ? "border-primary text-primary bg-primary/10" 
+                        : "border-border text-muted-foreground hover:bg-secondary/50"
+                    )}
+                  >
+                    {type === 'Non-Vegetarian' ? 'Non-Veg' : type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cuisine Preference</label>
+              <Input 
+                placeholder="e.g. Indian, Italian, Mixed" 
+                value={cuisinePreference}
+                onChange={(e) => setCuisinePreference(e.target.value)}
+                className="h-10 text-sm"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Specific Dishes (optional)</label>
+              <Input 
+                placeholder="e.g. Pasta, Dal Rice..." 
+                value={specificDishes}
+                onChange={(e) => setSpecificDishes(e.target.value)}
+                className="h-10 text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <Button 
+              onClick={handleGenerateAI} 
+              disabled={isGenerating}
+              className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-8 rounded-xl gap-2 shadow-lg shadow-primary/20"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Generate Plan ✨
+            </Button>
+          </div>
+        </div>
+
+        {/* Meal Plan Grid */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="space-y-10 mb-20">
+            {/* Desktop Grid */}
+            <div className="hidden lg:block overflow-x-auto">
+              <div className="min-w-[1000px] bg-card border border-border rounded-2xl shadow-sm divide-y divide-border">
+                {/* Header Row */}
+                <div className="grid grid-cols-8 divide-x divide-border">
+                  <div className="p-4 bg-secondary/5" />
+                  {DAYS.map(day => (
+                    <div key={day} className="p-4 text-center">
+                      <span className="text-sm font-black uppercase tracking-widest text-foreground">{day}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Meal Rows */}
+                {MEALS.map(meal => (
+                  <div key={meal} className="grid grid-cols-8 divide-x divide-border" style={{ minHeight: '120px' }}>
+                    <div className="p-4 bg-secondary/5 flex items-center justify-center border-r border-border">
+                      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground rotate-[-90deg] whitespace-nowrap">{meal}</span>
+                    </div>
+                    {DAYS.map(day => {
+                      const dish = plan?.[day]?.[meal]?.dishName;
+                      const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
+
+                      return (
+                        <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group", dish && "bg-primary/[0.02]")}>
+                          {isEditing ? (
+                            <div className="space-y-2">
+                              <Input 
+                                autoFocus
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && updateSlot(day, meal, editValue)}
+                                className="h-8 text-xs pr-8"
+                                placeholder="Dish name..."
+                              />
+                              <div className="flex gap-1 justify-end">
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => updateSlot(day, meal, editValue)}>
+                                  <Check className="h-3 w-3" />
+                                </Button>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => setEditingSlot(null)}>
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : dish ? (
+                            <div className="h-full flex flex-col justify-between">
+                              <button 
+                                onClick={() => router.push(`/?dish=${encodeURIComponent(dish)}`)}
+                                className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-3 mb-4"
+                              >
+                                {dish}
+                              </button>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEditing(day, meal, dish)}>
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => updateSlot(day, meal, null)}>
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="h-full flex items-center justify-center">
+                              <Button 
+                                variant="ghost" 
+                                className="text-xs text-muted-foreground hover:text-primary gap-1.5 h-8 border border-dashed border-border"
+                                onClick={() => startEditing(day, meal)}
+                              >
+                                <Plus className="h-3 w-3" /> Add Meal
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile / Tablet Vertical List */}
+            <div className="lg:hidden space-y-6">
+              {DAYS.map(day => (
+                <div key={day} className="bg-card border border-border rounded-xl p-5 shadow-sm">
+                  <h3 className="text-base font-black uppercase tracking-widest text-foreground mb-4 border-b border-border pb-3 flex items-center justify-between">
+                    {day}
+                    <span className="text-[10px] text-muted-foreground font-medium">Week of {weekStartDateStr}</span>
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {MEALS.map(meal => {
+                      const dish = plan?.[day]?.[meal]?.dishName;
+                      const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
+
+                      return (
+                        <div key={`${day}-${meal}`} className="flex flex-col gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">{meal}</span>
+                          <div className={cn(
+                            "min-h-[60px] rounded-lg border border-border flex items-center px-4 py-3",
+                            dish ? "bg-primary/[0.03] border-primary/20" : "bg-secondary/10 border-dashed"
+                          )}>
+                            {isEditing ? (
+                              <div className="flex gap-2 w-full">
+                                <Input 
+                                  autoFocus
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  className="h-10 text-sm"
+                                  placeholder="Dish name..."
+                                />
+                                <div className="flex gap-1 shrink-0">
+                                  <Button size="icon" className="h-10 w-10 bg-green-600" onClick={() => updateSlot(day, meal, editValue)}>
+                                    <Check className="h-4 w-4" />
+                                  </Button>
+                                  <Button size="icon" variant="outline" className="h-10 w-10 border-destructive text-destructive" onClick={() => setEditingSlot(null)}>
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : dish ? (
+                              <div className="flex items-center justify-between w-full">
+                                <button 
+                                  onClick={() => router.push(`/?dish=${encodeURIComponent(dish)}`)}
+                                  className="text-sm font-bold text-foreground hover:text-primary transition-colors flex-1 text-left line-clamp-2"
+                                >
+                                  {dish}
+                                </button>
+                                <div className="flex gap-1 ml-4 shrink-0">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => startEditing(day, meal, dish)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => updateSlot(day, meal, null)}>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <Button 
+                                variant="ghost" 
+                                className="w-full text-xs text-muted-foreground hover:text-primary gap-2 h-10 border-none"
+                                onClick={() => startEditing(day, meal)}
+                              >
+                                <Plus className="h-4 w-4" /> Add Meal
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action Button - Floating/Fixed */}
+        <div className="fixed bottom-8 right-8 z-[40]">
+          <Button 
+            size="lg"
+            disabled={!hasChanges || isSaving}
+            onClick={handleSave}
+            className={cn(
+              "h-14 px-8 rounded-full shadow-2xl font-bold gap-3 transition-all transform hover:scale-105 active:scale-95",
+              hasChanges ? "bg-primary text-white" : "bg-muted text-muted-foreground cursor-not-allowed border border-border"
+            )}
+          >
+            {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+            {isSaving ? "Saving..." : "Save Plan"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function MealPlanPage() {
+  return (
+    <ProtectedRoute>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      }>
+        <MealPlanContent />
+      </Suspense>
+    </ProtectedRoute>
+  );
+}
