@@ -18,6 +18,8 @@ const { firestore: db } = initializeFirebase();
 
 export interface MealSlot {
   dishName: string;
+  servings?: number;
+  cuisine?: string;
 }
 
 export interface DayPlan {
