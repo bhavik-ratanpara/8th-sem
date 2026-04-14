@@ -98,3 +98,48 @@ export const generateGroceryListFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export async function generateGroceryListBatched(
+  input: GenerateGroceryListInput
+): Promise<GenerateGroceryListOutput> {
+  const BATCH_SIZE = 7;
+  const meals = input.meals;
+
+  if (meals.length <= BATCH_SIZE) {
+    return generateGroceryList(input);
+  }
+
+  const batches: typeof meals[] = [];
+  for (let i = 0; i < meals.length; i += BATCH_SIZE) {
+    batches.push(meals.slice(i, i + BATCH_SIZE));
+  }
+
+  const batchResults = await Promise.all(
+    batches.map(batch => generateGroceryList({ meals: batch }))
+  );
+
+  const mergedMap = new Map<string, {
+    name: string;
+    quantity: string;
+    neededFor: string[];
+    category: string;
+  }>();
+
+  batchResults.forEach(result => {
+    result.items.forEach(item => {
+      const key = item.name.toLowerCase().trim();
+      if (mergedMap.has(key)) {
+        const existing = mergedMap.get(key)!;
+        const merged = {
+          ...existing,
+          neededFor: Array.from(new Set([...existing.neededFor, ...item.neededFor])),
+        };
+        mergedMap.set(key, merged);
+      } else {
+        mergedMap.set(key, item);
+      }
+    });
+  });
+
+  return { items: Array.from(mergedMap.values()) as any };
+}
