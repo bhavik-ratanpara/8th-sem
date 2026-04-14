@@ -25,6 +25,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [selectedDish, setSelectedDish] = useState<string | null>(null);
+  const [selectedServings, setSelectedServings] = useState<number | null>(null);
+  const [selectedCuisine, setSelectedCuisine] = useState<string | null>(null);
   const [originalRecipeInput, setOriginalRecipeInput] = useState<CreateRecipeInput | null>(null);
   const [restoredFromStorage, setRestoredFromStorage] = useState(false);
 
@@ -33,8 +35,16 @@ export default function Home() {
   // Read ?dish= param from URL
   useEffect(() => {
     const dishParam = searchParams.get('dish');
+    const servingsParam = searchParams.get('servings');
+    const cuisineParam = searchParams.get('cuisine');
     if (dishParam) {
       setSelectedDish(dishParam);
+      if (servingsParam) {
+        setSelectedServings(parseInt(servingsParam));
+      }
+      if (cuisineParam) {
+        setSelectedCuisine(cuisineParam);
+      }
       // Clean URL parameter
       window.history.replaceState({}, '', window.location.pathname);
     }
@@ -138,7 +148,13 @@ export default function Home() {
               </div>
               <div className="lg:col-span-8">
                 <div id="recipe-form" className="scroll-mt-24">
-                  <RecipeForm onSubmit={handleGenerateRecipe} isLoading={isLoading} selectedDishName={selectedDish} />
+                  <RecipeForm 
+                    onSubmit={handleGenerateRecipe} 
+                    isLoading={isLoading} 
+                    selectedDishName={selectedDish}
+                    selectedServings={selectedServings}
+                    selectedCuisine={selectedCuisine}
+                  />
                 </div>
               </div>
             </div>
