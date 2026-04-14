@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createRecipeAction } from '@/app/actions';
 import { RecipeForm } from '@/components/recipe-form';
@@ -18,7 +18,7 @@ import Link from 'next/link';
 const RECIPE_STORAGE_KEY = 'cooking_lab_last_recipe';
 const FORM_STORAGE_KEY = 'cooking_lab_last_form';
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [recipe, setRecipe] = useState<CreateRecipeOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -268,5 +268,13 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
