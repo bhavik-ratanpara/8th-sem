@@ -11,7 +11,7 @@ import {
   type MealSlot 
 } from '@/lib/meal-plan';
 import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
-import { generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
+import { generateGroceryListBatched as generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
 import { 
   startOfWeek, 
   addDays, 
