@@ -61,7 +61,6 @@ function MealPlanContent() {
   // AI Inputs
   const [dietType, setDietType] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Mixed'>('Mixed');
   const [cuisinePreference, setCuisinePreference] = useState('');
-  const [specificDishes, setSpecificDishes] = useState('');
 
   // Editing State
   const [editingSlot, setEditingSlot] = useState<{ day: typeof DAYS[number], meal: typeof MEALS[number] } | null>(null);
@@ -119,7 +118,7 @@ function MealPlanContent() {
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const dishesArray = specificDishes ? specificDishes.split(',').map(d => d.trim()) : [];
+      const dishesArray: string[] = [];
       const result = await generateMealPlan({
         dietType,
         cuisinePreference: cuisinePreference || 'Mixed',
@@ -262,7 +261,7 @@ function MealPlanContent() {
             Generate Plan with AI
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
             <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Diet Type</label>
               <div className="flex gap-2">
@@ -289,16 +288,6 @@ function MealPlanContent() {
                 placeholder="e.g. Indian, Italian, Mixed" 
                 value={cuisinePreference}
                 onChange={(e) => setCuisinePreference(e.target.value)}
-                className="h-10 text-sm"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Specific Dishes (optional)</label>
-              <Input 
-                placeholder="e.g. Pasta, Dal Rice..." 
-                value={specificDishes}
-                onChange={(e) => setSpecificDishes(e.target.value)}
                 className="h-10 text-sm"
               />
             </div>
