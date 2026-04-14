@@ -104,7 +104,6 @@ export default function RootLayout({
                   <div className="px-6 py-4 border-t border-border flex flex-col gap-2 text-center">
                     <div className="text-xs text-muted-foreground">
                       © {new Date().getFullYear()} Cooking Lab.
-                      Built by Bhavik Ratanpara.
                     </div>
                   </div>
                 </div>
@@ -187,7 +186,6 @@ export default function RootLayout({
                 <div className="hidden md:flex border-t border-border pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                   <div className="text-xs text-muted-foreground">
                     © {new Date().getFullYear()} Cooking Lab.
-                    Built by Bhavik Ratanpara.
                   </div>
                   <div className="flex gap-6">
                     <a
