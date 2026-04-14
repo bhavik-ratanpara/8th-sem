@@ -153,7 +153,7 @@ function HeaderContent() {
           {!isUserLoading && user && (
             <div className={cn(
               "transition-all duration-300",
-              isMobileSearchOpen ? "w-[160px] sm:w-[220px]" : "w-0 md:w-[380px] overflow-hidden"
+              isMobileSearchOpen ? "w-[160px] sm:w-[220px]" : "w-0 md:w-[180px] lg:w-[260px] overflow-hidden"
             )}>
               <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                 <div className="relative w-full">
@@ -162,7 +162,7 @@ function HeaderContent() {
                       <Input
                         type="search"
                         placeholder="Search videos..."
-                        className="pr-10 h-8 md:h-10 bg-secondary/50 border-border text-[12px] md:text-sm"
+                        className="pr-10 h-8 md:h-9 bg-secondary/50 border-border text-[12px] md:text-sm"
                         autoFocus={isMobileSearchOpen}
                         value={query}
                         onChange={(e) => {
@@ -177,7 +177,7 @@ function HeaderContent() {
                       type="submit"
                       size="icon"
                       variant="ghost"
-                      className="absolute right-0 top-0 h-full w-8 md:w-10 hover:bg-transparent"
+                      className="absolute right-0 top-0 h-full w-8 md:w-9 hover:bg-transparent"
                       disabled={isLoading}
                     >
                       {isLoading ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" /> : <Search className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />}
