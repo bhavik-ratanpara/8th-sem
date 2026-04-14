@@ -11,6 +11,7 @@ import {
   type MealSlot 
 } from '@/lib/meal-plan';
 import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
+import { generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
 import { 
   startOfWeek, 
   addDays, 
@@ -30,7 +31,8 @@ import {
   Sparkles, 
   Check,
   X,
-  Save
+  Save,
+  ShoppingCart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,10 +69,19 @@ function MealPlanContent() {
   const [editServings, setEditServings] = useState<number>(2);
   const [editCuisine, setEditCuisine] = useState('');
 
+  // Grocery List State
+  const [groceryList, setGroceryList] = useState<{
+    name: string;
+    quantity: string;
+    neededFor: string[];
+  }[] | null>(null);
+  const [isGeneratingGrocery, setIsGeneratingGrocery] = useState(false);
+
   const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
 
   // ── DATA FETCHING ──
   useEffect(() => {
+    setGroceryList(null);
     const fetchPlan = async () => {
       if (!user) return;
       setIsLoading(true);
@@ -132,6 +143,44 @@ function MealPlanContent() {
       toast({ variant: "destructive", title: "Generation failed", description: "Please try again." });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateGroceryList = async () => {
+    if (!plan) return;
+    
+    const meals: { dishName: string; servings: number; cuisine: string }[] = [];
+    
+    DAYS.forEach(day => {
+      MEALS.forEach(meal => {
+        const slot = plan[day]?.[meal];
+        if (slot?.dishName) {
+          meals.push({
+            dishName: slot.dishName,
+            servings: slot.servings || 2,
+            cuisine: slot.cuisine || 'Mixed',
+          });
+        }
+      });
+    });
+
+    if (meals.length === 0) {
+      toast({ variant: "destructive", title: "No meals in plan", description: "Add some meals first." });
+      return;
+    }
+
+    setIsGeneratingGrocery(true);
+    try {
+      const result = await generateGroceryList({ meals });
+      setGroceryList(result.items);
+      toast({ title: "Grocery list ready! 🛒" });
+      setTimeout(() => {
+        document.getElementById('grocery-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 200);
+    } catch (error) {
+      toast({ variant: "destructive", title: "Failed to generate grocery list" });
+    } finally {
+      setIsGeneratingGrocery(false);
     }
   };
 
@@ -468,6 +517,69 @@ function MealPlanContent() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Grocery List Section */}
+            <div id="grocery-section" className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2.5 rounded-xl">
+                    <ShoppingCart className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">Weekly Grocery List</h2>
+                    <p className="text-xs text-muted-foreground">Based on your meal plan for {weekRange}</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleGenerateGroceryList}
+                  disabled={isGeneratingGrocery}
+                  className="bg-primary hover:bg-primary/90 text-white font-bold h-10 px-6 rounded-xl gap-2"
+                >
+                  {isGeneratingGrocery ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                  {isGeneratingGrocery ? 'Generating...' : groceryList ? 'Regenerate List' : 'Generate Grocery List'}
+                </Button>
+              </div>
+
+              {isGeneratingGrocery && (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              )}
+
+              {groceryList && !isGeneratingGrocery && (
+                <div className="divide-y divide-border">
+                  {groceryList.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between px-6 py-4 hover:bg-secondary/5 transition-colors">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-bold text-foreground">{item.name}</span>
+                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                            {item.quantity}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground mt-1">
+                          Needed for: {item.neededFor.join(', ')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="px-6 py-4 bg-secondary/5">
+                    <p className="text-xs text-muted-foreground font-medium">
+                      Total: {groceryList.length} items for {weekRange}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!groceryList && !isGeneratingGrocery && (
+                <div className="flex flex-col items-center justify-center py-12 text-center px-6">
+                  <ShoppingCart className="h-10 w-10 text-muted-foreground/20 mb-3" />
+                  <p className="text-sm text-muted-foreground">
+                    Click "Generate Grocery List" to get a combined shopping list for your entire week
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
