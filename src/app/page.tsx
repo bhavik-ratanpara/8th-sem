@@ -32,11 +32,12 @@ export default function Home() {
 
   const { user, isUserLoading } = useUser();
 
-  // Read ?dish= param from URL
+  // Read params from URL
   useEffect(() => {
     const dishParam = searchParams.get('dish');
     const servingsParam = searchParams.get('servings');
     const cuisineParam = searchParams.get('cuisine');
+    
     if (dishParam) {
       setSelectedDish(dishParam);
       if (servingsParam) {
