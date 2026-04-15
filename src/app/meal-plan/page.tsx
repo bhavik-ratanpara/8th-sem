@@ -6,9 +6,11 @@ import { useUser } from '@/firebase';
 import { 
   saveMealPlan, 
   getMealPlan, 
+  saveGroceryList,
   type WeeklyMealPlan, 
   type DayPlan, 
-  type MealSlot 
+  type MealSlot,
+  type GroceryItem
 } from '@/lib/meal-plan';
 import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
 import { generateGroceryListBatched as generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
@@ -26,6 +28,7 @@ import {
   Trash2, 
   ChevronLeft, 
   ChevronRight, 
+  ChevronDown,
   Loader2, 
   ArrowLeft, 
   Sparkles, 
@@ -44,6 +47,19 @@ import { FoodDecorations } from '@/components/FoodDecorations';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 const MEALS = ['breakfast', 'lunch', 'dinner'] as const;
+
+const CATEGORY_EMOJI: Record<string, string> = {
+  'Vegetables': '🥬',
+  'Fruits': '🍎',
+  'Grains & Cereals': '🌾',
+  'Lentils & Pulses': '🫘',
+  'Dairy & Eggs': '🥛',
+  'Meat & Poultry': '🍗',
+  'Seafood': '🐟',
+  'Spices & Masalas': '🌶️',
+  'Oils & Condiments': '🫒',
+  'Others': '📦',
+};
 
 function MealPlanContent() {
   const { user } = useUser();
@@ -77,6 +93,7 @@ function MealPlanContent() {
   }[] | null>(null);
   const [isGeneratingGrocery, setIsGeneratingGrocery] = useState(false);
   const [groceryStartDay, setGroceryStartDay] = useState<typeof DAYS[number]>('monday');
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
 
@@ -89,6 +106,13 @@ function MealPlanContent() {
       try {
         const data = await getMealPlan(user.uid, weekStartDateStr);
         setPlan(data || { weekStartDate: weekStartDateStr });
+        if (data?.groceryList) {
+          setGroceryList(data.groceryList);
+          setOpenCategories(new Set());
+          if (data.groceryDays) {
+            setGroceryStartDay(data.groceryDays.split(',')[0].trim().toLowerCase() as typeof DAYS[number]);
+          }
+        }
         setHasChanges(false);
       } catch (error) {
         console.error("Error fetching meal plan:", error);
@@ -181,6 +205,15 @@ function MealPlanContent() {
     try {
       const result = await generateGroceryList({ meals });
       setGroceryList(result.items);
+      setOpenCategories(new Set());
+      if (user) {
+        const daysLabel = [
+          DAYS[startIndex % 7],
+          DAYS[(startIndex + 1) % 7],
+          DAYS[(startIndex + 2) % 7],
+        ].join(',');
+        await saveGroceryList(user.uid, weekStartDateStr, result.items, daysLabel);
+      }
       toast({ title: "Grocery list ready! 🛒" });
       setTimeout(() => {
         document.getElementById('grocery-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -191,6 +224,18 @@ function MealPlanContent() {
     } finally {
       setIsGeneratingGrocery(false);
     }
+  };
+
+  const toggleCategory = (category: string) => {
+    setOpenCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) {
+        next.delete(category);
+      } else {
+        next.add(category);
+      }
+      return next;
+    });
   };
 
   const updateSlot = (day: typeof DAYS[number], meal: typeof MEALS[number], slot: MealSlot | null) => {
@@ -596,16 +641,10 @@ function MealPlanContent() {
 
               {groceryList && !isGeneratingGrocery && (() => {
                 const categoryOrder = [
-                  'Vegetables',
-                  'Fruits', 
-                  'Grains & Cereals',
-                  'Lentils & Pulses',
-                  'Dairy & Eggs',
-                  'Meat & Poultry',
-                  'Seafood',
-                  'Spices & Masalas',
-                  'Oils & Condiments',
-                  'Others',
+                  'Vegetables', 'Fruits', 'Grains & Cereals',
+                  'Lentils & Pulses', 'Dairy & Eggs',
+                  'Meat & Poultry', 'Seafood',
+                  'Spices & Masalas', 'Oils & Condiments', 'Others',
                 ];
 
                 const grouped = categoryOrder.reduce((acc, cat) => {
@@ -615,40 +654,61 @@ function MealPlanContent() {
                 }, {} as Record<string, typeof groceryList>);
 
                 return (
-                  <div>
-                    {Object.entries(grouped).map(([category, items]) => (
-                      <div key={category}>
-                        <div className="px-6 py-3 bg-secondary/10 border-b border-border">
-                          <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                            {category}
-                          </span>
-                          <span className="ml-2 text-xs text-muted-foreground font-medium">
-                            ({items!.length} {items!.length === 1 ? 'item' : 'items'})
-                          </span>
-                        </div>
-                        {items!.map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex items-start justify-between px-6 py-4 hover:bg-secondary/5 transition-colors border-b border-border/50 last:border-b-0"
+                  <div className="divide-y divide-border">
+                    {Object.entries(grouped).map(([category, items]) => {
+                      const isOpen = openCategories.has(category);
+                      return (
+                        <div key={category}>
+                          <button
+                            onClick={() => toggleCategory(category)}
+                            className="w-full px-6 py-4 flex items-center justify-between hover:bg-secondary/5 transition-colors"
                           >
-                            <div className="flex-1">
-                              <div className="flex items-center gap-3 flex-wrap">
-                                <span className="text-sm font-bold text-foreground">
-                                  {item.name}
-                                </span>
-                                <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                                  {item.quantity}
-                                </span>
-                              </div>
-                              <div className="text-[11px] text-muted-foreground mt-1">
-                                Needed for: {item.neededFor.join(', ')}
-                              </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">
+                                {CATEGORY_EMOJI[category] || '📦'}
+                              </span>
+                              <span className="text-sm font-bold text-foreground">
+                                {category}
+                              </span>
+                              <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
+                                {items!.length} {items!.length === 1 ? 'item' : 'items'}
+                              </span>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="px-6 py-4 bg-secondary/5 border-t border-border">
+                            <ChevronDown className={cn(
+                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                              isOpen && "rotate-180"
+                            )} />
+                          </button>
+
+                          {isOpen && (
+                            <div className="border-t border-border/50">
+                              {items!.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-start justify-between px-6 pl-14 py-3 hover:bg-secondary/5 transition-colors border-b border-border/30 last:border-b-0"
+                                >
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                      <span className="text-sm font-semibold text-foreground">
+                                        {item.name}
+                                      </span>
+                                      <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                        {item.quantity}
+                                      </span>
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                                      For: {item.neededFor.join(', ')}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    <div className="px-6 py-4 bg-secondary/5">
                       <p className="text-xs text-muted-foreground font-medium">
                         Total: {groceryList.length} items across {Object.keys(grouped).length} categories · {(() => {
                           const startIndex = DAYS.indexOf(groceryStartDay);

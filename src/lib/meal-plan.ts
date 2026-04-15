@@ -38,6 +38,8 @@ export interface WeeklyMealPlan {
   friday?: DayPlan;
   saturday?: DayPlan;
   sunday?: DayPlan;
+  groceryList?: GroceryItem[];
+  groceryDays?: string;
   createdAt?: any;
   updatedAt?: any;
 }
@@ -46,6 +48,13 @@ export interface UnavailableItem {
   id?: string;
   itemName: string;
   addedOn?: any;
+}
+
+export interface GroceryItem {
+  name: string;
+  quantity: string;
+  neededFor: string[];
+  category: string;
 }
 
 /**
@@ -79,6 +88,20 @@ export async function getMealPlan(userId: string, weekStartDate: string): Promis
   }
 
   return { ...docSnap.data(), id: docSnap.id } as WeeklyMealPlan;
+}
+
+export async function saveGroceryList(
+  userId: string, 
+  weekStartDate: string, 
+  groceryList: GroceryItem[],
+  groceryDays: string
+): Promise<void> {
+  const docRef = doc(db, 'users', userId, 'weeklyMealPlan', weekStartDate);
+  await setDoc(docRef, { 
+    groceryList, 
+    groceryDays,
+    updatedAt: serverTimestamp() 
+  }, { merge: true });
 }
 
 /**
