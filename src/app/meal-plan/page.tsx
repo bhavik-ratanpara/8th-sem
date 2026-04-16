@@ -7,10 +7,12 @@ import {
   saveMealPlan, 
   getMealPlan, 
   saveGroceryList,
+  deleteGrocerySection,
   type WeeklyMealPlan, 
   type DayPlan, 
   type MealSlot,
-  type GroceryItem
+  type GroceryItem,
+  type GrocerySection
 } from '@/lib/meal-plan';
 import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
 import { generateGroceryListBatched as generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
@@ -77,6 +79,10 @@ function MealPlanContent() {
   // AI Inputs
   const [dietType, setDietType] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Mixed'>('Mixed');
   const [cuisinePreference, setCuisinePreference] = useState('');
+  const [healthGoal, setHealthGoal] = useState<
+    'No Preference' | 'Weight Loss' | 'Muscle Gain' | 
+    'Diabetic Friendly' | 'Heart Healthy'
+  >('No Preference');
 
   // Editing State
   const [editingSlot, setEditingSlot] = useState<{ day: typeof DAYS[number], meal: typeof MEALS[number] } | null>(null);
@@ -85,34 +91,30 @@ function MealPlanContent() {
   const [editCuisine, setEditCuisine] = useState('');
 
   // Grocery List State
-  const [groceryList, setGroceryList] = useState<{
-    name: string;
-    quantity: string;
-    neededFor: string[];
-    category: string;
-  }[] | null>(null);
+  const [grocerySections, setGrocerySections] = useState<GrocerySection[]>([]);
   const [isGeneratingGrocery, setIsGeneratingGrocery] = useState(false);
   const [groceryStartDay, setGroceryStartDay] = useState<typeof DAYS[number]>('monday');
+  const [grocerySelectedDays, setGrocerySelectedDays] = useState<Set<number>>(new Set([0, 1, 2]));
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
 
   // ── DATA FETCHING ──
   useEffect(() => {
-    setGroceryList(null);
     const fetchPlan = async () => {
       if (!user) return;
       setIsLoading(true);
       try {
         const data = await getMealPlan(user.uid, weekStartDateStr);
         setPlan(data || { weekStartDate: weekStartDateStr });
-        if (data?.groceryList) {
-          setGroceryList(data.groceryList);
-          setOpenCategories(new Set());
-          if (data.groceryDays) {
-            setGroceryStartDay(data.groceryDays.split(',')[0].trim().toLowerCase() as typeof DAYS[number]);
-          }
+        if (data?.grocerySections) {
+          setGrocerySections(data.grocerySections);
+        } else {
+          setGrocerySections([]);
         }
+        setOpenSections(new Set());
+        setOpenCategories(new Set());
         setHasChanges(false);
       } catch (error) {
         console.error("Error fetching meal plan:", error);
@@ -146,7 +148,8 @@ function MealPlanContent() {
       const result = await generateMealPlan({
         dietType,
         cuisinePreference: cuisinePreference || 'Mixed',
-        specificDishes: dishesArray
+        specificDishes: dishesArray,
+        healthGoal: healthGoal === 'No Preference' ? undefined : healthGoal,
       });
 
       const newPlan: WeeklyMealPlan = {
@@ -172,14 +175,17 @@ function MealPlanContent() {
   };
 
   const handleGenerateGroceryList = async () => {
-    if (!plan) return;
+    if (!plan || !user) return;
 
     const startIndex = DAYS.indexOf(groceryStartDay);
-    const selectedDays = [
-      DAYS[startIndex % 7],
-      DAYS[(startIndex + 1) % 7],
-      DAYS[(startIndex + 2) % 7],
-    ];
+    const selectedDays = [0, 1, 2]
+      .filter(offset => grocerySelectedDays.has(offset))
+      .map(offset => DAYS[(startIndex + offset) % 7]);
+
+    const daysKey = selectedDays.join(',');
+    const daysLabel = selectedDays.map(d => 
+      d.charAt(0).toUpperCase() + d.slice(1)
+    ).join(' → ');
 
     const meals: { dishName: string; servings: number; cuisine: string }[] = [];
 
@@ -197,42 +203,96 @@ function MealPlanContent() {
     });
 
     if (meals.length === 0) {
-      toast({ variant: "destructive", title: "No meals found", description: `No meals planned for ${selectedDays.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')}` });
+      toast({ 
+        variant: "destructive", 
+        title: "No meals found", 
+        description: `No meals planned for ${daysLabel}` 
+      });
       return;
     }
 
     setIsGeneratingGrocery(true);
     try {
       const result = await generateGroceryList({ meals });
-      setGroceryList(result.items);
+      
+      const newSection: GrocerySection = {
+        days: daysKey,
+        daysLabel: daysLabel,
+        items: result.items,
+        generatedAt: Date.now(),
+      };
+
+      const updatedSections = grocerySections.filter(
+        s => s.days !== daysKey
+      );
+      updatedSections.push(newSection);
+      
+      setGrocerySections(updatedSections);
+      setOpenSections(new Set());
       setOpenCategories(new Set());
-      if (user) {
-        const daysLabel = [
-          DAYS[startIndex % 7],
-          DAYS[(startIndex + 1) % 7],
-          DAYS[(startIndex + 2) % 7],
-        ].join(',');
-        await saveGroceryList(user.uid, weekStartDateStr, result.items, daysLabel);
-      }
+
+      await saveGroceryList(user.uid, weekStartDateStr, newSection, grocerySections);
+      
       toast({ title: "Grocery list ready! 🛒" });
       setTimeout(() => {
         document.getElementById('grocery-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 200);
     } catch (error) {
       console.error('Grocery list error:', error);
-      toast({ variant: "destructive", title: "Failed to generate grocery list", description: String(error) });
+      toast({ 
+        variant: "destructive", 
+        title: "Failed to generate grocery list", 
+        description: String(error) 
+      });
     } finally {
       setIsGeneratingGrocery(false);
     }
   };
 
-  const toggleCategory = (category: string) => {
+  const toggleSection = (days: string) => {
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(days)) {
+        next.delete(days);
+      } else {
+        next.add(days);
+      }
+      return next;
+    });
+  };
+
+  const toggleCategory = (key: string) => {
     setOpenCategories(prev => {
       const next = new Set(prev);
-      if (next.has(category)) {
-        next.delete(category);
+      if (next.has(key)) {
+        next.delete(key);
       } else {
-        next.add(category);
+        next.add(key);
+      }
+      return next;
+    });
+  };
+
+  const handleDeleteGrocerySection = async (days: string) => {
+    if (!user) return;
+    const updated = grocerySections.filter(s => s.days !== days);
+    setGrocerySections(updated);
+    try {
+      await deleteGrocerySection(user.uid, weekStartDateStr, days, grocerySections);
+      toast({ title: "Section removed 🗑️" });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Failed to delete section" });
+    }
+  };
+
+  const toggleGroceryDay = (offset: number) => {
+    if (offset === 0) return; // starting day always selected
+    setGrocerySelectedDays(prev => {
+      const next = new Set(prev);
+      if (next.has(offset)) {
+        next.delete(offset);
+      } else {
+        next.add(offset);
       }
       return next;
     });
@@ -306,7 +366,7 @@ function MealPlanContent() {
             Generate Plan with AI
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div className="space-y-3">
               <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Diet Type</label>
               <div className="flex gap-2">
@@ -335,6 +395,34 @@ function MealPlanContent() {
                 onChange={(e) => setCuisinePreference(e.target.value)}
                 className="h-10 text-sm"
               />
+            </div>
+            
+            <div className="space-y-3">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Health Goal
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  'No Preference',
+                  'Weight Loss',
+                  'Muscle Gain', 
+                  'Diabetic Friendly',
+                  'Heart Healthy'
+                ] as const).map(goal => (
+                  <button
+                    key={goal}
+                    onClick={() => setHealthGoal(goal)}
+                    className={cn(
+                      "text-xs px-3 py-2 rounded-md border font-medium transition-all",
+                      healthGoal === goal
+                        ? "border-primary text-primary bg-primary/10"
+                        : "border-border text-muted-foreground hover:bg-secondary/50"
+                    )}
+                  >
+                    {goal}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -425,7 +513,7 @@ function MealPlanContent() {
                                 <button 
                                   onClick={() => {
                                     const slot = plan?.[day]?.[meal];
-                                    router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}`);
+                                    router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
                                   }}
                                   className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2"
                                 >
@@ -525,7 +613,7 @@ function MealPlanContent() {
                                   <button 
                                     onClick={() => {
                                       const slot = plan?.[day]?.[meal];
-                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}`);
+                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
                                     }}
                                     className="text-sm font-bold text-foreground hover:text-primary transition-colors text-left line-clamp-2"
                                   >
@@ -581,44 +669,74 @@ function MealPlanContent() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
                   <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Starting from</label>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {DAYS.map(day => {
+                    <div className="flex gap-1.5 flex-wrap mb-2">
+                      {DAYS.map(day => (
+                        <button
+                          key={day}
+                          onClick={() => {
+                            setGroceryStartDay(day);
+                            setGrocerySelectedDays(new Set([0, 1, 2]));
+                          }}
+                          className={cn(
+                            "text-[11px] px-2.5 py-1.5 rounded-md border font-semibold uppercase tracking-wider transition-all",
+                            day === groceryStartDay
+                              ? "border-primary text-white bg-primary"
+                              : "border-border text-muted-foreground hover:bg-secondary/50"
+                          )}
+                        >
+                          {day.slice(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {[0, 1, 2].map(offset => {
                         const startIndex = DAYS.indexOf(groceryStartDay);
-                        const selectedDays = [
-                          DAYS[startIndex % 7],
-                          DAYS[(startIndex + 1) % 7],
-                          DAYS[(startIndex + 2) % 7],
-                        ];
-                        const isStart = day === groceryStartDay;
-                        const isSelected = selectedDays.includes(day);
+                        const day = DAYS[(startIndex + offset) % 7];
+                        const isSelected = grocerySelectedDays.has(offset);
+                        const isStart = offset === 0;
 
                         return (
-                          <button
-                            key={day}
-                            onClick={() => setGroceryStartDay(day)}
+                          <div
+                            key={offset}
+                            onClick={() => toggleGroceryDay(offset)}
                             className={cn(
-                              "text-[11px] px-2.5 py-1.5 rounded-md border font-semibold uppercase tracking-wider transition-all",
-                              isStart
-                                ? "border-primary text-white bg-primary"
-                                : isSelected
-                                ? "border-primary/40 text-primary bg-primary/10"
-                                : "border-border text-muted-foreground hover:bg-secondary/50"
+                              "relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer transition-all select-none",
+                              isSelected
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border bg-secondary/10 text-muted-foreground opacity-50"
                             )}
                           >
-                            {day.slice(0, 3)}
-                          </button>
+                            <span className="text-sm font-bold capitalize">
+                              {day}
+                            </span>
+                            {isSelected && !isStart && (
+                              <span
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleGroceryDay(offset);
+                                }}
+                                className="text-primary/60 hover:text-destructive transition-colors text-xs font-bold"
+                              >
+                                ×
+                              </span>
+                            )}
+                            {isStart && isSelected && (
+                              <span className="text-primary/40 text-xs">✓</span>
+                            )}
+                          </div>
                         );
                       })}
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      Generating for: {(() => {
-                        const startIndex = DAYS.indexOf(groceryStartDay);
-                        return [
-                          DAYS[startIndex % 7],
-                          DAYS[(startIndex + 1) % 7],
-                          DAYS[(startIndex + 2) % 7],
-                        ].map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(' → ');
-                      })()}
+                      Generating for: {[0, 1, 2]
+                        .filter(offset => grocerySelectedDays.has(offset))
+                        .map(offset => {
+                          const startIndex = DAYS.indexOf(groceryStartDay);
+                          const d = DAYS[(startIndex + offset) % 7];
+                          return d.charAt(0).toUpperCase() + d.slice(1);
+                        })
+                        .join(' → ')
+                      }
                     </p>
                   </div>
 
@@ -628,7 +746,7 @@ function MealPlanContent() {
                     className="bg-primary hover:bg-primary/90 text-white font-bold h-10 px-6 rounded-xl gap-2"
                   >
                     {isGeneratingGrocery ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-                    {isGeneratingGrocery ? 'Generating...' : groceryList ? 'Regenerate' : 'Generate List'}
+                    {isGeneratingGrocery ? 'Generating...' : grocerySections.length > 0 ? 'Generate More' : 'Generate List'}
                   </Button>
                 </div>
               </div>
@@ -639,96 +757,131 @@ function MealPlanContent() {
                 </div>
               )}
 
-              {groceryList && !isGeneratingGrocery && (() => {
-                const categoryOrder = [
-                  'Vegetables', 'Fruits', 'Grains & Cereals',
-                  'Lentils & Pulses', 'Dairy & Eggs',
-                  'Meat & Poultry', 'Seafood',
-                  'Spices & Masalas', 'Oils & Condiments', 'Others',
-                ];
+              {grocerySections.length > 0 && !isGeneratingGrocery && (
+                <div className="divide-y divide-border">
+                  {grocerySections
+                    .sort((a, b) => a.generatedAt - b.generatedAt)
+                    .map((section) => {
+                      const isSectionOpen = openSections.has(section.days);
 
-                const grouped = categoryOrder.reduce((acc, cat) => {
-                  const items = groceryList.filter(item => item.category === cat);
-                  if (items.length > 0) acc[cat] = items;
-                  return acc;
-                }, {} as Record<string, typeof groceryList>);
+                      const categoryOrder = [
+                        'Vegetables', 'Fruits', 'Grains & Cereals',
+                        'Lentils & Pulses', 'Dairy & Eggs',
+                        'Meat & Poultry', 'Seafood',
+                        'Spices & Masalas', 'Oils & Condiments', 'Others',
+                      ];
 
-                return (
-                  <div className="divide-y divide-border">
-                    {Object.entries(grouped).map(([category, items]) => {
-                      const isOpen = openCategories.has(category);
+                      const grouped = categoryOrder.reduce((acc, cat) => {
+                        const items = section.items.filter(item => item.category === cat);
+                        if (items.length > 0) acc[cat] = items;
+                        return acc;
+                      }, {} as Record<string, GroceryItem[]>);
+
                       return (
-                        <div key={category}>
-                          <button
-                            onClick={() => toggleCategory(category)}
-                            className="w-full px-6 py-4 flex items-center justify-between hover:bg-secondary/5 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-lg">
-                                {CATEGORY_EMOJI[category] || '📦'}
-                              </span>
-                              <span className="text-sm font-bold text-foreground">
-                                {category}
-                              </span>
-                              <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
-                                {items!.length} {items!.length === 1 ? 'item' : 'items'}
-                              </span>
-                            </div>
-                            <ChevronDown className={cn(
-                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                              isOpen && "rotate-180"
-                            )} />
-                          </button>
+                        <div key={section.days}>
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => toggleSection(section.days)}
+                              className="flex-1 px-6 py-4 flex items-center justify-between hover:bg-secondary/5 transition-colors"
+                            >
+                              <div className="flex items-center gap-3">
+                                <ShoppingCart className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-bold text-foreground">
+                                  {section.daysLabel}
+                                </span>
+                                <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
+                                  {section.items.length} items
+                                </span>
+                              </div>
+                              <ChevronDown className={cn(
+                                "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                                isSectionOpen && "rotate-180"
+                              )} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteGrocerySection(section.days)}
+                              className="px-4 py-4 text-muted-foreground hover:text-destructive transition-colors"
+                              title="Delete this section"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
 
-                          {isOpen && (
-                            <div className="border-t border-border/50">
-                              {items!.map((item, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-start justify-between px-6 pl-14 py-3 hover:bg-secondary/5 transition-colors border-b border-border/30 last:border-b-0"
-                                >
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-3 flex-wrap">
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {item.name}
-                                      </span>
-                                      <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                                        {item.quantity}
-                                      </span>
-                                    </div>
-                                    <div className="text-[10px] text-muted-foreground mt-0.5">
-                                      For: {item.neededFor.join(', ')}
-                                    </div>
+                          {isSectionOpen && (
+                            <div className="border-t border-border/50 pl-4">
+                              {Object.entries(grouped).map(([category, items]) => {
+                                const catKey = `${section.days}-${category}`;
+                                const isCatOpen = openCategories.has(catKey);
+
+                                return (
+                                  <div key={catKey}>
+                                    <button
+                                      onClick={() => toggleCategory(catKey)}
+                                      className="w-full px-6 py-3 flex items-center justify-between hover:bg-secondary/5 transition-colors"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-base">
+                                          {CATEGORY_EMOJI[category] || '📦'}
+                                        </span>
+                                        <span className="text-xs font-bold text-foreground">
+                                          {category}
+                                        </span>
+                                        <span className="text-[10px] font-medium text-muted-foreground bg-secondary/50 px-1.5 py-0.5 rounded-full">
+                                          {items.length}
+                                        </span>
+                                      </div>
+                                      <ChevronDown className={cn(
+                                        "h-3 w-3 text-muted-foreground transition-transform duration-200",
+                                        isCatOpen && "rotate-180"
+                                      )} />
+                                    </button>
+
+                                    {isCatOpen && (
+                                      <div className="border-t border-border/30">
+                                        {items.map((item, index) => (
+                                          <div
+                                            key={index}
+                                            className="flex items-start px-6 pl-16 py-2.5 hover:bg-secondary/5 transition-colors border-b border-border/20 last:border-b-0"
+                                          >
+                                            <div className="flex-1">
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-sm font-semibold text-foreground">
+                                                  {item.name}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                                                  {item.quantity}
+                                                </span>
+                                              </div>
+                                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                                For: {item.neededFor.join(', ')}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           )}
                         </div>
                       );
                     })}
 
-                    <div className="px-6 py-4 bg-secondary/5">
-                      <p className="text-xs text-muted-foreground font-medium">
-                        Total: {groceryList.length} items across {Object.keys(grouped).length} categories · {(() => {
-                          const startIndex = DAYS.indexOf(groceryStartDay);
-                          return [
-                            DAYS[startIndex % 7],
-                            DAYS[(startIndex + 1) % 7],
-                            DAYS[(startIndex + 2) % 7],
-                          ].map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ');
-                        })()}
-                      </p>
-                    </div>
+                  <div className="px-6 py-3 bg-secondary/5">
+                    <p className="text-[11px] text-muted-foreground font-medium">
+                      {grocerySections.length} {grocerySections.length === 1 ? 'section' : 'sections'} · {grocerySections.reduce((sum, s) => sum + s.items.length, 0)} total items
+                    </p>
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
-              {!groceryList && !isGeneratingGrocery && (
+              {grocerySections.length === 0 && !isGeneratingGrocery && (
                 <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                   <ShoppingCart className="h-10 w-10 text-muted-foreground/20 mb-3" />
                   <p className="text-sm text-muted-foreground">
-                    Click "Generate Grocery List" to get a combined shopping list for your entire week
+                    Select starting day and click "Generate List" to get your grocery list
                   </p>
                 </div>
               )}

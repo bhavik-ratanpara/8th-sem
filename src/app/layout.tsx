@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { FooterAccountLinks } from '@/components/FooterAccountLinks';
 import { FooterAccordion } from '@/components/FooterAccordion';
 import { ChefHat } from 'lucide-react';
+import { MissingItemsPopup } from '@/components/MissingItemsPopup';
 
 export const metadata: Metadata = {
   title: 'Cooking Lab | Professional Culinary Academy',
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <meta 
           name="viewport" 
@@ -43,7 +44,8 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-foreground">
         <FirebaseClientProvider>
           <Header />
-          <div className="pt-16 min-h-screen flex flex-col">
+          <MissingItemsPopup />
+          <div className="pt-[52px] min-h-screen flex flex-col">
             <main className="flex-1">{children}</main>
             <footer className="border-t border-border bg-background py-8 mt-auto">
               <div className="max-w-6xl mx-auto px-6">

@@ -38,8 +38,7 @@ export interface WeeklyMealPlan {
   friday?: DayPlan;
   saturday?: DayPlan;
   sunday?: DayPlan;
-  groceryList?: GroceryItem[];
-  groceryDays?: string;
+  grocerySections?: GrocerySection[];
   createdAt?: any;
   updatedAt?: any;
 }
@@ -55,6 +54,13 @@ export interface GroceryItem {
   quantity: string;
   neededFor: string[];
   category: string;
+}
+
+export interface GrocerySection {
+  days: string;
+  daysLabel: string;
+  items: GroceryItem[];
+  generatedAt: number;
 }
 
 /**
@@ -91,16 +97,39 @@ export async function getMealPlan(userId: string, weekStartDate: string): Promis
 }
 
 export async function saveGroceryList(
-  userId: string, 
-  weekStartDate: string, 
-  groceryList: GroceryItem[],
-  groceryDays: string
+  userId: string,
+  weekStartDate: string,
+  newSection: GrocerySection,
+  existingSections: GrocerySection[]
 ): Promise<void> {
   const docRef = doc(db, 'users', userId, 'weeklyMealPlan', weekStartDate);
-  await setDoc(docRef, { 
-    groceryList, 
-    groceryDays,
-    updatedAt: serverTimestamp() 
+  
+  const updatedSections = existingSections.filter(
+    s => s.days !== newSection.days
+  );
+  updatedSections.push(newSection);
+
+  await setDoc(docRef, {
+    grocerySections: updatedSections,
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+}
+
+export async function deleteGrocerySection(
+  userId: string,
+  weekStartDate: string,
+  days: string,
+  existingSections: GrocerySection[]
+): Promise<void> {
+  const docRef = doc(db, 'users', userId, 'weeklyMealPlan', weekStartDate);
+  
+  const updatedSections = existingSections.filter(
+    s => s.days !== days
+  );
+
+  await setDoc(docRef, {
+    grocerySections: updatedSections,
+    updatedAt: serverTimestamp()
   }, { merge: true });
 }
 

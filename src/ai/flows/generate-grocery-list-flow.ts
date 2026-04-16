@@ -60,22 +60,25 @@ const prompt = ai.definePrompt({
 {{/each}}
 
 QUANTITY RULES — follow these strictly:
-- Onion: count in pieces (e.g. '2 medium onions') not grams
-- Tomato: count in pieces (e.g. '3 medium tomatoes')
-- Garlic: count in cloves or heads (e.g. '6 cloves' or '1 head')
-- Ginger: realistic small amount (e.g. '1 inch piece' or '2 inch piece')
-- Green chili: count in pieces (e.g. '4 green chilies')
-- Spices (cumin, turmeric, coriander powder etc): small packet or teaspoons (e.g. '1 small packet 50g' or 'as needed')
-- Oils: realistic bottle size (e.g. '250ml' or '500ml')
-- Flour, rice, dal: realistic quantity for the servings (e.g. '500g', '1 kg')
-- Dairy (milk, curd): realistic amount (e.g. '500ml milk', '250g curd')
-- Vegetables (potato, cauliflower etc): realistic pieces or weight
-- Always consider the number of servings when calculating quantity
-- Never say '100 grams packet' for every spice — use realistic small amounts
+- Always use standard measurable units only
+- Vegetables: use kg or grams (e.g. '500g', '1 kg', '200g')
+- Fruits: use kg or grams (e.g. '250g', '500g')
+- Liquids: use ml or liters (e.g. '500ml', '1 liter')
+- Grains, flour, dal, rice: use kg or grams (e.g. '1 kg', '500g')
+- Dairy (milk, curd, cream): use ml or grams (e.g. '500ml', '200g')
+- Spices and masalas: use grams only (e.g. '50g', '100g')
+- Oils: use ml or liters (e.g. '250ml', '500ml')
+- Eggs: use count only (e.g. '6 eggs', '12 eggs')
+- Never write 'small packet', 'medium onion', 'large tomato'
+- Never count vegetables or fruits in pieces
+- Always calculate quantity based on number of servings
+- Combine same ingredients from all dishes
 
 CATEGORY RULES:
 - Assign each item to exactly one category
-- Use: Vegetables, Fruits, Grains & Cereals, Dairy & Eggs, Meat & Poultry, Seafood, Spices & Masalas, Oils & Condiments, Lentils & Pulses, Others
+- Use: Vegetables, Fruits, Grains & Cereals, Dairy & Eggs,
+  Meat & Poultry, Seafood, Spices & Masalas,
+  Oils & Condiments, Lentils & Pulses, Others
 
 OTHER RULES:
 - Combine same ingredients across all dishes

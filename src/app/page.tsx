@@ -27,6 +27,7 @@ function HomeContent() {
   const [selectedDish, setSelectedDish] = useState<string | null>(null);
   const [selectedServings, setSelectedServings] = useState<number | null>(null);
   const [selectedCuisine, setSelectedCuisine] = useState<string | null>(null);
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [originalRecipeInput, setOriginalRecipeInput] = useState<CreateRecipeInput | null>(null);
   const [restoredFromStorage, setRestoredFromStorage] = useState(false);
 
@@ -37,6 +38,7 @@ function HomeContent() {
     const dishParam = searchParams.get('dish');
     const servingsParam = searchParams.get('servings');
     const cuisineParam = searchParams.get('cuisine');
+    const goalParam = searchParams.get('goal');
     
     if (dishParam) {
       setSelectedDish(dishParam);
@@ -45,6 +47,9 @@ function HomeContent() {
       }
       if (cuisineParam) {
         setSelectedCuisine(cuisineParam);
+      }
+      if (goalParam) {
+        setSelectedGoal(goalParam);
       }
       // Clean URL parameter
       window.history.replaceState({}, '', window.location.pathname);
@@ -149,6 +154,42 @@ function HomeContent() {
               </div>
               <div className="lg:col-span-8">
                 <div id="recipe-form" className="scroll-mt-24">
+                  {selectedGoal && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      background: 'hsl(var(--primary) / 0.06)',
+                      border: '1px solid hsl(var(--primary) / 0.15)',
+                      marginBottom: '12px',
+                    }}>
+                      <span style={{ fontSize: '16px' }}>🎯</span>
+                      <span style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: 'hsl(var(--primary))',
+                      }}>
+                        Health Goal: {selectedGoal}
+                      </span>
+                      <button
+                        onClick={() => setSelectedGoal(null)}
+                        style={{
+                          marginLeft: 'auto',
+                          background: 'transparent',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'hsl(var(--muted-foreground))',
+                          fontSize: '16px',
+                          lineHeight: 1,
+                          padding: '0 2px',
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
                   <RecipeForm 
                     onSubmit={handleGenerateRecipe} 
                     isLoading={isLoading} 

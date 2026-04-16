@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Loader2, Search, LogOut, User as UserIcon, ChefHat, Moon, Sun, BookMarked, Star, X, Globe, Info, BookOpen, Home, CalendarDays, ShoppingCart } from 'lucide-react';
+import { Loader2, Search, LogOut, User as UserIcon, ChefHat, BookMarked, Star, X, Globe, Info, BookOpen, Home, CalendarDays, ShoppingCart } from 'lucide-react';
 import { Popover, PopoverContent } from '@/components/ui/popover';
 import { YoutubeSearchResults, type YouTubeVideo } from './youtube-search-results';
 import { useAuth, useUser } from '@/firebase';
@@ -27,7 +27,7 @@ function HeaderContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
-  const [isDark, setIsDark] = useState<boolean>(false);
+
 
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
@@ -38,9 +38,7 @@ function HeaderContent() {
 
   useEffect(() => {
     setMounted(true);
-    const theme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    document.documentElement.setAttribute("data-theme", theme);
-    setIsDark(theme === "dark");
+    document.documentElement.setAttribute("data-theme", "dark");
 
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -51,15 +49,7 @@ function HeaderContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const newTheme = !prev;
-      const themeName = newTheme ? "dark" : "light";
-      document.documentElement.setAttribute("data-theme", themeName);
-      localStorage.setItem("theme", themeName);
-      return newTheme;
-    });
-  };
+
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -94,7 +84,7 @@ function HeaderContent() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-background border-b border-border">
       <div className="flex items-center w-full h-full px-6 relative">
         
         {/* LEFT - Logo */}
@@ -203,17 +193,7 @@ function HeaderContent() {
             </Button>
           )}
 
-          {/* Theme Toggle */}
-          {mounted && !isMobileSearchOpen && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 md:h-9 md:w-9 text-foreground hover:bg-transparent transition-colors"
-              onClick={toggleTheme}
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-          )}
+
 
           {/* Profile Dropdown */}
           {!isUserLoading && !isMobileSearchOpen && (
@@ -347,7 +327,7 @@ function HeaderContent() {
 export function Header() {
   return (
     <Suspense fallback={
-      <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-background border-b border-border">
         <div className="flex items-center w-full h-full px-6 relative">
           <div className="flex-shrink-0 mr-auto">
             <div className="flex items-center gap-2">
