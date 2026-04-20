@@ -146,34 +146,37 @@ function ShoppingListContent() {
           </div>
         ) : items.length > 0 ? (
           <>
-            {/* Header row */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
-            >
-              <div className="space-y-2">
-                <h1 className={cn("text-4xl md:text-5xl text-[#ffffff] tracking-tight", playfair.className)}>
-                  Shopping List
-                </h1>
-                <p className="text-sm md:text-base text-[#d4d4d4]">
-                  Ingredients missing from your upcoming meal plan
-                </p>
-              </div>
-
+            {/* Sticky Header Section */}
+            <div className="sticky top-[52px] z-40 mb-12 pt-4">
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#8ea690]/30 bg-[#8ea690]/10 backdrop-blur-md w-max shrink-0"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6"
               >
-                <div className="h-1.5 w-1.5 rounded-full bg-[#8ea690]"></div>
-                <span className="text-xs font-medium uppercase tracking-wider">
-                  <span className="text-[#ffffff]">{items.length}</span> <span className="text-[#d4d4d4]">items to buy</span>
-                </span>
+                <div className="space-y-2">
+                  <h1 className={cn("text-4xl md:text-5xl text-[#ffffff] tracking-tight", playfair.className)}>
+                    Shopping List
+                  </h1>
+                  <p className="text-sm md:text-base text-[#d4d4d4]">
+                    Ingredients missing from your upcoming meal plan
+                  </p>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#8ea690]/30 bg-[#8ea690]/10 backdrop-blur-md w-max shrink-0"
+                >
+                  <div className="h-1.5 w-1.5 rounded-full bg-[#8ea690]"></div>
+                  <span className="text-xs font-medium uppercase tracking-wider">
+                    <span className="text-[#ffffff]">{items.length}</span> <span className="text-[#d4d4d4]">items to buy</span>
+                  </span>
+                </motion.div>
               </motion.div>
-            </motion.div>
+              <div className="h-px w-full bg-[rgba(255,255,255,0.15)]" />
+            </div>
 
             {/* Categories */}
             <div className="space-y-12">
