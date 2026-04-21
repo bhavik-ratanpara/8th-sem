@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const CATEGORY_CONFIG = [
   { id: 'Vegetables', keywords: ['potato', 'onion', 'tomato', 'garlic', 'spinach', 'mushroom', 'broccoli', 'mint'], emoji: '🥬', accent: 'border-l-green-500', badge: 'bg-green-500/10 text-green-400 border-green-500/20' },
@@ -76,15 +77,15 @@ function SidebarCategoryRow({
         hovered ? 'bg-secondary/60' : 'hover:bg-secondary/30'
       )}>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs leading-none">{group.emoji}</span>
-          <span className="text-xs text-muted-foreground truncate">{group.category}</span>
+          <span className="text-sm leading-none">{group.emoji}</span>
+          <span className="text-sm text-muted-foreground truncate">{group.category}</span>
         </div>
-        <span className={cn('text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0', group.badge)}>
+        <span className={cn('text-xs font-bold px-1.5 py-0.5 rounded border shrink-0', group.badge)}>
           {group.items.length}
         </span>
       </div>
 
-      {/* Popover — CHANGED: Now floats to the RIGHT of the sidebar */}
+      {/* Popover — floats to the RIGHT of the sidebar */}
       <AnimatePresence>
         {hovered && (
           <motion.div
@@ -92,15 +93,14 @@ function SidebarCategoryRow({
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            /* CHANGED: left-[calc(100%+12px)] positions popover to the RIGHT */
             style={{ top: 0 }}
             className="absolute left-[calc(100%+12px)] top-0 w-52 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden"
           >
             {/* Popover header */}
             <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border bg-secondary/30">
               <span className="text-sm leading-none">{group.emoji}</span>
-              <span className="text-xs font-semibold text-foreground">{group.category}</span>
-              <span className={cn('ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded border', group.badge)}>
+              <span className="text-sm font-semibold text-foreground">{group.category}</span>
+              <span className={cn('ml-auto text-xs font-bold px-1.5 py-0.5 rounded border', group.badge)}>
                 {group.items.length}
               </span>
             </div>
@@ -113,7 +113,7 @@ function SidebarCategoryRow({
                   className="flex items-center gap-2 px-3 py-1.5 hover:bg-secondary/30 transition-colors"
                 >
                   <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
-                  <span className="text-xs text-foreground leading-snug">{item.itemName}</span>
+                  <span className="text-sm text-foreground leading-snug">{item.itemName}</span>
                 </div>
               ))}
             </div>
@@ -185,8 +185,15 @@ function ShoppingListContent() {
   const allDone = totalAtLoad > 0 && boughtCount === totalAtLoad;
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="max-content px-4 py-12 relative z-10">
+    <div className="relative min-h-screen">
+      <Image
+        src="/design1.png"
+        alt="Decorative background image"
+        width={384}
+        height={384}
+        className="fixed bottom-0 left-0 opacity-50 hidden md:block md:w-72 md:h-72 lg:w-96 lg:h-96"
+      />
+      <div className="max-content px-4 py-12">
 
         {/* Back */}
         <Link
@@ -203,12 +210,12 @@ function ShoppingListContent() {
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>
               Shopping List
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-xl">
               Manage your ingredients for upcoming meals
             </p>
           </div>
           {!isLoading && (
-            <div className="text-sm font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap">
+            <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap">
               {items.length} {items.length === 1 ? 'item' : 'items'} to buy
             </div>
           )}
@@ -236,7 +243,7 @@ function ShoppingListContent() {
           </div>
 
         ) : (
-          <div className="flex gap-8 items-start">
+          <div className="flex gap-8 items-start relative">
 
             {/* ── LEFT: Main list ── */}
             <div className="flex-1 min-w-0 space-y-8">
@@ -252,8 +259,8 @@ function ShoppingListContent() {
                   >
                     <PartyPopper className="h-5 w-5 text-green-400 shrink-0" />
                     <div>
-                      <p className="text-sm font-bold text-green-400">All items bought!</p>
-                      <p className="text-xs text-green-400/70">You're all stocked up for your meal plan.</p>
+                      <p className="text-base font-bold text-green-400">All items bought!</p>
+                      <p className="text-sm text-green-400/70">You're all stocked up for your meal plan.</p>
                     </div>
                     <Button asChild size="sm" className="ml-auto bg-green-600 hover:bg-green-500 text-white font-bold shrink-0">
                       <Link href="/meal-plan">Back to Planner</Link>
@@ -273,12 +280,12 @@ function ShoppingListContent() {
                   >
                     {/* Category Header */}
                     <div className="flex items-center gap-2.5 mb-3">
-                      <span className="text-sm leading-none">{group.emoji}</span>
-                      <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                      <span className="text-base leading-none">{group.emoji}</span>
+                      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
                         {group.category}
                       </h2>
                       <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs text-muted-foreground tabular-nums">{group.items.length}</span>
+                      <span className="text-sm text-muted-foreground tabular-nums">{group.items.length}</span>
                     </div>
 
                     {/* 3-col grid */}
@@ -300,11 +307,10 @@ function ShoppingListContent() {
                             )}
                           >
                             <div className="flex-1 min-w-0 pt-0.5">
-                              {/* ── line-clamp-2 instead of truncate ── */}
-                              <p className="font-semibold text-sm text-foreground leading-snug line-clamp-2">
+                              <p className="font-semibold text-base text-foreground leading-snug line-clamp-2">
                                 {item.itemName}
                               </p>
-                              <p className="text-[11px] text-muted-foreground mt-1">
+                              <p className="text-xs text-muted-foreground mt-1">
                                 {item.addedOn?.toDate ? format(item.addedOn.toDate(), 'MMM d') : 'Recently'}
                               </p>
                             </div>
@@ -312,7 +318,7 @@ function ShoppingListContent() {
                               onClick={() => item.id && handleRemove(item.id)}
                               disabled={isRemoving}
                               className={cn(
-                                'shrink-0 text-[11px] font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
+                                'shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
                                 isRemoving
                                   ? 'bg-green-600 border-green-500 text-white cursor-default'
                                   : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary hover:text-white hover:border-primary'
@@ -334,14 +340,14 @@ function ShoppingListContent() {
             </div>
 
             {/* ── RIGHT: Sticky Sidebar ── */}
-            <div className="hidden lg:block w-64 shrink-0 sticky top-8">
+            <div className="hidden lg:block w-64 shrink-0 sticky top-8 self-start">
               <div className="bg-card border border-border rounded-xl p-5 shadow-sm overflow-visible">
 
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border">
                   <ShoppingCart className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-bold text-foreground">Summary</span>
-                  <span className="ml-auto text-xs font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+                  <span className="text-base font-bold text-foreground">Summary</span>
+                  <span className="ml-auto text-sm font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
                     {items.length} left
                   </span>
                 </div>
@@ -355,7 +361,7 @@ function ShoppingListContent() {
 
                 {/* Progress */}
                 <div className="pt-4 border-t border-border">
-                  <div className="flex justify-between text-[11px] mb-2">
+                  <div className="flex justify-between text-xs mb-2">
                     <span className="text-muted-foreground">Progress</span>
                     <span className={cn('font-semibold', allDone ? 'text-green-400' : 'text-foreground')}>
                       {boughtCount} / {totalAtLoad} bought
@@ -369,7 +375,7 @@ function ShoppingListContent() {
                       transition={{ duration: 0.4, ease: 'easeOut' }}
                     />
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1.5 text-right">
+                  <p className="text-xs text-muted-foreground mt-1.5 text-right">
                     {progressPercent}% complete
                   </p>
                 </div>
