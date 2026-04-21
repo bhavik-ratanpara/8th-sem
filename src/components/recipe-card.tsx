@@ -14,6 +14,13 @@ import { addUnavailableItem } from '@/lib/meal-plan';
 import { suggestAlternative } from '@/ai/flows/suggest-alternative-flow';
 import { useToast } from '@/hooks/use-toast';
 
+type AlternativeSuggestion = {
+  missingIngredient: string;
+  alternativeIngredient: string;
+  alternativeDish: string;
+  reason: string;
+};
+
 type RecipeCardProps = {
   recipe: CreateRecipeOutput;
   onIngredientRemove: (ingredient: Ingredient) => void;
@@ -35,18 +42,16 @@ export function RecipeCard({
   onServingsChange,
   userId
 }: RecipeCardProps) {
-  const [missingItem, setMissingItem] = useState<string | null>(null);
-  const [isCheckingAlternative, setIsCheckingAlternative] = useState(false);
-  const [alternativeSuggestion, setAlternativeSuggestion] = useState<{
-    alternativeIngredient: string;
-    alternativeDish: string;
-    reason: string;
-  } | null>(null);
+  const [missingIngredients, setMissingIngredients] = useState<string[]>([]);
+  const [isCheckingAlternatives, setIsCheckingAlternatives] = useState(false);
+  const [alternativeSuggestions, setAlternativeSuggestions] = useState<AlternativeSuggestion[]>([]);
   const { toast } = useToast();
 
-  const handleMissingIngredient = async (ingredientName: string) => {
-    setMissingItem(ingredientName);
-    setAlternativeSuggestion(null);
+  const handleAddMissingIngredient = async (ingredientName: string) => {
+    if (missingIngredients.includes(ingredientName)) return;
+
+    const newMissingIngredients = [...missingIngredients, ingredientName];
+    setMissingIngredients(newMissingIngredients);
 
     if (userId) {
       try {
@@ -59,19 +64,36 @@ export function RecipeCard({
         console.error('Failed to add to shopping list', error);
       }
     }
+  };
 
-    setIsCheckingAlternative(true);
+  const handleRemoveMissingIngredient = (ingredientName: string) => {
+    setMissingIngredients(missingIngredients.filter(item => item !== ingredientName));
+  };
+
+  const handleSuggestAlternatives = async () => {
+    setIsCheckingAlternatives(true);
+    setAlternativeSuggestions([]);
     try {
-      const result = await suggestAlternative({
-        dishName: recipe.title,
-        missingIngredient: ingredientName,
-        allIngredients: recipe.ingredients.map(i => i.name),
-      });
-      setAlternativeSuggestion(result);
+      const suggestions = await Promise.all(
+        missingIngredients.map(async (ingredientName) => {
+          const result = await suggestAlternative({
+            dishName: recipe.title,
+            missingIngredient: ingredientName,
+            allIngredients: recipe.ingredients.map(i => i.name),
+          });
+          return { ...result, missingIngredient: ingredientName };
+        })
+      );
+      setAlternativeSuggestions(suggestions);
     } catch (error) {
-      console.error('Failed to get alternative', error);
+      console.error('Failed to get alternatives', error);
+      toast({
+        title: 'Error finding alternatives',
+        description: 'There was an issue getting suggestions. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsCheckingAlternative(false);
+      setIsCheckingAlternatives(false);
     }
   };
 
@@ -131,7 +153,7 @@ export function RecipeCard({
           <h3 className="text-[13px] font-semibold uppercase tracking-wider text-secondary-foreground mb-6">Ingredients</h3>
           <ul className="space-y-4">
             {recipe.ingredients.map((ingredient, index) => (
-              <li key={index} className="flex items-start justify-between group py-2 border-b border-border/30 last:border-0">
+              <li key={index} className="flex items-start justify-between py-2 border-b border-border/30 last:border-0">
                 <div className="space-y-1">
                   <div className="text-sm font-semibold text-foreground">{ingredient.name}</div>
                   <div className="text-[13px] text-secondary-foreground font-medium">
@@ -142,16 +164,16 @@ export function RecipeCard({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-amber-600"
+                    className="h-8 w-8 hover:text-amber-600"
                     title="I don't have this"
-                    onClick={() => handleMissingIngredient(ingredient.name)}
+                    onClick={() => handleAddMissingIngredient(ingredient.name)}
                   >
                     <ShoppingCart className="h-3.5 w-3.5" />
                   </Button>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive" 
+                    className="h-8 w-8 hover:text-destructive" 
                     onClick={() => onIngredientRemove(ingredient)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -161,75 +183,77 @@ export function RecipeCard({
             ))}
           </ul>
 
-          {isCheckingAlternative && (
+          {missingIngredients.length > 0 && (
+            <div className="mt-6">
+              <h4 className="text-sm font-semibold mb-3">Missing Ingredients</h4>
+              <div className="space-y-2 mb-4">
+                {missingIngredients.map(item => (
+                  <div key={item} className="flex items-center justify-between bg-secondary/30 p-2 rounded-md">
+                    <span className="text-sm">{item}</span>
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveMissingIngredient(item)}>
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={handleSuggestAlternatives} disabled={isCheckingAlternatives} className="w-full">
+                {isCheckingAlternatives ? 
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Working...</> : 
+                  'Suggest Alternatives'}
+              </Button>
+            </div>
+          )}
+
+          {isCheckingAlternatives && !alternativeSuggestions.length && (
             <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               Finding alternatives...
             </div>
           )}
 
-          {alternativeSuggestion && !isCheckingAlternative && (
-            <div style={{
-              marginTop: '16px',
-              padding: '14px',
-              borderRadius: '10px',
-              border: '1px solid',
-              borderColor: 'hsl(45 90% 60% / 0.4)',
-              background: 'hsl(45 90% 95% / 0.3)',
-              position: 'relative',
-            }}>
-              <button
-                onClick={() => {
-                  setAlternativeSuggestion(null);
-                  setMissingItem(null);
-                }}
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'hsl(var(--muted-foreground))',
-                  padding: '2px',
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginBottom: '10px',
-              }}>
-                <Lightbulb className="h-4 w-4" style={{ color: 'hsl(45 90% 50%)' }} />
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  color: 'hsl(var(--foreground))',
+          {alternativeSuggestions.length > 0 && (
+            <div className="mt-6 space-y-4">
+              {alternativeSuggestions.map((suggestion, index) => (
+                <div key={index} style={{
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid',
+                  borderColor: 'hsl(45 90% 60% / 0.4)',
+                  background: 'hsl(45 90% 95% / 0.3)',
+                  position: 'relative',
                 }}>
-                  Missing: {missingItem}
-                </span>
-              </div>
-
-              <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>
-                <span style={{ fontWeight: 600 }}>Use instead: </span>
-                {alternativeSuggestion.alternativeIngredient}
-              </div>
-
-              <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 600 }}>Or make: </span>
-                {alternativeSuggestion.alternativeDish}
-              </div>
-
-              <div style={{
-                fontSize: '11px',
-                color: 'hsl(var(--muted-foreground))',
-                lineHeight: 1.5,
-              }}>
-                {alternativeSuggestion.reason}
-              </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    marginBottom: '10px',
+                  }}>
+                    <Lightbulb className="h-4 w-4" style={{ color: 'hsl(45 90% 50%)' }} />
+                    <span style={{
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: 'hsl(var(--foreground))',
+                    }}>
+                      Missing: {suggestion.missingIngredient}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '6px' }}>
+                    <span style={{ fontWeight: 600 }}>Use instead: </span>
+                    {suggestion.alternativeIngredient}
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'hsl(var(--foreground))', marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 600 }}>Or make: </span>
+                    {suggestion.alternativeDish}
+                  </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: 'hsl(var(--muted-foreground))',
+                    lineHeight: 1.5,
+                  }}>
+                    {suggestion.reason}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -239,7 +263,7 @@ export function RecipeCard({
           <h3 className="text-[13px] font-semibold uppercase tracking-wider text-secondary-foreground mb-6">How to Cook</h3>
           <div className="space-y-6">
             {recipe.instructions.map((step, index) => (
-              <div key={index} className="flex gap-4 group">
+              <div key={index} className="flex gap-4">
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-bold">
                   {index + 1}
                 </div>
