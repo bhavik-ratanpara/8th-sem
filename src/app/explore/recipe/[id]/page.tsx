@@ -10,6 +10,7 @@ import {
   getSavedRecipes,
   type SavedRecipe
 } from '@/lib/save-recipe'
+import { addUnavailableItem } from '@/lib/meal-plan'
 import { Button } from '@/components/ui/button'
 import { 
   ArrowLeft, 
@@ -17,7 +18,8 @@ import {
   Trash2, 
   Globe,
   Loader2,
-  Share2
+  Share2,
+  ShoppingCart
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -146,6 +148,27 @@ export default function ExploreRecipeDetailPage() {
       });
     }
   };
+  
+  const handleAddToShoppingList = async (ingredientName: string) => {
+    if (!user) {
+      toast({ title: "Please log in to use the shopping list.", variant: "destructive" })
+      return;
+    }
+    try {
+      await addUnavailableItem(user.uid, ingredientName);
+      toast({
+        title: `${ingredientName} added to shopping list 🛒`,
+        duration: 2500,
+      });
+    } catch (error) {
+      console.error('Failed to add to shopping list', error);
+      toast({
+        title: `Failed to add ${ingredientName}`,
+        variant: 'destructive',
+        duration: 2500,
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -250,9 +273,20 @@ export default function ExploreRecipeDetailPage() {
         <h2 className="text-xl font-bold text-foreground mb-4">Ingredients</h2>
         <ul className="space-y-2">
           {recipe.ingredients?.map((ingredient, index) => (
-            <li key={index} className="flex items-start gap-3 py-2 border-b border-border last:border-0">
-              <span className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-              <span className="text-sm text-foreground">{ingredient}</span>
+            <li key={index} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
+                    <span className="text-sm text-foreground">{ingredient}</span>
+                </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-foreground hover:text-amber-600"
+                    title="Add to shopping list"
+                    onClick={() => handleAddToShoppingList(ingredient)}
+                >
+                    <ShoppingCart className="h-4 w-4" />
+                </Button>
             </li>
           ))}
         </ul>

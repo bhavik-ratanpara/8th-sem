@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/protected-route';
 import { useUser, initializeFirebase } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { type SavedRecipe, deleteRecipe, toggleFavourite } from '@/lib/save-recipe';
+import { addUnavailableItem } from '@/lib/meal-plan';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, 
@@ -16,7 +17,8 @@ import {
   Star, 
   ListTodo, 
   Utensils,
-  Share2
+  Share2,
+  ShoppingCart
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 import { format } from 'date-fns';
@@ -105,6 +107,27 @@ function RecipeDetailContent() {
         title: "Link Copied! 🔗",
         description: "Recipe link copied to clipboard.",
         duration: 2000,
+      });
+    }
+  };
+  
+  const handleAddToShoppingList = async (ingredientName: string) => {
+    if (!user) {
+      toast({ title: "Please log in to use the shopping list.", variant: "destructive" })
+      return;
+    }
+    try {
+      await addUnavailableItem(user.uid, ingredientName);
+      toast({
+        title: `${ingredientName} added to shopping list 🛒`,
+        duration: 2500,
+      });
+    } catch (error) {
+      console.error('Failed to add to shopping list', error);
+      toast({
+        title: `Failed to add ${ingredientName}`,
+        variant: 'destructive',
+        duration: 2500,
       });
     }
   };
@@ -221,9 +244,20 @@ function RecipeDetailContent() {
             <div className="p-6">
               <ul className="space-y-1">
                 {recipe.ingredients.map((item, index) => (
-                  <li key={index} className="flex items-center gap-3 py-4 border-b border-border/50 last:border-0 group">
-                    <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                    <span className="text-base font-medium text-foreground">{item}</span>
+                  <li key={index} className="flex items-center justify-between py-4 border-b border-border/50 last:border-0 group">
+                    <div className="flex items-center gap-3">
+                      <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
+                      <span className="text-base font-medium text-foreground">{item}</span>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-foreground hover:text-amber-600"
+                        title="Add to shopping list"
+                        onClick={() => handleAddToShoppingList(item)}
+                    >
+                        <ShoppingCart className="h-4 w-4" />
+                    </Button>
                   </li>
                 ))}
               </ul>
