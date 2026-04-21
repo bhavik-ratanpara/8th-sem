@@ -2,20 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@/firebase'
-import { 
+import {
   getPublicRecipes,
   unshareRecipePublic,
   saveFromExplore,
   getSavedRecipes,
   toggleRecipeLike,
   isRecipeLikedByUser,
-  type SavedRecipe 
+  type SavedRecipe
 } from '@/lib/save-recipe'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { 
-  Search, 
-  Globe, 
+import {
+  Search,
+  Globe,
   BookMarked,
   Trash2,
   ArrowRight,
@@ -34,7 +34,7 @@ import { FoodDecorations } from '@/components/FoodDecorations'
 export default function ExplorePage() {
   const { user } = useUser()
   const { toast } = useToast()
-  
+
   const [recipes, setRecipes] = useState<SavedRecipe[]>([])
   const [filteredRecipes, setFilteredRecipes] = useState<SavedRecipe[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -74,7 +74,7 @@ export default function ExplorePage() {
 
   useEffect(() => {
     if (recipes.length === 0) return
-    
+
     const languages = Array.from(
       new Set(
         recipes
@@ -82,7 +82,7 @@ export default function ExplorePage() {
           .filter(Boolean)
       )
     ).sort() as string[]
-    
+
     setAvailableLanguages(languages)
   }, [recipes])
 
@@ -141,9 +141,9 @@ export default function ExplorePage() {
 
     try {
       setRecipes(prev => prev.filter(r => r.id !== recipe.id))
-      
+
       await unshareRecipePublic(user.uid, recipe.id)
-      
+
       toast({
         title: "Removed from Explore",
         description: "Recipe still saved in My Recipes.",
@@ -167,7 +167,7 @@ export default function ExplorePage() {
     }
 
     if (!recipe.id) return
-    
+
     // Check if already saved in current session
     if (isAlreadySaved(recipe.id)) {
       toast({
@@ -176,18 +176,18 @@ export default function ExplorePage() {
       })
       return
     }
-    
+
     setSavingIds(prev => [...prev, recipe.id!])
-    
+
     try {
       await saveFromExplore(
         user.uid,
         user.displayName || 'Chef',
         recipe
       )
-      
+
       setSavedIds(prev => [...prev, recipe.id!])
-      
+
       toast({
         title: "Saved to Cookbook! 📚",
         description: "Recipe added to My Recipes.",
@@ -227,8 +227,8 @@ export default function ExplorePage() {
           : (r.likes || 0) + 1,
         likedBy: alreadyLiked
           ? (r.likedBy || []).filter(
-              (id: string) => id !== user.uid
-            )
+            (id: string) => id !== user.uid
+          )
           : [...(r.likedBy || []), user.uid],
       }
     }))
@@ -248,8 +248,8 @@ export default function ExplorePage() {
           likedBy: alreadyLiked
             ? [...(r.likedBy || []), user.uid]
             : (r.likedBy || []).filter(
-                (id: string) => id !== user.uid
-              ),
+              (id: string) => id !== user.uid
+            ),
         }
       }))
       toast({
@@ -302,7 +302,7 @@ export default function ExplorePage() {
 
   const isOwner = (recipe: SavedRecipe) => user?.uid === recipe.sharedBy
   const isSaving = (recipeId: string) => savingIds.includes(recipeId)
-  
+
   const isAlreadySaved = (recipeId: string) => {
     return userSavedIds.includes(recipeId) || savedIds.includes(recipeId)
   }
@@ -329,14 +329,14 @@ export default function ExplorePage() {
     <div className="relative min-h-screen overflow-hidden">
       <FoodDecorations />
       <div className="max-content px-4 py-12 relative z-10">
-        <Link 
+        <Link
           href="/"
           className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Generator
         </Link>
-        
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-2">
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
@@ -509,7 +509,7 @@ export default function ExplorePage() {
               )}
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+                <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
               </svg>
               Filters
               {activeFilterCount > 0 && (
@@ -574,8 +574,8 @@ export default function ExplorePage() {
                       {recipe.cuisine} · {recipe.servings} Servings ·{' '}
                       <span className={cn(
                         "font-semibold",
-                        recipe.dietType === 'Vegetarian' 
-                          ? "text-green-600 dark:text-green-400" 
+                        recipe.dietType === 'Vegetarian'
+                          ? "text-green-600 dark:text-green-400"
                           : "text-red-600 dark:text-red-400"
                       )}>
                         {recipe.dietType}
@@ -719,7 +719,7 @@ export default function ExplorePage() {
                 >
                   {isLoadingMore ? (
                     <>
-                      <svg 
+                      <svg
                         width="14" height="14"
                         viewBox="0 0 24 24"
                         fill="none"
@@ -729,7 +729,7 @@ export default function ExplorePage() {
                           animation: 'spin 1s linear infinite'
                         }}
                       >
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                       </svg>
                       Loading...
                     </>
@@ -800,7 +800,7 @@ export default function ExplorePage() {
               zIndex: 50, padding: '0 0 32px 0'
             }}
           >
-            <div style={{ width: '32px', height: '3px', background: 'hsl(var(--muted))', borderRadius: '999px', margin: '12px auto 0' }}/>
+            <div style={{ width: '32px', height: '3px', background: 'hsl(var(--muted))', borderRadius: '999px', margin: '12px auto 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px 12px', borderBottom: '0.5px solid hsl(var(--border))' }}>
               <span style={{ fontSize: '14px', fontWeight: 600, color: 'hsl(var(--foreground))' }}>Filters</span>
               <button onClick={() => setBottomSheetOpen(false)} style={{ fontSize: '18px', color: 'hsl(var(--muted-foreground))', background: 'none', border: 'none', cursor: 'pointer', padding: '0 4px' }}>×</button>

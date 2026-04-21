@@ -8,6 +8,7 @@ import { FooterAccountLinks } from '@/components/FooterAccountLinks';
 import { FooterAccordion } from '@/components/FooterAccordion';
 import { ChefHat } from 'lucide-react';
 import { MissingItemsPopup } from '@/components/MissingItemsPopup';
+import { SmoothScrollProvider } from '@/components/SmoothScrollProvider';
 
 export const metadata: Metadata = {
   title: 'Cooking Lab | Professional Culinary Academy',
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <FirebaseClientProvider>
+          <SmoothScrollProvider>
           <Header />
           <MissingItemsPopup />
           <div className="pt-[52px] min-h-screen flex flex-col">
@@ -213,6 +215,7 @@ export default function RootLayout({
             </footer>
           </div>
           <Toaster />
+          </SmoothScrollProvider>
         </FirebaseClientProvider>
       </body>
     </html>
