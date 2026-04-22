@@ -2,6 +2,20 @@ html {
   scroll-behavior: smooth;
 }
 
+@font-face {
+  font-family: 'Regalia Monarch';
+  src: url('/fonts/RegaliaMonarchArtNouveau-q2OWl (1).otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dropline';
+  src: url('/fonts/DroplineRegular-Wpegz.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

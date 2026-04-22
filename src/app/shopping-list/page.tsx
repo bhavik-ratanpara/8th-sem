@@ -232,10 +232,10 @@ function ShoppingListContent() {
         className="fixed left-0 right-0 bg-background z-20 border-b border-border"
         style={{ top: navbarH }}
       >
-        <div className="max-content mx-auto px-4 pt-6 pb-5">
+        <div className="max-content mx-auto px-4 pt-4 pb-3">
           <Link
             href="/meal-plan"
-            className="flex items-center gap-2 text-primary font-bold text-sm mb-4 hover:translate-x-[-4px] transition-transform w-fit"
+            className="flex items-center gap-2 text-primary font-bold text-sm mb-1 hover:translate-x-[-4px] transition-transform w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Planner
@@ -243,17 +243,17 @@ function ShoppingListContent() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
             <div className="space-y-1">
               <h1
-                className="text-4xl font-extrabold tracking-tight text-foreground"
-                style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}
+                className="text-4xl tracking-tight text-foreground"
+                style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
               >
                 SHOPPING LIST
               </h1>
-              <p className="text-muted-foreground text-xl">
+              <p className="text-muted-foreground text-base" style={{ fontFamily: "'Dropline', sans-serif" }}>
                 Manage your ingredients for upcoming meals
               </p>
             </div>
             {!isLoading && (
-              <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap">
+              <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap mb-2">
                 {items.length} {items.length === 1 ? 'item' : 'items'} to buy
               </div>
             )}
@@ -269,7 +269,7 @@ function ShoppingListContent() {
             top: SUMMARY_TOP,
             right: 'max(2rem, calc((100vw - 1280px) / 2 + 1rem))',
             width: '16rem',
-            maxHeight: `calc(100vh - ${SUMMARY_TOP + 24}px)`,
+            maxHeight: `calc(100vh - ${SUMMARY_TOP + 8}px)`,
             overflowY: 'auto',
           }}
         >
@@ -312,7 +312,7 @@ function ShoppingListContent() {
       {/* SCROLLABLE CARDS */}
       <div
         className="max-content px-4 pb-16"
-        style={{ paddingTop: navbarH + headerH + 24 }}
+        style={{ paddingTop: navbarH + headerH + 16 }}
       >
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
