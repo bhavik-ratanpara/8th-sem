@@ -46,7 +46,6 @@ const getIngredientCategory = (itemName: string) => {
 
 const CATEGORY_ORDER = CATEGORY_CONFIG.map(c => c.id);
 
-// ── Sidebar category row with hover popover ──
 function SidebarCategoryRow({
   group,
 }: {
@@ -54,12 +53,16 @@ function SidebarCategoryRow({
 }) {
   const [hovered, setHovered] = useState(false);
   const rowRef = useRef<HTMLDivElement>(null);
-  const [popoverTop, setPopoverTop] = useState(0);
+  const [popoverStyle, setPopoverStyle] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const handleMouseEnter = () => {
     if (rowRef.current) {
       const rect = rowRef.current.getBoundingClientRect();
-      setPopoverTop(rowRef.current.offsetTop);
+      setPopoverStyle({
+        top: rect.top,
+        // CHANGED: position popover to the RIGHT of the sidebar row
+        left: rect.right + 12,
+      });
     }
     setHovered(true);
   };
@@ -67,11 +70,9 @@ function SidebarCategoryRow({
   return (
     <div
       ref={rowRef}
-      className="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Row */}
       <div className={cn(
         'flex items-center justify-between gap-2 px-2 py-1.5 rounded-md transition-colors cursor-default',
         hovered ? 'bg-secondary/60' : 'hover:bg-secondary/30'
@@ -85,18 +86,26 @@ function SidebarCategoryRow({
         </span>
       </div>
 
-      {/* Popover — floats to the RIGHT of the sidebar */}
       <AnimatePresence>
         {hovered && (
           <motion.div
-            initial={{ opacity: 0, x: 6, scale: 0.97 }}
+            initial={{ opacity: 0, x: -6, scale: 0.97 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 6, scale: 0.97 }}
+            exit={{ opacity: 0, x: -6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            style={{ top: 0 }}
-            className="absolute left-[calc(100%+12px)] top-0 w-52 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+            style={{
+              position: 'fixed',
+              top: popoverStyle.top,
+              left: popoverStyle.left,
+              zIndex: 9999,
+              width: '13rem',
+            }}
+            className="bg-card border border-border rounded-xl shadow-xl overflow-hidden"
+            // CHANGED: Prevent scroll from propagating to page when hovering popover
+            onWheel={(e) => {
+              e.stopPropagation();
+            }}
           >
-            {/* Popover header */}
             <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border bg-secondary/30">
               <span className="text-sm leading-none">{group.emoji}</span>
               <span className="text-sm font-semibold text-foreground">{group.category}</span>
@@ -104,9 +113,14 @@ function SidebarCategoryRow({
                 {group.items.length}
               </span>
             </div>
-
-            {/* Ingredient list */}
-            <div className="py-1.5 max-h-60 overflow-y-auto">
+            {/* CHANGED: Added explicit max-height and overflow-y-auto for scrolling */}
+            <div 
+              className="py-1.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent"
+              style={{
+                // Ensure scroll works within popover
+                overscrollBehavior: 'contain',
+              }}
+            >
               {group.items.map((item, i) => (
                 <div
                   key={item.id ?? i}
@@ -133,6 +147,22 @@ function ShoppingListContent() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [totalAtLoad, setTotalAtLoad] = useState(0);
   const [boughtCount, setBoughtCount] = useState(0);
+
+  const [navbarH, setNavbarH] = useState(64);
+  const [headerH, setHeaderH] = useState(148);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const navbar = document.querySelector('nav, header, [data-navbar]') as HTMLElement | null;
+    if (navbar) setNavbarH(navbar.offsetHeight);
+    if (headerRef.current) setHeaderH(headerRef.current.offsetHeight);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading && headerRef.current) {
+      setHeaderH(headerRef.current.offsetHeight);
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -183,52 +213,112 @@ function ShoppingListContent() {
 
   const progressPercent = totalAtLoad > 0 ? Math.round((boughtCount / totalAtLoad) * 100) : 0;
   const allDone = totalAtLoad > 0 && boughtCount === totalAtLoad;
+  const SUMMARY_TOP = navbarH + headerH + 16;
 
   return (
-    <div className="relative min-h-screen">
+    <>
       <Image
         src="/design1.png"
-        alt="Decorative background image"
+        alt=""
         width={384}
         height={384}
         className="fixed bottom-0 left-0 opacity-50 hidden md:block md:w-72 md:h-72 lg:w-96 lg:h-96"
+        style={{ zIndex: 0 }}
       />
-      <div className="max-content px-4 py-12">
 
-        {/* Back */}
-        <Link
-          href="/meal-plan"
-          className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Planner
-        </Link>
-
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}>
-              Shopping List
-            </h1>
-            <p className="text-muted-foreground text-xl">
-              Manage your ingredients for upcoming meals
-            </p>
-          </div>
-          {!isLoading && (
-            <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap">
-              {items.length} {items.length === 1 ? 'item' : 'items'} to buy
+      {/* FIXED HEADER — flush against navbar, no gap */}
+      <div
+        ref={headerRef}
+        className="fixed left-0 right-0 bg-background z-20 border-b border-border"
+        style={{ top: navbarH }}
+      >
+        <div className="max-content mx-auto px-4 pt-6 pb-5">
+          <Link
+            href="/meal-plan"
+            className="flex items-center gap-2 text-primary font-bold text-sm mb-4 hover:translate-x-[-4px] transition-transform w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Planner
+          </Link>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
+            <div className="space-y-1">
+              <h1
+                className="text-4xl font-extrabold tracking-tight text-foreground"
+                style={{ fontFamily: 'Inter, sans-serif', fontWeight: 800 }}
+              >
+                SHOPPING LIST
+              </h1>
+              <p className="text-muted-foreground text-xl">
+                Manage your ingredients for upcoming meals
+              </p>
             </div>
-          )}
+            {!isLoading && (
+              <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap">
+                {items.length} {items.length === 1 ? 'item' : 'items'} to buy
+              </div>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Loading */}
+      {/* FIXED SUMMARY SIDEBAR */}
+      {!isLoading && (items.length > 0 || boughtCount > 0) && (
+        <div
+          className="hidden lg:block fixed z-20"
+          style={{
+            top: SUMMARY_TOP,
+            right: 'max(2rem, calc((100vw - 1280px) / 2 + 1rem))',
+            width: '16rem',
+            maxHeight: `calc(100vh - ${SUMMARY_TOP + 24}px)`,
+            overflowY: 'auto',
+          }}
+        >
+          <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border">
+              <ShoppingCart className="h-4 w-4 text-primary" />
+              <span className="text-base font-bold text-foreground">Summary</span>
+              <span className="ml-auto text-sm font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+                {items.length} left
+              </span>
+            </div>
+            <div className="space-y-0.5 mb-5">
+              {groupedItems.map((group) => (
+                <SidebarCategoryRow key={group.category} group={group} />
+              ))}
+            </div>
+            <div className="pt-4 border-t border-border">
+              <div className="flex justify-between text-xs mb-2">
+                <span className="text-muted-foreground">Progress</span>
+                <span className={cn('font-semibold', allDone ? 'text-green-400' : 'text-foreground')}>
+                  {boughtCount} / {totalAtLoad} bought
+                </span>
+              </div>
+              <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                <motion.div
+                  className={cn('h-full rounded-full', allDone ? 'bg-green-500' : 'bg-primary')}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5 text-right">
+                {progressPercent}% complete
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SCROLLABLE CARDS */}
+      <div
+        className="max-content px-4 pb-16"
+        style={{ paddingTop: navbarH + headerH + 24 }}
+      >
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[40vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-
         ) : items.length === 0 && boughtCount === 0 ? (
-          /* Empty */
           <div className="flex flex-col items-center justify-center py-24 text-center bg-secondary/10 rounded-2xl border-2 border-dashed border-border">
             <div className="bg-secondary/20 p-6 rounded-full mb-6">
               <Check className="h-12 w-12 text-muted-foreground/40" />
@@ -241,153 +331,98 @@ function ShoppingListContent() {
               <Link href="/meal-plan">Return to Planner</Link>
             </Button>
           </div>
-
         ) : (
-          <div className="flex gap-8 items-start relative">
+          <div className="lg:pr-72 space-y-8">
+            <AnimatePresence>
+              {allDone && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-5 py-4"
+                >
+                  <PartyPopper className="h-5 w-5 text-green-400 shrink-0" />
+                  <div>
+                    <p className="text-base font-bold text-green-400">All items bought!</p>
+                    <p className="text-sm text-green-400/70">You're all stocked up for your meal plan.</p>
+                  </div>
+                  <Button asChild size="sm" className="ml-auto bg-green-600 hover:bg-green-500 text-white font-bold shrink-0">
+                    <Link href="/meal-plan">Back to Planner</Link>
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* ── LEFT: Main list ── */}
-            <div className="flex-1 min-w-0 space-y-8">
+            <AnimatePresence mode="popLayout">
+              {groupedItems.map((group) => (
+                <motion.div
+                  key={group.category}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -16 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="text-base leading-none">{group.emoji}</span>
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+                      {group.category}
+                    </h2>
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="text-sm text-muted-foreground tabular-nums">{group.items.length}</span>
+                  </div>
 
-              {/* All done banner */}
-              <AnimatePresence>
-                {allDone && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center gap-3 bg-green-500/10 border border-green-500/30 rounded-xl px-5 py-4"
-                  >
-                    <PartyPopper className="h-5 w-5 text-green-400 shrink-0" />
-                    <div>
-                      <p className="text-base font-bold text-green-400">All items bought!</p>
-                      <p className="text-sm text-green-400/70">You're all stocked up for your meal plan.</p>
-                    </div>
-                    <Button asChild size="sm" className="ml-auto bg-green-600 hover:bg-green-500 text-white font-bold shrink-0">
-                      <Link href="/meal-plan">Back to Planner</Link>
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <AnimatePresence mode="popLayout">
-                {groupedItems.map((group) => (
-                  <motion.div
-                    key={group.category}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -16 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {/* Category Header */}
-                    <div className="flex items-center gap-2.5 mb-3">
-                      <span className="text-base leading-none">{group.emoji}</span>
-                      <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
-                        {group.category}
-                      </h2>
-                      <div className="h-px flex-1 bg-border" />
-                      <span className="text-sm text-muted-foreground tabular-nums">{group.items.length}</span>
-                    </div>
-
-                    {/* 3-col grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
-                      {group.items.map((item) => {
-                        const isRemoving = removingId === item.id;
-                        return (
-                          <motion.div
-                            key={item.id}
-                            layout
-                            animate={{ opacity: isRemoving ? 0.35 : 1 }}
-                            exit={{ opacity: 0, scale: 0.97 }}
-                            transition={{ duration: 0.18 }}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                    {group.items.map((item) => {
+                      const isRemoving = removingId === item.id;
+                      return (
+                        <motion.div
+                          key={item.id}
+                          layout
+                          animate={{ opacity: isRemoving ? 0.35 : 1 }}
+                          exit={{ opacity: 0, scale: 0.97 }}
+                          transition={{ duration: 0.18 }}
+                          className={cn(
+                            'bg-card border border-border rounded-lg px-4 py-3',
+                            'border-l-2', group.accent,
+                            'flex items-start justify-between gap-3',
+                            'hover:shadow-sm transition-all duration-200'
+                          )}
+                        >
+                          <div className="flex-1 min-w-0 pt-0.5">
+                            <p className="font-semibold text-base text-foreground leading-snug line-clamp-2">
+                              {item.itemName}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {item.addedOn?.toDate ? format(item.addedOn.toDate(), 'MMM d') : 'Recently'}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => item.id && handleRemove(item.id)}
+                            disabled={isRemoving}
                             className={cn(
-                              'bg-card border border-border rounded-lg px-4 py-3',
-                              'border-l-2', group.accent,
-                              'flex items-start justify-between gap-3',
-                              'hover:shadow-sm transition-all duration-200'
+                              'shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
+                              isRemoving
+                                ? 'bg-green-600 border-green-500 text-white cursor-default'
+                                : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary hover:text-white hover:border-primary'
                             )}
                           >
-                            <div className="flex-1 min-w-0 pt-0.5">
-                              <p className="font-semibold text-base text-foreground leading-snug line-clamp-2">
-                                {item.itemName}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {item.addedOn?.toDate ? format(item.addedOn.toDate(), 'MMM d') : 'Recently'}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => item.id && handleRemove(item.id)}
-                              disabled={isRemoving}
-                              className={cn(
-                                'shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
-                                isRemoving
-                                  ? 'bg-green-600 border-green-500 text-white cursor-default'
-                                  : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary hover:text-white hover:border-primary'
-                              )}
-                            >
-                              {isRemoving ? (
-                                <span className="flex items-center gap-1">
-                                  <Check className="h-3 w-3" /> Bought
-                                </span>
-                              ) : 'Mark Bought'}
-                            </button>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-
-            {/* ── RIGHT: Sticky Sidebar ── */}
-            <div className="hidden lg:block w-64 shrink-0 sticky top-8 self-start">
-              <div className="bg-card border border-border rounded-xl p-5 shadow-sm overflow-visible">
-
-                {/* Header */}
-                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border">
-                  <ShoppingCart className="h-4 w-4 text-primary" />
-                  <span className="text-base font-bold text-foreground">Summary</span>
-                  <span className="ml-auto text-sm font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
-                    {items.length} left
-                  </span>
-                </div>
-
-                {/* Category rows with hover popover */}
-                <div className="space-y-0.5 mb-5">
-                  {groupedItems.map((group) => (
-                    <SidebarCategoryRow key={group.category} group={group} />
-                  ))}
-                </div>
-
-                {/* Progress */}
-                <div className="pt-4 border-t border-border">
-                  <div className="flex justify-between text-xs mb-2">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className={cn('font-semibold', allDone ? 'text-green-400' : 'text-foreground')}>
-                      {boughtCount} / {totalAtLoad} bought
-                    </span>
+                            {isRemoving ? (
+                              <span className="flex items-center gap-1">
+                                <Check className="h-3 w-3" /> Bought
+                              </span>
+                            ) : 'Mark Bought'}
+                          </button>
+                        </motion.div>
+                      );
+                    })}
                   </div>
-                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                    <motion.div
-                      className={cn('h-full rounded-full', allDone ? 'bg-green-500' : 'bg-primary')}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progressPercent}%` }}
-                      transition={{ duration: 0.4, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 text-right">
-                    {progressPercent}% complete
-                  </p>
-                </div>
-
-              </div>
-            </div>
-
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
-
       </div>
-    </div>
+    </>
   );
 }
 
