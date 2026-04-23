@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { useUser } from '@/firebase';
 import { 
@@ -99,6 +99,25 @@ function MealPlanContent() {
   const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
 
   const weekStartDateStr = format(weekStart, 'yyyy-MM-dd');
+
+  // Layout Measurement
+  const [navbarH, setNavbarH] = useState(52);
+  const [headerH, setHeaderH] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Measure navbar height
+    const navbar = document.querySelector('header.fixed.top-0');
+    if (navbar) setNavbarH(navbar.getBoundingClientRect().height);
+
+    // Measure fixed header height
+    if (!headerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) setHeaderH(entry.contentRect.height);
+    });
+    observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // ── DATA FETCHING ──
   useEffect(() => {
@@ -325,37 +344,53 @@ function MealPlanContent() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <FoodDecorations />
-      <div className="max-content px-4 py-8 relative z-10">
-        
-        {/* Navigation */}
-        <Link 
-          href="/"
-          className="flex items-center gap-2 text-primary font-bold text-sm mb-6 hover:translate-x-[-4px] transition-transform w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Generator
-        </Link>
+      
+      {/* FIXED HEADER — flush against navbar */}
+      <div
+        ref={headerRef}
+        className="fixed left-0 right-0 bg-background z-20 border-b border-border"
+        style={{ top: navbarH }}
+      >
+        <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 pt-3 pb-2">
+          <Link 
+            href="/"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-2 hover:translate-x-[-4px] transition-all w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Generator
+          </Link>
 
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
-              Weekly Meal Plan
-            </h1>
-            <p className="text-muted-foreground text-base">Plan your healthy meals for the week ahead</p>
-          </div>
+          <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
+            <div className="space-y-1 text-center">
+              <h1 
+                className="text-4xl tracking-tight text-foreground" 
+                style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
+              >
+                WEEKLY MEAL PLAN
+              </h1>
+              <p className="text-muted-foreground text-base" style={{ fontFamily: "'Dropline', sans-serif" }}>
+                Plan your healthy meals for the week ahead
+              </p>
+            </div>
 
-          <div className="flex items-center gap-4 bg-card border border-border p-2 rounded-xl shadow-sm">
-            <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}>
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <span className="text-sm font-bold min-w-[180px] text-center">{weekRange}</span>
-            <Button variant="ghost" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}>
-              <ChevronRight className="h-5 w-5" />
-            </Button>
+            <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 flex items-center gap-4 bg-card border border-border p-1.5 rounded-xl shadow-sm mb-2 md:mb-0">
+              <Button variant="ghost" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))} className="h-8 w-8">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm font-bold min-w-[140px] text-center">{weekRange}</span>
+              <Button variant="ghost" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))} className="h-8 w-8">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* SCROLLABLE CONTENT */}
+      <div 
+        className="max-content px-4 pb-16 relative z-10"
+        style={{ paddingTop: navbarH + headerH + 24 }}
+      >
         {/* AI Generator Section */}
         <div className="bg-card border border-border rounded-2xl p-6 mb-8 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">

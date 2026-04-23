@@ -127,10 +127,6 @@ function HeaderContent() {
             </>
           )}
           <span className="nav-separator">/</span>
-          <Link href="/guide" className={cn("nav-link text-[15px]", pathname === "/guide" && "active")}>
-            Guide
-          </Link>
-          <span className="nav-separator">/</span>
           <Link href="/about" className={cn("nav-link text-[15px]", pathname === "/about" && "active")}>
             About
           </Link>
