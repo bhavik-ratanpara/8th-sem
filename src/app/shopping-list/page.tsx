@@ -24,16 +24,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
 const CATEGORY_CONFIG = [
-  { id: 'Vegetables', keywords: ['potato', 'onion', 'tomato', 'garlic', 'spinach', 'mushroom', 'broccoli', 'mint'], emoji: '🥬', accent: 'border-l-green-500', badge: 'bg-green-500/10 text-green-400 border-green-500/20' },
-  { id: 'Fruits', keywords: ['lemon', 'mango', 'banana', 'coconut', 'avocado', 'tamarind'], emoji: '🍎', accent: 'border-l-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
-  { id: 'Grains & Cereals', keywords: ['rice', 'wheat', 'flour', 'pasta', 'oats', 'bread', 'quinoa', 'ragi'], emoji: '🍞', accent: 'border-l-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-  { id: 'Dairy & Eggs', keywords: ['milk', 'curd', 'paneer', 'butter', 'ghee', 'cheese', 'eggs'], emoji: '🥛', accent: 'border-l-blue-400', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-  { id: 'Meat & Poultry', keywords: ['chicken', 'mutton', 'lamb', 'beef', 'pork', 'bacon', 'keema'], emoji: '🍗', accent: 'border-l-red-500', badge: 'bg-red-500/10 text-red-400 border-red-500/20' },
-  { id: 'Seafood', keywords: ['fish', 'prawn', 'shrimp', 'crab', 'salmon', 'tuna'], emoji: '🐟', accent: 'border-l-cyan-500', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-  { id: 'Spices & Masalas', keywords: ['turmeric', 'cumin', 'garam masala', 'cardamom', 'saffron', 'salt'], emoji: '🧂', accent: 'border-l-amber-500', badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  { id: 'Lentils & Pulses', keywords: ['dal', 'rajma', 'chickpeas', 'peanuts', 'cashew', 'almond'], emoji: '🥜', accent: 'border-l-lime-500', badge: 'bg-lime-500/10 text-lime-400 border-lime-500/20' },
-  { id: 'Oils & Condiments', keywords: ['oil', 'vinegar', 'soy sauce', 'honey', 'sugar', 'ketchup', 'chutney'], emoji: '🫗', accent: 'border-l-purple-500', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-  { id: 'Others', keywords: [], emoji: '📦', accent: 'border-l-zinc-500', badge: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
+  { id: 'Vegetables', keywords: ['potato', 'onion', 'tomato', 'garlic', 'spinach', 'mushroom', 'broccoli', 'mint'], emoji: '🥬', accent: 'border-l-green-500', badge: 'bg-green-500/10 text-green-400 border-green-500/20', text: 'text-green-500 dark:text-green-400', gradient: 'from-green-500/60 via-green-500/20 to-transparent' },
+  { id: 'Fruits', keywords: ['lemon', 'mango', 'banana', 'coconut', 'avocado', 'tamarind'], emoji: '🍎', accent: 'border-l-orange-400', badge: 'bg-orange-500/10 text-orange-400 border-orange-500/20', text: 'text-orange-500 dark:text-orange-400', gradient: 'from-orange-500/60 via-orange-500/20 to-transparent' },
+  { id: 'Grains & Cereals', keywords: ['rice', 'wheat', 'flour', 'pasta', 'oats', 'bread', 'quinoa', 'ragi'], emoji: '🍞', accent: 'border-l-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', text: 'text-yellow-600 dark:text-yellow-400', gradient: 'from-yellow-500/60 via-yellow-500/20 to-transparent' },
+  { id: 'Dairy & Eggs', keywords: ['milk', 'curd', 'paneer', 'butter', 'ghee', 'cheese', 'eggs'], emoji: '🥛', accent: 'border-l-blue-400', badge: 'bg-blue-500/10 text-blue-400 border-blue-500/20', text: 'text-blue-500 dark:text-blue-400', gradient: 'from-blue-500/60 via-blue-500/20 to-transparent' },
+  { id: 'Meat & Poultry', keywords: ['chicken', 'mutton', 'lamb', 'beef', 'pork', 'bacon', 'keema'], emoji: '🍗', accent: 'border-l-red-500', badge: 'bg-red-500/10 text-red-400 border-red-500/20', text: 'text-red-500 dark:text-red-400', gradient: 'from-red-500/60 via-red-500/20 to-transparent' },
+  { id: 'Seafood', keywords: ['fish', 'prawn', 'shrimp', 'crab', 'salmon', 'tuna'], emoji: '🐟', accent: 'border-l-cyan-500', badge: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20', text: 'text-cyan-600 dark:text-cyan-400', gradient: 'from-cyan-500/60 via-cyan-500/20 to-transparent' },
+  { id: 'Spices & Masalas', keywords: ['turmeric', 'cumin', 'garam masala', 'cardamom', 'saffron', 'salt'], emoji: '🧂', accent: 'border-l-amber-500', badge: 'bg-amber-500/10 text-amber-400 border-amber-500/20', text: 'text-amber-600 dark:text-amber-400', gradient: 'from-amber-500/60 via-amber-500/20 to-transparent' },
+  { id: 'Lentils & Pulses', keywords: ['dal', 'rajma', 'chickpeas', 'peanuts', 'cashew', 'almond'], emoji: '🥜', accent: 'border-l-lime-500', badge: 'bg-lime-500/10 text-lime-400 border-lime-500/20', text: 'text-lime-600 dark:text-lime-400', gradient: 'from-lime-500/60 via-lime-500/20 to-transparent' },
+  { id: 'Oils & Condiments', keywords: ['oil', 'vinegar', 'soy sauce', 'honey', 'sugar', 'ketchup', 'chutney'], emoji: '🫗', accent: 'border-l-purple-500', badge: 'bg-purple-500/10 text-purple-400 border-purple-500/20', text: 'text-purple-500 dark:text-purple-400', gradient: 'from-purple-500/60 via-purple-500/20 to-transparent' },
+  { id: 'Others', keywords: [], emoji: '📦', accent: 'border-l-zinc-500', badge: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20', text: 'text-zinc-500 dark:text-zinc-400', gradient: 'from-zinc-500/60 via-zinc-500/20 to-transparent' },
 ];
 
 const getIngredientCategory = (itemName: string) => {
@@ -114,7 +114,7 @@ function SidebarCategoryRow({
               </span>
             </div>
             {/* CHANGED: Added explicit max-height and overflow-y-auto for scrolling */}
-            <div 
+            <div
               className="py-1.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent"
               style={{
                 // Ensure scroll works within popover
@@ -200,10 +200,10 @@ function ShoppingListContent() {
   };
 
   const groupedItems = useMemo(() => {
-    const groups: Record<string, { category: string; emoji: string; accent: string; badge: string; items: UnavailableItem[] }> = {};
+    const groups: Record<string, { category: string; emoji: string; accent: string; badge: string; text: string; gradient: string; items: UnavailableItem[] }> = {};
     items.forEach(item => {
       const cat = getIngredientCategory(item.itemName);
-      if (!groups[cat.id]) groups[cat.id] = { category: cat.id, emoji: cat.emoji, accent: cat.accent, badge: cat.badge, items: [] };
+      if (!groups[cat.id]) groups[cat.id] = { category: cat.id, emoji: cat.emoji, accent: cat.accent, badge: cat.badge, text: cat.text, gradient: cat.gradient, items: [] };
       groups[cat.id].items.push(item);
     });
     return Object.values(groups).sort((a, b) =>
@@ -232,7 +232,7 @@ function ShoppingListContent() {
         className="fixed left-0 right-0 bg-background z-20 border-b border-border"
         style={{ top: navbarH }}
       >
-        <div className="max-content mx-auto px-4 pt-4 pb-3">
+        <div className="w-full px-8 sm:px-16 md:px-24 lg:px-32 xl:px-40 pt-4 pb-3">
           <Link
             href="/meal-plan"
             className="flex items-center gap-2 text-primary font-bold text-sm mb-1 hover:translate-x-[-4px] transition-transform w-fit"
@@ -240,8 +240,8 @@ function ShoppingListContent() {
             <ArrowLeft className="h-4 w-4" />
             Back to Planner
           </Link>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
-            <div className="space-y-1">
+          <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
+            <div className="space-y-1 text-center">
               <h1
                 className="text-4xl tracking-tight text-foreground"
                 style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
@@ -253,7 +253,7 @@ function ShoppingListContent() {
               </p>
             </div>
             {!isLoading && (
-              <div className="text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap mb-2">
+              <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap mb-2 md:mb-0">
                 {items.length} {items.length === 1 ? 'item' : 'items'} to buy
               </div>
             )}
@@ -362,13 +362,13 @@ function ShoppingListContent() {
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <span className="text-base leading-none">{group.emoji}</span>
-                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+                  <div className="flex items-center gap-3 mb-4 mt-2">
+                    <span className="text-lg leading-none">{group.emoji}</span>
+                    <h2 className={cn("text-base font-bold uppercase tracking-widest", group.text)}>
                       {group.category}
                     </h2>
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-sm text-muted-foreground tabular-nums">{group.items.length}</span>
+                    <div className={cn("h-[2px] flex-1 bg-gradient-to-r", group.gradient)} />
+                    <span className="text-sm font-semibold text-muted-foreground tabular-nums bg-secondary/50 px-2.5 py-0.5 rounded-full border border-border/50">{group.items.length}</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
@@ -402,8 +402,8 @@ function ShoppingListContent() {
                             className={cn(
                               'shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
                               isRemoving
-                                ? 'bg-green-600 border-green-500 text-white cursor-default'
-                                : 'bg-primary/10 border-primary/30 text-primary hover:bg-primary hover:text-white hover:border-primary'
+                                ? 'bg-green-500 text-white cursor-default'
+                                : 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95'
                             )}
                           >
                             {isRemoving ? (
