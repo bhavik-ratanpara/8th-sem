@@ -31,34 +31,35 @@ html {
   :root {
     /* Primary Background: A soft, clearly pink blush (#fef2f4) */
     --background: 350 40% 96%;
-    
+
     /* Text colors: Reset to neutral dark shades (Saturation 0%) */
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    
+
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    
+
     /* Secondary elements: Keep a hint of pink for depth, but text remains neutral */
     --secondary: 350 30% 92%;
     --secondary-foreground: 0 0% 9%;
-    
+
     --muted: 350 30% 92%;
-    --muted-foreground: 0 0% 45.1%; /* Neutral grey text */
-    
+    --muted-foreground: 0 0% 45.1%;
+    /* Neutral grey text */
+
     --accent: 350 30% 92%;
     --accent-foreground: 0 0% 9%;
-    
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    
+
     --border: 350 20% 88%;
     --input: 350 20% 88%;
     --ring: 221.2 83.2% 53.3%;
-    
+
     --radius: 0.5rem;
 
     --smoke-color: rgba(254, 242, 244, 1);
@@ -68,28 +69,28 @@ html {
   [data-theme="dark"] {
     --background: 0 0% 6%;
     --foreground: 0 0% 94%;
-    
+
     --card: 0 0% 11%;
     --card-foreground: 0 0% 94%;
-    
+
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 94%;
-    
+
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    
+
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 94%;
-    
+
     --muted: 0 0% 15%;
     --muted-foreground: 240 5% 65%;
-    
+
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 94%;
-    
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    
+
     --border: 240 5% 16%;
     --input: 0 0% 16%;
     --ring: 221.2 83.2% 53.3%;
@@ -100,7 +101,9 @@ html {
 }
 
 @layer base {
-  html, body {
+
+  html,
+  body {
     overflow-x: hidden !important;
     max-width: 100vw !important;
   }
@@ -109,36 +112,55 @@ html {
     @apply border-border;
     box-sizing: border-box;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
     font-size: 15px;
     line-height: 1.7;
   }
+
   h1 {
     @apply font-bold tracking-tight;
   }
+
   h2 {
     @apply text-[24px] font-semibold tracking-[-0.02em];
   }
+
   h3 {
     @apply text-[18px] font-semibold;
   }
 }
 
 @keyframes spinRing {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spinRingReverse {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .lottie-blend {
@@ -244,6 +266,7 @@ html {
     opacity: 0;
     transform: translateX(-120px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -255,6 +278,7 @@ html {
     opacity: 0;
     transform: translateX(120px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -262,8 +286,13 @@ html {
 }
 
 @keyframes drawLine {
-  from { stroke-dashoffset: 1000; }
-  to { stroke-dashoffset: 0; }
+  from {
+    stroke-dashoffset: 1000;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .food-item {
@@ -289,11 +318,11 @@ html {
 }
 
 .food-float-img {
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
   opacity: 0.75;
 }
 
 [data-theme="dark"] .food-float-img {
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.3));
   opacity: 0.9;
 }

@@ -26,7 +26,7 @@ function HeaderContent() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
 
 
   const auth = useAuth();
@@ -84,9 +84,9 @@ function HeaderContent() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-background border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 w-full h-[52px] bg-card border-b border-border shadow-sm">
       <div className="flex items-center w-full h-full px-6 relative">
-        
+
         {/* LEFT - Logo */}
         <div className="flex-shrink-0 mr-auto">
           <Link href="/" className="flex items-center gap-2">
@@ -138,7 +138,7 @@ function HeaderContent() {
 
         {/* RIGHT - Actions */}
         <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-          
+
           {/* Search */}
           {!isUserLoading && user && (
             <div className={cn(
@@ -157,7 +157,7 @@ function HeaderContent() {
                         value={query}
                         onChange={(e) => {
                           setQuery(e.target.value);
-                          if(!e.target.value.trim()){
+                          if (!e.target.value.trim()) {
                             setPopoverOpen(false);
                           }
                         }}
@@ -200,17 +200,17 @@ function HeaderContent() {
             <>
               {user ? (
                 <div className="relative flex items-center" ref={dropdownRef}>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     className="h-11 w-11 md:h-9 md:w-9 rounded-full overflow-hidden border border-border p-0 touch-manipulation"
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                   >
                     <Avatar className="h-full w-full pointer-events-none">
-                      <AvatarImage 
-                        src={user.photoURL || ''} 
-                        alt={user.displayName || 'User'} 
+                      <AvatarImage
+                        src={user.photoURL || ''}
+                        alt={user.displayName || 'User'}
                         className="object-cover"
                       />
                       <AvatarFallback className="text-[10px] bg-secondary flex items-center justify-center h-full w-full">
@@ -225,66 +225,66 @@ function HeaderContent() {
                         <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
-                      
+
                       <div className="p-1">
-                        <Link 
-                          href="/" 
+                        <Link
+                          href="/"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Home className="h-4 w-4 text-primary" />
                           Home Page
                         </Link>
-                        <Link 
-                          href="/guide" 
+                        <Link
+                          href="/guide"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <BookOpen className="h-4 w-4 text-blue-500" />
                           App Guide
                         </Link>
-                        <Link 
-                          href="/explore" 
+                        <Link
+                          href="/explore"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Globe className="h-4 w-4 text-primary" />
                           Explore Community
                         </Link>
-                        <Link 
-                          href="/history" 
+                        <Link
+                          href="/history"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <BookMarked className="h-4 w-4 text-primary" />
                           My Recipes
                         </Link>
-                        <Link 
-                          href="/history?filter=favourite" 
+                        <Link
+                          href="/history?filter=favourite"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <Star className="h-4 w-4 text-amber-500" />
                           Favourites
                         </Link>
-                        <Link 
-                          href="/meal-plan" 
+                        <Link
+                          href="/meal-plan"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <CalendarDays className="h-4 w-4 text-orange-500" />
                           Meal Plan
                         </Link>
-                        <Link 
-                          href="/shopping-list" 
+                        <Link
+                          href="/shopping-list"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <ShoppingCart className="h-4 w-4 text-emerald-500" />
                           Shopping List
                         </Link>
-                        <Link 
-                          href="/about" 
+                        <Link
+                          href="/about"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
                           onClick={() => setDropdownOpen(false)}
                         >
@@ -292,9 +292,9 @@ function HeaderContent() {
                           About Us
                         </Link>
                       </div>
-                      
+
                       <div className="border-t border-border p-1 bg-secondary/5">
-                        <button 
+                        <button
                           onClick={handleLogout}
                           className="w-full flex items-center gap-3 px-3 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-md transition-colors"
                         >
