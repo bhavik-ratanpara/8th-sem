@@ -6,6 +6,10 @@ import { useUser } from '@/firebase';
 import {
   getUnavailableItems,
   removeUnavailableItem,
+  addUnavailableItem,
+  addBoughtItem,
+  getBoughtItems,
+  clearAllUnavailableItems,
   type UnavailableItem
 } from '@/lib/meal-plan';
 import {
@@ -14,6 +18,11 @@ import {
   Check,
   ShoppingCart,
   PartyPopper,
+  ClipboardList,
+  Plus,
+  Trash2,
+  History,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -61,7 +70,7 @@ function SidebarCategoryRow({
       setPopoverStyle({
         top: rect.top,
         // CHANGED: position popover to the RIGHT of the sidebar row
-        left: rect.right + 12,
+        left: rect.right + 22,
       });
     }
     setHovered(true);
@@ -78,10 +87,10 @@ function SidebarCategoryRow({
         hovered ? 'bg-secondary/60' : 'hover:bg-secondary/30'
       )}>
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-sm leading-none">{group.emoji}</span>
+          <span className="text-sm leading-none w-5 text-center shrink-0">{group.emoji}</span>
           <span className="text-sm text-muted-foreground truncate">{group.category}</span>
         </div>
-        <span className={cn('text-xs font-bold px-1.5 py-0.5 rounded border shrink-0', group.badge)}>
+        <span className="text-xs font-normal text-muted-foreground tabular-nums shrink-0">
           {group.items.length}
         </span>
       </div>
@@ -109,7 +118,7 @@ function SidebarCategoryRow({
             <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border bg-secondary/30">
               <span className="text-sm leading-none">{group.emoji}</span>
               <span className="text-sm font-semibold text-foreground">{group.category}</span>
-              <span className={cn('ml-auto text-xs font-bold px-1.5 py-0.5 rounded border', group.badge)}>
+              <span className="ml-auto text-xs font-normal text-muted-foreground tabular-nums">
                 {group.items.length}
               </span>
             </div>
@@ -138,6 +147,34 @@ function SidebarCategoryRow({
   );
 }
 
+function ShoppingListSkeleton() {
+  return (
+    <div className="lg:pr-72 space-y-8 animate-pulse pt-2 w-full">
+      {[...Array(3)].map((_, i) => (
+        <div key={i}>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-5 w-5 bg-secondary rounded-full" />
+            <div className="h-5 w-32 bg-secondary rounded-md" />
+            <div className="h-[2px] flex-1 bg-secondary" />
+            <div className="h-5 w-8 bg-secondary rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+            {[...Array(3)].map((_, j) => (
+              <div key={j} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between gap-3 h-[72px]">
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 w-3/4 bg-secondary rounded-md" />
+                  <div className="h-3 w-1/3 bg-secondary rounded-md" />
+                </div>
+                <div className="h-8 w-24 bg-secondary rounded-md shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ShoppingListContent() {
   const { user } = useUser();
   const { toast } = useToast();
@@ -147,6 +184,12 @@ function ShoppingListContent() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [totalAtLoad, setTotalAtLoad] = useState(0);
   const [boughtCount, setBoughtCount] = useState(0);
+  const [boughtHistory, setBoughtHistory] = useState<UnavailableItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newItemName, setNewItemName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
 
   const [navbarH, setNavbarH] = useState(64);
   const [headerH, setHeaderH] = useState(148);
@@ -178,25 +221,78 @@ function ShoppingListContent() {
         setIsLoading(false);
       }
     };
+    const fetchHistory = async () => {
+      if (!user) return;
+      try {
+        const historyData = await getBoughtItems(user.uid);
+        setBoughtHistory(historyData);
+      } catch (error) {
+        console.error('Error fetching bought history:', error);
+      }
+    };
     fetchItems();
+    fetchHistory();
   }, [user, toast]);
 
   const handleRemove = async (itemId: string) => {
     if (!user || !itemId) return;
     setRemovingId(itemId);
+
     setTimeout(async () => {
+      const itemToRemove = items.find(i => i.id === itemId);
       const previousItems = [...items];
       setItems(prev => prev.filter(item => item.id !== itemId));
       setBoughtCount(prev => prev + 1);
       setRemovingId(null);
+
       try {
         await removeUnavailableItem(user.uid, itemId);
+        if (itemToRemove) {
+          const newBoughtId = await addBoughtItem(user.uid, itemToRemove);
+          setBoughtHistory(prev => [{ ...itemToRemove, id: newBoughtId, boughtOn: new Date() }, ...prev]);
+        }
       } catch (error) {
         setItems(previousItems);
         setBoughtCount(prev => prev - 1);
         toast({ variant: 'destructive', title: 'Error', description: 'Could not remove item. Try again.' });
       }
     }, 250);
+  };
+
+  const handleAddItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newItemName.trim() || isAdding) return;
+    setIsAdding(true);
+    try {
+      const name = newItemName.trim();
+      const newId = await addUnavailableItem(user.uid, name);
+      const newItem: UnavailableItem = { id: newId, itemName: name, addedOn: new Date() };
+      setItems(prev => [newItem, ...prev]);
+      setTotalAtLoad(prev => prev + 1);
+      setNewItemName('');
+      setShowAdd(false);
+      toast({ title: 'Item added' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not add item.' });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!user || items.length === 0 || isDeletingAll) return;
+    if (!confirm('Are you sure you want to delete all items from your shopping list?')) return;
+
+    setIsDeletingAll(true);
+    try {
+      await clearAllUnavailableItems(user.uid);
+      setItems([]);
+      toast({ title: 'Shopping list cleared' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not clear list.' });
+    } finally {
+      setIsDeletingAll(false);
+    }
   };
 
   const groupedItems = useMemo(() => {
@@ -213,18 +309,40 @@ function ShoppingListContent() {
 
   const progressPercent = totalAtLoad > 0 ? Math.round((boughtCount / totalAtLoad) * 100) : 0;
   const allDone = totalAtLoad > 0 && boughtCount === totalAtLoad;
-  const SUMMARY_TOP = navbarH + headerH + 16;
+  const SUMMARY_TOP = navbarH + headerH + 40;
 
   return (
     <>
-      <Image
-        src="/design1.png"
-        alt=""
-        width={384}
-        height={384}
-        className="fixed bottom-0 left-0 opacity-50 hidden md:block md:w-72 md:h-72 lg:w-96 lg:h-96"
+      <motion.div
+        initial={{ opacity: 0, x: -50, y: 50 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+        className="fixed bottom-0 left-0 hidden md:block"
         style={{ zIndex: 0 }}
-      />
+      >
+        <Image
+          src="/design1.png"
+          alt=""
+          width={320}
+          height={320}
+          className="opacity-50 md:w-64 md:h-64 lg:w-80 lg:h-80"
+        />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: 50, y: 50 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className="fixed bottom-0 right-0 hidden md:block"
+        style={{ zIndex: 0 }}
+      >
+        <Image
+          src="/design2.png"
+          alt=""
+          width={320}
+          height={320}
+          className="opacity-50 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain"
+        />
+      </motion.div>
 
       {/* FIXED HEADER — flush against navbar, no gap */}
       <div
@@ -232,10 +350,10 @@ function ShoppingListContent() {
         className="fixed left-0 right-0 bg-background z-20 border-b border-border"
         style={{ top: navbarH }}
       >
-        <div className="w-full px-8 sm:px-16 md:px-24 lg:px-32 xl:px-40 pt-4 pb-3">
+        <div className="w-full px-8 sm:px-16 md:px-24 lg:px-32 xl:px-40 pt-3 pb-1">
           <Link
             href="/meal-plan"
-            className="flex items-center gap-2 text-primary font-bold text-sm mb-1 hover:translate-x-[-4px] transition-transform w-fit"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-1 hover:translate-x-[-4px] transition-all w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Planner
@@ -253,8 +371,34 @@ function ShoppingListContent() {
               </p>
             </div>
             {!isLoading && (
-              <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 text-base font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground whitespace-nowrap mb-2 md:mb-0">
-                {items.length} {items.length === 1 ? 'item' : 'items'} to buy
+              <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 flex items-center gap-2 mb-2 md:mb-0">
+                <button
+                  onClick={() => setShowAdd(true)}
+                  className="bg-secondary/50 hover:bg-secondary text-foreground p-2 rounded-full border border-border transition-colors"
+                  title="Add Item"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="bg-secondary/50 hover:bg-secondary text-foreground p-2 rounded-full border border-border transition-colors"
+                  title="Bought History"
+                >
+                  <History className="h-4 w-4" />
+                </button>
+                {items.length > 0 && (
+                  <button
+                    onClick={handleDeleteAll}
+                    disabled={isDeletingAll}
+                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 p-2 rounded-full border border-red-500/20 transition-colors disabled:opacity-50"
+                    title="Delete All"
+                  >
+                    {isDeletingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  </button>
+                )}
+                <div className="text-base font-semibold bg-secondary/50 px-4 py-1.5 rounded-full border border-border text-secondary-foreground whitespace-nowrap ml-2">
+                  {items.length} {items.length === 1 ? 'item' : 'items'} to buy
+                </div>
               </div>
             )}
           </div>
@@ -274,10 +418,10 @@ function ShoppingListContent() {
           }}
         >
           <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border">
-              <ShoppingCart className="h-4 w-4 text-primary" />
-              <span className="text-base font-bold text-foreground">Summary</span>
-              <span className="ml-auto text-sm font-semibold bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full">
+            <div className="flex items-center gap-2.5 mb-4 pb-4 border-b border-border">
+              <ClipboardList className="h-4 w-4 text-foreground" />
+              <span className="text-sm font-medium text-foreground tracking-wide" style={{ fontFamily: "'Roboto Condensed', sans-serif" }}>Summary</span>
+              <span className="ml-auto text-xs font-normal text-muted-foreground">
                 {items.length} left
               </span>
             </div>
@@ -312,12 +456,10 @@ function ShoppingListContent() {
       {/* SCROLLABLE CARDS */}
       <div
         className="max-content px-4 pb-16"
-        style={{ paddingTop: navbarH + headerH + 16 }}
+        style={{ paddingTop: navbarH + headerH - 8 }}
       >
         {isLoading ? (
-          <div className="flex items-center justify-center min-h-[40vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          <ShoppingListSkeleton />
         ) : items.length === 0 && boughtCount === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center bg-secondary/10 rounded-2xl border-2 border-dashed border-border">
             <div className="bg-secondary/20 p-6 rounded-full mb-6">
@@ -332,7 +474,7 @@ function ShoppingListContent() {
             </Button>
           </div>
         ) : (
-          <div className="lg:pr-72 space-y-8">
+          <div className="lg:pr-72 space-y-5">
             <AnimatePresence>
               {allDone && (
                 <motion.div
@@ -362,7 +504,7 @@ function ShoppingListContent() {
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="flex items-center gap-3 mb-4 mt-2">
+                  <div className="flex items-center gap-3 mb-3">
                     <span className="text-lg leading-none">{group.emoji}</span>
                     <h2 className={cn("text-base font-bold uppercase tracking-widest", group.text)}>
                       {group.category}
@@ -389,10 +531,16 @@ function ShoppingListContent() {
                           )}
                         >
                           <div className="flex-1 min-w-0 pt-0.5">
-                            <p className="font-semibold text-base text-foreground leading-snug line-clamp-2">
+                            <p
+                              className="font-normal text-lg text-foreground leading-snug line-clamp-2 tracking-wide"
+                              style={{ fontFamily: "'Roboto Condensed', sans-serif", wordSpacing: '0.15em' }}
+                            >
                               {item.itemName}
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p
+                              className="text-xs text-muted-foreground mt-1"
+                              style={{ fontFamily: "'Roboto Condensed', sans-serif" }}
+                            >
                               {item.addedOn?.toDate ? format(item.addedOn.toDate(), 'MMM d') : 'Recently'}
                             </p>
                           </div>
@@ -400,10 +548,10 @@ function ShoppingListContent() {
                             onClick={() => item.id && handleRemove(item.id)}
                             disabled={isRemoving}
                             className={cn(
-                              'shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all duration-200 whitespace-nowrap mt-0.5',
+                              'shrink-0 text-xs font-semibold px-3.5 py-1.5 rounded-md transition-all duration-200 whitespace-nowrap mt-0.5',
                               isRemoving
-                                ? 'bg-green-500 text-white cursor-default'
-                                : 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:scale-95'
+                                ? 'bg-emerald-600 text-white cursor-default'
+                                : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
                             )}
                           >
                             {isRemoving ? (
@@ -422,6 +570,108 @@ function ShoppingListContent() {
           </div>
         )}
       </div>
+
+      {/* Add Modal */}
+      <AnimatePresence>
+        {showAdd && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowAdd(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-md bg-card border border-border rounded-xl shadow-2xl overflow-hidden p-6"
+            >
+              <button
+                onClick={() => setShowAdd(false)}
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <h2 className="text-base font-bold uppercase tracking-widest mb-4">Add Item</h2>
+              <form onSubmit={handleAddItem} className="space-y-4">
+                <input
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  placeholder="E.g., Milk, Bread, Tomatoes"
+                  className="w-full bg-background border border-border rounded-md px-3 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  autoFocus
+                />
+                <Button type="submit" disabled={!newItemName.trim() || isAdding} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+                  {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Add to List
+                </Button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* History Modal */}
+      <AnimatePresence>
+        {showHistory && (
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-end sm:justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              onClick={() => setShowHistory(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 50, scale: 0.95 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-lg max-h-[85vh] flex flex-col bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-border bg-secondary/30">
+                <div className="flex items-center gap-2">
+                  <History className="h-5 w-5 text-foreground" />
+                  <h2 className="text-base font-bold uppercase tracking-widest">Bought History</h2>
+                </div>
+                <button
+                  onClick={() => setShowHistory(false)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-secondary"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2">
+                {boughtHistory.length === 0 ? (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No items have been bought recently.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {boughtHistory.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-secondary/30 transition-colors">
+                        <div>
+                          <p className="font-normal text-lg text-foreground tracking-wide" style={{ fontFamily: "'Roboto Condensed', sans-serif", wordSpacing: '0.15em' }}>
+                            {item.itemName}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {item.boughtOn?.toDate ? format(item.boughtOn.toDate(), 'MMM d, h:mm a') : 'Recently'}
+                          </p>
+                        </div>
+                        <Check className="h-4 w-4 text-green-500" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -431,8 +681,8 @@ export default function ShoppingListPage() {
     <ProtectedRoute>
       <Suspense
         fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="max-content px-4 pb-16" style={{ paddingTop: 212 }}>
+            <ShoppingListSkeleton />
           </div>
         }
       >

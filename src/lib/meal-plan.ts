@@ -166,3 +166,49 @@ export async function removeUnavailableItem(userId: string, itemId: string): Pro
   const docRef = doc(db, 'users', userId, 'unavailableItems', itemId);
   await deleteDoc(docRef);
 }
+
+/**
+ * Adds an item to the bought items list.
+ */
+export async function addBoughtItem(userId: string, item: UnavailableItem): Promise<string> {
+  const colRef = collection(db, 'users', userId, 'boughtItems');
+  const docRef = await addDoc(colRef, {
+    itemName: item.itemName,
+    boughtOn: serverTimestamp(),
+  });
+  return docRef.id;
+}
+
+/**
+ * Retrieves all bought items for a user.
+ */
+export async function getBoughtItems(userId: string): Promise<UnavailableItem[]> {
+  const colRef = collection(db, 'users', userId, 'boughtItems');
+  const q = query(colRef, orderBy('boughtOn', 'desc'));
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs.map(doc => ({
+    ...doc.data(),
+    id: doc.id
+  })) as UnavailableItem[];
+}
+
+/**
+ * Clears all unavailable items for a user.
+ */
+export async function clearAllUnavailableItems(userId: string): Promise<void> {
+  const colRef = collection(db, 'users', userId, 'unavailableItems');
+  const snapshot = await getDocs(colRef);
+  const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletePromises);
+}
+
+/**
+ * Clears all bought items for a user.
+ */
+export async function clearAllBoughtItems(userId: string): Promise<void> {
+  const colRef = collection(db, 'users', userId, 'boughtItems');
+  const snapshot = await getDocs(colRef);
+  const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+  await Promise.all(deletePromises);
+}
