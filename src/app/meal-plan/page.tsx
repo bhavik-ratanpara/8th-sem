@@ -3,37 +3,37 @@
 import { useState, useEffect, Suspense, useRef } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { useUser } from '@/firebase';
-import { 
-  saveMealPlan, 
-  getMealPlan, 
+import {
+  saveMealPlan,
+  getMealPlan,
   saveGroceryList,
   deleteGrocerySection,
-  type WeeklyMealPlan, 
-  type DayPlan, 
+  type WeeklyMealPlan,
+  type DayPlan,
   type MealSlot,
   type GroceryItem,
   type GrocerySection
 } from '@/lib/meal-plan';
 import { generateMealPlan } from '@/ai/flows/generate-meal-plan-flow';
 import { generateGroceryListBatched as generateGroceryList } from '@/ai/flows/generate-grocery-list-flow';
-import { 
-  startOfWeek, 
-  addDays, 
-  format, 
-  addWeeks, 
-  subWeeks, 
-  parseISO 
+import {
+  startOfWeek,
+  addDays,
+  format,
+  addWeeks,
+  subWeeks,
+  parseISO
 } from 'date-fns';
-import { 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
   ChevronDown,
-  Loader2, 
-  ArrowLeft, 
-  Sparkles, 
+  Loader2,
+  ArrowLeft,
+  Sparkles,
   Check,
   X,
   Save,
@@ -80,7 +80,7 @@ function MealPlanContent() {
   const [dietType, setDietType] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Mixed'>('Mixed');
   const [cuisinePreference, setCuisinePreference] = useState('');
   const [healthGoal, setHealthGoal] = useState<
-    'No Preference' | 'Weight Loss' | 'Muscle Gain' | 
+    'No Preference' | 'Weight Loss' | 'Muscle Gain' |
     'Diabetic Friendly' | 'Heart Healthy'
   >('No Preference');
 
@@ -202,7 +202,7 @@ function MealPlanContent() {
       .map(offset => DAYS[(startIndex + offset) % 7]);
 
     const daysKey = selectedDays.join(',');
-    const daysLabel = selectedDays.map(d => 
+    const daysLabel = selectedDays.map(d =>
       d.charAt(0).toUpperCase() + d.slice(1)
     ).join(' → ');
 
@@ -222,10 +222,10 @@ function MealPlanContent() {
     });
 
     if (meals.length === 0) {
-      toast({ 
-        variant: "destructive", 
-        title: "No meals found", 
-        description: `No meals planned for ${daysLabel}` 
+      toast({
+        variant: "destructive",
+        title: "No meals found",
+        description: `No meals planned for ${daysLabel}`
       });
       return;
     }
@@ -233,7 +233,7 @@ function MealPlanContent() {
     setIsGeneratingGrocery(true);
     try {
       const result = await generateGroceryList({ meals });
-      
+
       const newSection: GrocerySection = {
         days: daysKey,
         daysLabel: daysLabel,
@@ -245,23 +245,23 @@ function MealPlanContent() {
         s => s.days !== daysKey
       );
       updatedSections.push(newSection);
-      
+
       setGrocerySections(updatedSections);
       setOpenSections(new Set());
       setOpenCategories(new Set());
 
       await saveGroceryList(user.uid, weekStartDateStr, newSection, grocerySections);
-      
+
       toast({ title: "Grocery list ready! 🛒" });
       setTimeout(() => {
         document.getElementById('grocery-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 200);
     } catch (error) {
       console.error('Grocery list error:', error);
-      toast({ 
-        variant: "destructive", 
-        title: "Failed to generate grocery list", 
-        description: String(error) 
+      toast({
+        variant: "destructive",
+        title: "Failed to generate grocery list",
+        description: String(error)
       });
     } finally {
       setIsGeneratingGrocery(false);
@@ -343,8 +343,10 @@ function MealPlanContent() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <FoodDecorations />
-      
+      <div style={{ position: 'absolute', inset: 0, top: navbarH + headerH - 51, pointerEvents: 'none' }}>
+        <FoodDecorations />
+      </div>
+
       {/* FIXED HEADER — flush against navbar */}
       <div
         ref={headerRef}
@@ -352,7 +354,7 @@ function MealPlanContent() {
         style={{ top: navbarH }}
       >
         <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 pt-3 pb-2">
-          <Link 
+          <Link
             href="/"
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-2 hover:translate-x-[-4px] transition-all w-fit"
           >
@@ -362,8 +364,8 @@ function MealPlanContent() {
 
           <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
             <div className="space-y-1 text-center">
-              <h1 
-                className="text-4xl tracking-tight text-foreground" 
+              <h1
+                className="text-4xl tracking-tight text-foreground"
                 style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
               >
                 WEEKLY MEAL PLAN
@@ -387,33 +389,43 @@ function MealPlanContent() {
       </div>
 
       {/* SCROLLABLE CONTENT */}
-      <div 
+      <div
         className="max-content px-4 pb-16 relative z-10"
         style={{ paddingTop: navbarH + headerH + 24 }}
       >
-        {/* AI Generator Section */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-8 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-            <Sparkles className="h-24 w-24 text-primary" />
+        {/* ── AI Generator ── */}
+        <div className="bg-card border border-border rounded-2xl shadow-sm mb-10 overflow-hidden">
+          {/* Top row: title + generate button */}
+          <div className="flex items-center justify-between px-5 py-3 border-b border-border/50">
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span className="text-base font-bold text-foreground tracking-tight">AI Plan Generator</span>
+            </div>
+            <Button
+              onClick={handleGenerateAI}
+              disabled={isGenerating}
+              size="default"
+              className="bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 rounded-lg shadow-sm gap-2 h-9"
+            >
+              {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              {isGenerating ? 'Generating…' : 'Generate Plan'}
+            </Button>
           </div>
-          <h2 className="text-lg font-bold flex items-center gap-2 mb-6">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Generate Plan with AI
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Diet Type</label>
-              <div className="flex gap-2">
+          {/* Bottom row: controls */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3">
+            {/* Diet pills */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">Diet</span>
+              <div className="flex bg-secondary/30 p-1 rounded-lg border border-border/40">
                 {(['Vegetarian', 'Non-Vegetarian', 'Mixed'] as const).map(type => (
                   <button
                     key={type}
                     onClick={() => setDietType(type)}
                     className={cn(
-                      "text-xs px-3 py-2 rounded-md border font-medium flex-1 transition-all",
-                      dietType === type 
-                        ? "border-primary text-primary bg-primary/10" 
-                        : "border-border text-muted-foreground hover:bg-secondary/50"
+                      "text-xs px-4 py-2 rounded-md font-semibold transition-all whitespace-nowrap",
+                      dietType === type
+                        ? "bg-primary text-white shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
                     {type === 'Non-Vegetarian' ? 'Non-Veg' : type}
@@ -421,59 +433,38 @@ function MealPlanContent() {
                 ))}
               </div>
             </div>
-
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Cuisine Preference</label>
-              <Input 
-                placeholder="e.g. Indian, Italian, Mixed" 
+            {/* Cuisine */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cuisine</span>
+              <Input
+                placeholder="e.g. Indian"
                 value={cuisinePreference}
                 onChange={(e) => setCuisinePreference(e.target.value)}
-                className="h-10 text-sm"
+                className="h-9 w-[150px] text-sm rounded-lg border-border/50"
               />
             </div>
-            
-            <div className="space-y-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Health Goal
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {([
-                  'No Preference',
-                  'Weight Loss',
-                  'Muscle Gain', 
-                  'Diabetic Friendly',
-                  'Heart Healthy'
-                ] as const).map(goal => (
-                  <button
-                    key={goal}
-                    onClick={() => setHealthGoal(goal)}
-                    className={cn(
-                      "text-xs px-3 py-2 rounded-md border font-medium transition-all",
-                      healthGoal === goal
-                        ? "border-primary text-primary bg-primary/10"
-                        : "border-border text-muted-foreground hover:bg-secondary/50"
-                    )}
-                  >
-                    {goal}
-                  </button>
-                ))}
+            {/* Health Goal */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Goal</span>
+              <div className="relative">
+                <select
+                  value={healthGoal}
+                  onChange={(e) => setHealthGoal(e.target.value as any)}
+                  className="h-9 pl-4 pr-8 text-sm bg-background border border-border/50 rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50"
+                >
+                  <option value="No Preference">Any</option>
+                  <option value="Weight Loss">Weight Loss</option>
+                  <option value="Muscle Gain">Muscle Gain</option>
+                  <option value="Diabetic Friendly">Diabetic Friendly</option>
+                  <option value="Heart Healthy">Heart Healthy</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
               </div>
             </div>
           </div>
-
-          <div className="mt-6 flex justify-end">
-            <Button 
-              onClick={handleGenerateAI} 
-              disabled={isGenerating}
-              className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-8 rounded-xl gap-2 shadow-lg shadow-primary/20"
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Generate Plan ✨
-            </Button>
-          </div>
         </div>
 
-        {/* Meal Plan Grid */}
+        {/* ── Meal Plan Grid ── */}
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -482,32 +473,36 @@ function MealPlanContent() {
           <div className="space-y-10 mb-20">
             {/* Desktop Grid */}
             <div className="hidden lg:block overflow-x-auto">
-              <div className="min-w-[1000px] bg-card border border-border rounded-2xl shadow-sm divide-y divide-border">
+              <div className="min-w-[1000px] bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 {/* Header Row */}
-                <div className="grid grid-cols-8 divide-x divide-border">
-                  <div className="p-4 bg-secondary/5" />
+                <div className="grid grid-cols-8 border-b border-border">
+                  <div className="p-3 bg-secondary/5" />
                   {DAYS.map(day => (
-                    <div key={day} className="p-4 text-center">
-                      <span className="text-sm font-black uppercase tracking-widest text-foreground">{day}</span>
+                    <div key={day} className="p-4 text-center border-l border-border/50 bg-secondary/5">
+                      <span className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">{day.slice(0, 3)}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Meal Rows */}
-                {MEALS.map(meal => (
-                  <div key={meal} className="grid grid-cols-8 divide-x divide-border" style={{ minHeight: '120px' }}>
-                    <div className="p-4 bg-secondary/5 flex items-center justify-center border-r border-border">
-                      <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground rotate-[-90deg] whitespace-nowrap">{meal}</span>
+                {MEALS.map((meal, mealIdx) => {
+                  const mealColor = meal === 'breakfast' ? 'text-amber-500' : meal === 'lunch' ? 'text-emerald-500' : 'text-indigo-400';
+                  const mealBg = meal === 'breakfast' ? 'bg-amber-500/5' : meal === 'lunch' ? 'bg-emerald-500/5' : 'bg-indigo-500/5';
+                  return (
+                  <div key={meal} className={cn("grid grid-cols-8", mealIdx < 2 && "border-b border-border")} style={{ minHeight: '130px' }}>
+                    <div className={cn("p-4 flex items-center justify-center border-r border-border/50", mealBg)}>
+                      <span className={cn("text-xs font-black uppercase tracking-[0.2em] rotate-[-90deg] whitespace-nowrap", mealColor)}>{meal}</span>
                     </div>
                     {DAYS.map(day => {
                       const dish = plan?.[day]?.[meal]?.dishName;
                       const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
 
                       return (
-                        <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group", dish && "bg-primary/[0.02]")}>
+
+                        <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group border-l border-border/50", dish && mealBg)}>
                           {isEditing ? (
                             <div className="space-y-2">
-                              <Input 
+                              <Input
                                 autoFocus
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
@@ -545,7 +540,7 @@ function MealPlanContent() {
                           ) : dish ? (
                             <div className="h-full flex flex-col justify-between">
                               <div>
-                                <button 
+                                <button
                                   onClick={() => {
                                     const slot = plan?.[day]?.[meal];
                                     router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
@@ -570,8 +565,8 @@ function MealPlanContent() {
                             </div>
                           ) : (
                             <div className="h-full flex items-center justify-center">
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 className="text-xs text-muted-foreground hover:text-primary gap-1.5 h-8 border border-dashed border-border"
                                 onClick={() => startEditing(day, meal)}
                               >
@@ -583,37 +578,37 @@ function MealPlanContent() {
                       );
                     })}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
             {/* Mobile / Tablet Vertical List */}
-            <div className="lg:hidden space-y-6">
+            <div className="lg:hidden space-y-4">
               {DAYS.map(day => (
-                <div key={day} className="bg-card border border-border rounded-xl p-5 shadow-sm">
-                  <h3 className="text-base font-black uppercase tracking-widest text-foreground mb-4 border-b border-border pb-3 flex items-center justify-between">
-                    {day}
-                    <span className="text-[10px] text-muted-foreground font-medium">Week of {weekStartDateStr}</span>
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
+                <div key={day} className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                  <div className="px-5 py-4 bg-secondary/5 border-b border-border flex items-center justify-between">
+                    <span className="text-sm font-black uppercase tracking-[0.15em] text-foreground">{day}</span>
+                    <span className="text-xs text-muted-foreground font-medium">{weekRange}</span>
+                  </div>
+                  <div className="divide-y divide-border/50">
                     {MEALS.map(meal => {
                       const dish = plan?.[day]?.[meal]?.dishName;
                       const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
+                      const mobileColor = meal === 'breakfast' ? 'border-l-amber-500' : meal === 'lunch' ? 'border-l-emerald-500' : 'border-l-indigo-400';
+                      const mobileLabelColor = meal === 'breakfast' ? 'text-amber-500' : meal === 'lunch' ? 'text-emerald-500' : 'text-indigo-400';
 
                       return (
-                        <div key={`${day}-${meal}`} className="flex flex-col gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">{meal}</span>
-                          <div className={cn(
-                            "min-h-[60px] rounded-lg border border-border flex items-center px-4 py-3",
-                            dish ? "bg-primary/[0.03] border-primary/20" : "bg-secondary/10 border-dashed"
-                          )}>
+                        <div key={`${day}-${meal}`} className={cn("border-l-2 px-4 py-3", mobileColor)}>
+                          <span className={cn("text-xs font-black uppercase tracking-[0.15em]", mobileLabelColor)}>{meal}</span>
+                          <div className="mt-2">
                             {isEditing ? (
                               <div className="flex flex-col gap-2 w-full">
-                                <Input 
+                                <Input
                                   autoFocus
                                   value={editValue}
                                   onChange={(e) => setEditValue(e.target.value)}
-                                  className="h-10 text-sm"
+                                  className="h-9 text-sm"
                                   placeholder="Dish name..."
                                 />
                                 <div className="flex gap-2">
@@ -623,59 +618,58 @@ function MealPlanContent() {
                                     max="20"
                                     value={editServings}
                                     onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
-                                    className="h-10 text-sm w-20"
+                                    className="h-9 text-sm w-20"
                                     placeholder="Servings"
                                   />
                                   <Input
                                     value={editCuisine}
                                     onChange={(e) => setEditCuisine(e.target.value)}
-                                    className="h-10 text-sm flex-1"
+                                    className="h-9 text-sm flex-1"
                                     placeholder="Cuisine"
                                   />
                                 </div>
                                 <div className="flex gap-1 justify-end">
-                                  <Button size="icon" className="h-10 w-10 bg-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
-                                    <Check className="h-4 w-4" />
+                                  <Button size="icon" className="h-8 w-8 bg-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
+                                    <Check className="h-3.5 w-3.5" />
                                   </Button>
-                                  <Button size="icon" variant="outline" className="h-10 w-10 border-destructive text-destructive" onClick={() => setEditingSlot(null)}>
-                                    <X className="h-4 w-4" />
+                                  <Button size="icon" variant="outline" className="h-8 w-8 border-destructive text-destructive" onClick={() => setEditingSlot(null)}>
+                                    <X className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
                             ) : dish ? (
                               <div className="flex items-center justify-between w-full">
                                 <div className="flex-1">
-                                  <button 
+                                  <button
                                     onClick={() => {
                                       const slot = plan?.[day]?.[meal];
                                       router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
                                     }}
-                                    className="text-sm font-bold text-foreground hover:text-primary transition-colors text-left line-clamp-2"
+                                    className="text-sm font-semibold text-foreground hover:text-primary transition-colors text-left line-clamp-2"
                                   >
                                     {dish}
                                   </button>
-                                  <div className="text-[10px] text-muted-foreground mt-0.5">
+                                  <div className="text-xs text-muted-foreground mt-0.5">
                                     {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
                                     {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
                                   </div>
                                 </div>
                                 <div className="flex gap-1 ml-4 shrink-0">
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
-                                    <Pencil className="h-4 w-4" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
+                                    <Pencil className="h-3.5 w-3.5" />
                                   </Button>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => updateSlot(day, meal, null)}>
-                                    <Trash2 className="h-4 w-4" />
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => updateSlot(day, meal, null)}>
+                                    <Trash2 className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
                             ) : (
-                              <Button 
-                                variant="ghost" 
-                                className="w-full text-xs text-muted-foreground hover:text-primary gap-2 h-10 border-none"
+                              <button
+                                className="text-xs text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
                                 onClick={() => startEditing(day, meal)}
                               >
-                                <Plus className="h-4 w-4" /> Add Meal
-                              </Button>
+                                <Plus className="h-3 w-3" /> Add meal
+                              </button>
                             )}
                           </div>
                         </div>
@@ -688,102 +682,83 @@ function MealPlanContent() {
 
             {/* Grocery List Section */}
             <div id="grocery-section" className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-border">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2.5 rounded-xl">
-                      <ShoppingCart className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-foreground">Weekly Grocery List</h2>
-                      <p className="text-xs text-muted-foreground">Generate grocery list for 3 days at a time</p>
-                    </div>
+              {/* Header row */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <ShoppingCart className="h-5 w-5 text-primary" />
+                  <span className="text-base font-bold text-foreground tracking-tight">Weekly Grocery List</span>
+                  <span className="text-xs text-muted-foreground">3 days at a time</span>
+                </div>
+                <Button
+                  onClick={handleGenerateGroceryList}
+                  disabled={isGeneratingGrocery}
+                  size="default"
+                  className="bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 rounded-lg shadow-sm gap-2 h-9"
+                >
+                  {isGeneratingGrocery ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShoppingCart className="h-3.5 w-3.5" />}
+                  {isGeneratingGrocery ? 'Generating…' : grocerySections.length > 0 ? 'Generate More' : 'Generate List'}
+                </Button>
+              </div>
+              {/* Day selector row */}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 border-b border-border/50">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">Start</span>
+                  <div className="flex bg-secondary/30 p-1 rounded-lg border border-border/40">
+                    {DAYS.map(day => (
+                      <button
+                        key={day}
+                        onClick={() => {
+                          setGroceryStartDay(day);
+                          setGrocerySelectedDays(new Set([0, 1, 2]));
+                        }}
+                        className={cn(
+                          "text-xs px-3 py-1.5 rounded font-semibold uppercase tracking-wider transition-all",
+                          day === groceryStartDay
+                            ? "bg-primary text-white shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
                   </div>
                 </div>
-
-                <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Starting from</label>
-                    <div className="flex gap-1.5 flex-wrap mb-2">
-                      {DAYS.map(day => (
-                        <button
-                          key={day}
-                          onClick={() => {
-                            setGroceryStartDay(day);
-                            setGrocerySelectedDays(new Set([0, 1, 2]));
-                          }}
-                          className={cn(
-                            "text-[11px] px-2.5 py-1.5 rounded-md border font-semibold uppercase tracking-wider transition-all",
-                            day === groceryStartDay
-                              ? "border-primary text-white bg-primary"
-                              : "border-border text-muted-foreground hover:bg-secondary/50"
-                          )}
-                        >
-                          {day.slice(0, 3)}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {[0, 1, 2].map(offset => {
-                        const startIndex = DAYS.indexOf(groceryStartDay);
-                        const day = DAYS[(startIndex + offset) % 7];
-                        const isSelected = grocerySelectedDays.has(offset);
-                        const isStart = offset === 0;
-
-                        return (
-                          <div
-                            key={offset}
-                            onClick={() => toggleGroceryDay(offset)}
-                            className={cn(
-                              "relative flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 cursor-pointer transition-all select-none",
-                              isSelected
-                                ? "border-primary bg-primary/10 text-primary"
-                                : "border-border bg-secondary/10 text-muted-foreground opacity-50"
-                            )}
-                          >
-                            <span className="text-sm font-bold capitalize">
-                              {day}
-                            </span>
-                            {isSelected && !isStart && (
-                              <span
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleGroceryDay(offset);
-                                }}
-                                className="text-primary/60 hover:text-destructive transition-colors text-xs font-bold"
-                              >
-                                ×
-                              </span>
-                            )}
-                            {isStart && isSelected && (
-                              <span className="text-primary/40 text-xs">✓</span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Generating for: {[0, 1, 2]
-                        .filter(offset => grocerySelectedDays.has(offset))
-                        .map(offset => {
-                          const startIndex = DAYS.indexOf(groceryStartDay);
-                          const d = DAYS[(startIndex + offset) % 7];
-                          return d.charAt(0).toUpperCase() + d.slice(1);
-                        })
-                        .join(' → ')
-                      }
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={handleGenerateGroceryList}
-                    disabled={isGeneratingGrocery}
-                    className="bg-primary hover:bg-primary/90 text-white font-bold h-10 px-6 rounded-xl gap-2"
-                  >
-                    {isGeneratingGrocery ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
-                    {isGeneratingGrocery ? 'Generating...' : grocerySections.length > 0 ? 'Generate More' : 'Generate List'}
-                  </Button>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Days</span>
+                  {[0, 1, 2].map(offset => {
+                    const startIndex = DAYS.indexOf(groceryStartDay);
+                    const day = DAYS[(startIndex + offset) % 7];
+                    const isSelected = grocerySelectedDays.has(offset);
+                    const isStart = offset === 0;
+                    return (
+                      <button
+                        key={offset}
+                        onClick={() => toggleGroceryDay(offset)}
+                        className={cn(
+                          "text-sm px-4 py-2 rounded-lg border font-semibold capitalize transition-all",
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border/50 text-muted-foreground/50"
+                        )}
+                      >
+                        {day.slice(0, 3)}
+                        {isSelected && !isStart && <span className="ml-2 text-xs opacity-70">×</span>}
+                        {isStart && isSelected && <span className="ml-2 text-xs opacity-70">✓</span>}
+                      </button>
+                    );
+                  })}
                 </div>
+                <span className="text-xs text-muted-foreground">
+                  {[0, 1, 2]
+                    .filter(offset => grocerySelectedDays.has(offset))
+                    .map(offset => {
+                      const startIndex = DAYS.indexOf(groceryStartDay);
+                      const d = DAYS[(startIndex + offset) % 7];
+                      return d.charAt(0).toUpperCase() + d.slice(1, 3);
+                    })
+                    .join(' → ')
+                  }
+                </span>
               </div>
 
               {isGeneratingGrocery && (
@@ -794,115 +769,119 @@ function MealPlanContent() {
 
               {grocerySections.length > 0 && !isGeneratingGrocery && (
                 <div className="divide-y divide-border">
-                  {grocerySections
-                    .sort((a, b) => a.generatedAt - b.generatedAt)
-                    .map((section) => {
-                      const isSectionOpen = openSections.has(section.days);
+                    {grocerySections
+                      .sort((a, b) => a.generatedAt - b.generatedAt)
+                      .map((section) => {
+                        const isSectionOpen = openSections.has(section.days);
 
-                      const categoryOrder = [
-                        'Vegetables', 'Fruits', 'Grains & Cereals',
-                        'Lentils & Pulses', 'Dairy & Eggs',
-                        'Meat & Poultry', 'Seafood',
-                        'Spices & Masalas', 'Oils & Condiments', 'Others',
-                      ];
+                        const categoryOrder = [
+                          'Vegetables', 'Fruits', 'Grains & Cereals',
+                          'Lentils & Pulses', 'Dairy & Eggs',
+                          'Meat & Poultry', 'Seafood',
+                          'Spices & Masalas', 'Oils & Condiments', 'Others',
+                        ];
 
-                      const grouped = categoryOrder.reduce((acc, cat) => {
-                        const items = section.items.filter(item => item.category === cat);
-                        if (items.length > 0) acc[cat] = items;
-                        return acc;
-                      }, {} as Record<string, GroceryItem[]>);
+                        const grouped = categoryOrder.reduce((acc, cat) => {
+                          const items = section.items.filter(item => item.category === cat);
+                          if (items.length > 0) acc[cat] = items;
+                          return acc;
+                        }, {} as Record<string, GroceryItem[]>);
 
-                      return (
-                        <div key={section.days}>
-                          <div className="flex items-center">
-                            <button
-                              onClick={() => toggleSection(section.days)}
-                              className="flex-1 px-6 py-4 flex items-center justify-between hover:bg-secondary/5 transition-colors"
-                            >
-                              <div className="flex items-center gap-3">
-                                <ShoppingCart className="h-4 w-4 text-primary" />
-                                <span className="text-sm font-bold text-foreground">
-                                  {section.daysLabel}
-                                </span>
-                                <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full">
-                                  {section.items.length} items
-                                </span>
-                              </div>
-                              <ChevronDown className={cn(
-                                "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                                isSectionOpen && "rotate-180"
-                              )} />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteGrocerySection(section.days)}
-                              className="px-4 py-4 text-muted-foreground hover:text-destructive transition-colors"
-                              title="Delete this section"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
+                        return (
+                          <div key={section.days} className="bg-background/50">
+                            <div className="flex items-center pr-2 border-b border-border/40">
+                              <button
+                                onClick={() => toggleSection(section.days)}
+                                className="flex-1 px-5 py-3.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="bg-primary/10 p-1.5 rounded-lg">
+                                    <ShoppingCart className="h-3.5 w-3.5 text-primary" />
+                                  </div>
+                                  <span className="text-sm font-bold text-foreground">
+                                    {section.daysLabel}
+                                  </span>
+                                  <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase bg-secondary px-2 py-0.5 rounded border border-border/50">
+                                    {section.items.length} items
+                                  </span>
+                                </div>
+                                <ChevronDown className={cn(
+                                  "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                                  isSectionOpen && "rotate-180"
+                                )} />
+                              </button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDeleteGrocerySection(section.days)}
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                title="Delete section"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
 
-                          {isSectionOpen && (
-                            <div className="border-t border-border/50 pl-4">
-                              {Object.entries(grouped).map(([category, items]) => {
-                                const catKey = `${section.days}-${category}`;
-                                const isCatOpen = openCategories.has(catKey);
+                            {isSectionOpen && (
+                              <div className="border-b border-border/40 bg-secondary/5">
+                                {Object.entries(grouped).map(([category, items]) => {
+                                  const catKey = `${section.days}-${category}`;
+                                  const isCatOpen = openCategories.has(catKey);
 
-                                return (
-                                  <div key={catKey}>
-                                    <button
-                                      onClick={() => toggleCategory(catKey)}
-                                      className="w-full px-6 py-3 flex items-center justify-between hover:bg-secondary/5 transition-colors"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <span className="text-base">
-                                          {CATEGORY_EMOJI[category] || '📦'}
-                                        </span>
-                                        <span className="text-xs font-bold text-foreground">
-                                          {category}
-                                        </span>
-                                        <span className="text-[10px] font-medium text-muted-foreground bg-secondary/50 px-1.5 py-0.5 rounded-full">
-                                          {items.length}
-                                        </span>
-                                      </div>
-                                      <ChevronDown className={cn(
-                                        "h-3 w-3 text-muted-foreground transition-transform duration-200",
-                                        isCatOpen && "rotate-180"
-                                      )} />
-                                    </button>
+                                  return (
+                                    <div key={catKey} className="border-t border-border/20 first:border-t-0">
+                                      <button
+                                        onClick={() => toggleCategory(catKey)}
+                                        className="w-full pl-12 pr-5 py-2.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
+                                      >
+                                        <div className="flex items-center gap-2.5">
+                                          <span className="text-sm">
+                                            {CATEGORY_EMOJI[category] || '📦'}
+                                          </span>
+                                          <span className="text-sm font-semibold text-foreground">
+                                            {category}
+                                          </span>
+                                          <span className="text-xs font-medium text-muted-foreground">
+                                            ({items.length})
+                                          </span>
+                                        </div>
+                                        <ChevronDown className={cn(
+                                          "h-3 w-3 text-muted-foreground transition-transform duration-200",
+                                          isCatOpen && "rotate-180"
+                                        )} />
+                                      </button>
 
-                                    {isCatOpen && (
-                                      <div className="border-t border-border/30">
-                                        {items.map((item, index) => (
-                                          <div
-                                            key={index}
-                                            className="flex items-start px-6 pl-16 py-2.5 hover:bg-secondary/5 transition-colors border-b border-border/20 last:border-b-0"
-                                          >
-                                            <div className="flex-1">
-                                              <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="text-sm font-semibold text-foreground">
-                                                  {item.name}
-                                                </span>
-                                                <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
-                                                  {item.quantity}
-                                                </span>
-                                              </div>
-                                              <div className="text-[10px] text-muted-foreground mt-0.5">
-                                                For: {item.neededFor.join(', ')}
+                                      {isCatOpen && (
+                                        <div className="pb-2 bg-background/50">
+                                          {items.map((item, index) => (
+                                            <div
+                                              key={index}
+                                              className="flex items-start pl-[4.5rem] pr-5 py-2 hover:bg-secondary/10 transition-colors border-l-2 border-transparent hover:border-primary/50 relative"
+                                            >
+                                              <div className="flex-1">
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                  <span className="text-[13px] font-medium text-foreground">
+                                                    {item.name}
+                                                  </span>
+                                                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                                                    {item.quantity}
+                                                  </span>
+                                                </div>
+                                                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                                                  {item.neededFor.join(', ')}
+                                                </div>
                                               </div>
                                             </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
 
                   <div className="px-6 py-3 bg-secondary/5">
                     <p className="text-[11px] text-muted-foreground font-medium">
@@ -924,19 +903,19 @@ function MealPlanContent() {
           </div>
         )}
 
-        {/* Action Button - Floating/Fixed */}
-        <div className="fixed bottom-8 right-8 z-[40]">
-          <Button 
-            size="lg"
-            disabled={!hasChanges || isSaving}
+        {/* Floating Save Button */}
+        <div className={cn(
+          "fixed bottom-6 right-6 z-[40] transition-all duration-300",
+          hasChanges ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+        )}>
+          <Button
+            size="sm"
+            disabled={isSaving}
             onClick={handleSave}
-            className={cn(
-              "h-14 px-8 rounded-full shadow-2xl font-bold gap-3 transition-all transform hover:scale-105 active:scale-95",
-              hasChanges ? "bg-primary text-white" : "bg-muted text-muted-foreground cursor-not-allowed border border-border"
-            )}
+            className="h-11 px-6 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/25 gap-2 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all"
           >
-            {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
-            {isSaving ? "Saving..." : "Save Plan"}
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            {isSaving ? "Saving…" : "Save Plan"}
           </Button>
         </div>
       </div>
