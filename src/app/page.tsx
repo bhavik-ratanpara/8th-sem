@@ -237,7 +237,6 @@ export default function Home() {
         {/* SECTION 1 — HERO */}
         <section className="home-section hero">
           <div className="home-content hero-content">
-            <div className="home-badge">✦ AI-Powered · 2026</div>
             <h1>Cook Smarter.<br /><span className="gradient-text">Not Harder.</span></h1>
             <p className="hero-sub">Generate precise recipes with exact quantities and step-by-step guidance — powered by advanced AI trained on thousands of culinary masterpieces.</p>
             <div className="hero-actions">
