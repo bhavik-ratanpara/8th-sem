@@ -2,22 +2,13 @@
 
 /**
  * @fileOverview An AI agent for suggesting dishes based on user thoughts.
- *
- * - suggestDishes - A function that suggests dishes.
  */
-import {ai} from '@/ai/genkit';
+
+import { generateWithFallback } from '@/ai/kilo';
 import { SuggestDishesInputSchema, SuggestDishesOutputSchema, type SuggestDishesInput, type SuggestDishesOutput } from '@/ai/schemas';
 
 export async function suggestDishes(input: SuggestDishesInput): Promise<SuggestDishesOutput> {
-  return suggestDishesFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'suggestDishesPrompt',
-  input: {schema: SuggestDishesInputSchema},
-  output: {schema: SuggestDishesOutputSchema},
-  prompt: `
-ROLE:
+  const prompt = `ROLE:
 You are an intelligent Culinary AI Assistant. Your goal is to interpret the user's abstract thoughts, current mood, weather context, or vague cravings and suggest 4 to 5 distinct, real dish names that match their intent.
 
 INPUT:
@@ -35,25 +26,29 @@ Strictly return a JSON object with a "suggestions" array. Do not include markdow
     {
       "dish_name": "Name of the Dish",
       "description": "A short, appetizing one-line description of why this fits the user's thought.",
-      "difficulty": "Easy/Medium/Hard"
+      "difficulty": "Easy"
     }
-    // ... 4 to 5 items total
   ]
 }
 
-USER INPUT:
-"{{{thoughts}}}"
-`,
-});
+Note: difficulty must be one of: "Easy", "Medium", "Hard"
 
-const suggestDishesFlow = ai.defineFlow(
-  {
-    name: 'suggestDishesFlow',
-    inputSchema: SuggestDishesInputSchema,
-    outputSchema: SuggestDishesOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+USER INPUT:
+"${input.thoughts}"`;
+
+  const response = await generateWithFallback(
+    [{ role: 'user', content: prompt }],
+    { temperature: 0.7 }
+  );
+
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse AI response as JSON');
+
+  const parsed = SuggestDishesOutputSchema.safeParse(JSON.parse(jsonMatch[0]));
+  if (!parsed.success) {
+    console.error('Parse error:', parsed.error);
+    throw new Error('Invalid suggestions format from AI');
   }
-);
+
+  return parsed.data;
+}

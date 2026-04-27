@@ -1,13 +1,10 @@
 'use server';
 /**
  * @fileOverview An AI agent for suggesting alternatives when ingredients are missing.
- *
- * - suggestAlternative - A wrapper function for the suggestAlternativeFlow.
- * - suggestAlternativeFlow - The Genkit flow that handles the logic.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { generateWithFallback } from '@/ai/kilo';
+import { z } from 'zod';
 
 const SuggestAlternativeInputSchema = z.object({
   dishName: z.string().describe('The name of the dish the user wants to cook.'),
@@ -23,37 +20,36 @@ const SuggestAlternativeOutputSchema = z.object({
 });
 export type SuggestAlternativeOutput = z.infer<typeof SuggestAlternativeOutputSchema>;
 
-/**
- * Suggests an alternative ingredient or a different dish based on missing ingredients.
- */
 export async function suggestAlternative(input: SuggestAlternativeInput): Promise<SuggestAlternativeOutput> {
-  return suggestAlternativeFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'suggestAlternativePrompt',
-  input: { schema: SuggestAlternativeInputSchema },
-  output: { schema: SuggestAlternativeOutputSchema },
-  prompt: `The user wants to cook {{{dishName}}}.
-They have all ingredients except {{{missingIngredient}}}.
-Full ingredient list: {{{allIngredients}}}.
+  const prompt = `The user wants to cook ${input.dishName}.
+They have all ingredients except ${input.missingIngredient}.
+Full ingredient list: ${input.allIngredients.join(', ')}.
 
 Give two suggestions:
-1. An alternative ingredient that can replace {{{missingIngredient}}} to still make {{{dishName}}}
+1. An alternative ingredient that can replace ${input.missingIngredient} to still make ${input.dishName}
 2. A completely different dish they can make with the remaining ingredients they have
 
-Return only valid JSON matching the output schema.
-No extra text. No markdown.`,
-});
+Return ONLY valid JSON matching this exact format:
+{
+  "alternativeIngredient": "string",
+  "alternativeDish": "string",
+  "reason": "string"
+}
+No extra text. No markdown.`;
 
-export const suggestAlternativeFlow = ai.defineFlow(
-  {
-    name: 'suggestAlternativeFlow',
-    inputSchema: SuggestAlternativeInputSchema,
-    outputSchema: SuggestAlternativeOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+  const response = await generateWithFallback(
+    [{ role: 'user', content: prompt }],
+    { temperature: 0.7 }
+  );
+
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse AI response as JSON');
+
+  const parsed = SuggestAlternativeOutputSchema.safeParse(JSON.parse(jsonMatch[0]));
+  if (!parsed.success) {
+    console.error('Parse error:', parsed.error);
+    throw new Error('Invalid alternative format from AI');
   }
-);
+
+  return parsed.data;
+}

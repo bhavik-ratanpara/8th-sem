@@ -1,14 +1,10 @@
 'use server';
 /**
  * @fileOverview A grocery list generation AI agent.
- *
- * - generateGroceryList - A function that handles the grocery list generation process.
- * - GenerateGroceryListInput - The input type for the generateGroceryList function.
- * - GenerateGroceryListOutput - The return type for the generateGroceryList function.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { generateWithFallback } from '@/ai/kilo';
+import { z } from 'zod';
 
 const GenerateGroceryListInputSchema = z.object({
   meals: z.array(z.object({
@@ -42,22 +38,12 @@ const GenerateGroceryListOutputSchema = z.object({
 });
 export type GenerateGroceryListOutput = z.infer<typeof GenerateGroceryListOutputSchema>;
 
-/**
- * Generates a consolidated grocery list for a set of meals.
- */
 export async function generateGroceryList(input: GenerateGroceryListInput): Promise<GenerateGroceryListOutput> {
-  return generateGroceryListFlow(input);
-}
+  const mealsList = input.meals.map(m => `- ${m.dishName} (${m.servings} servings, ${m.cuisine} cuisine)`).join('\n');
+  
+  const prompt = `Generate a realistic combined grocery/shopping list for a home cook making these meals:
 
-const prompt = ai.definePrompt({
-  name: 'generateGroceryListPrompt',
-  input: { schema: GenerateGroceryListInputSchema },
-  output: { schema: GenerateGroceryListOutputSchema },
-  prompt: `Generate a realistic combined grocery/shopping list for a home cook making these meals:
-
-{{#each meals}}
-- {{this.dishName}} ({{this.servings}} servings, {{this.cuisine}} cuisine)
-{{/each}}
+${mealsList}
 
 QUANTITY RULES — follow these strictly:
 - Always use standard measurable units only
@@ -76,9 +62,7 @@ QUANTITY RULES — follow these strictly:
 
 CATEGORY RULES:
 - Assign each item to exactly one category
-- Use: Vegetables, Fruits, Grains & Cereals, Dairy & Eggs,
-  Meat & Poultry, Seafood, Spices & Masalas,
-  Oils & Condiments, Lentils & Pulses, Others
+- Use: Vegetables, Fruits, Grains & Cereals, Dairy & Eggs, Meat & Poultry, Seafood, Spices & Masalas, Oils & Condiments, Lentils & Pulses, Others
 
 OTHER RULES:
 - Combine same ingredients across all dishes
@@ -86,21 +70,35 @@ OTHER RULES:
 - Keep ingredient names simple and clear
 - Include ALL ingredients needed
 
-Return only valid JSON matching the output schema.
-No extra text. No markdown.`,
-});
+Output MUST be valid JSON in exactly this format:
+{
+  "items": [
+    {
+      "name": "string",
+      "quantity": "string",
+      "neededFor": ["dishName1", "dishName2"],
+      "category": "Vegetables"
+    }
+  ]
+}
+Do not include extra text or markdown formatting.`;
 
-export const generateGroceryListFlow = ai.defineFlow(
-  {
-    name: 'generateGroceryListFlow',
-    inputSchema: GenerateGroceryListInputSchema,
-    outputSchema: GenerateGroceryListOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+  const response = await generateWithFallback(
+    [{ role: 'user', content: prompt }],
+    { temperature: 0.3 }
+  );
+
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse AI response as JSON');
+
+  const parsed = GenerateGroceryListOutputSchema.safeParse(JSON.parse(jsonMatch[0]));
+  if (!parsed.success) {
+    console.error('Parse error:', parsed.error);
+    throw new Error('Invalid grocery list format from AI');
   }
-);
+
+  return parsed.data;
+}
 
 export async function generateGroceryListBatched(
   input: GenerateGroceryListInput

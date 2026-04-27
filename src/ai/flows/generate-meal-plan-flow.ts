@@ -1,14 +1,10 @@
 'use server';
 /**
  * @fileOverview A weekly meal plan generation AI agent.
- *
- * - generateMealPlan - A function that handles the meal plan generation process.
- * - GenerateMealPlanInput - The input type for the generateMealPlan function.
- * - GenerateMealPlanOutput - The return type for the generateMealPlan function.
  */
 
-import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { generateWithFallback } from '@/ai/kilo';
+import { z } from 'zod';
 
 const GenerateMealPlanInputSchema = z.object({
   dietType: z.enum(['Vegetarian', 'Non-Vegetarian', 'Mixed']).describe('The dietary preference.'),
@@ -41,25 +37,15 @@ const GenerateMealPlanOutputSchema = z.object({
 });
 export type GenerateMealPlanOutput = z.infer<typeof GenerateMealPlanOutputSchema>;
 
-/**
- * Generates a weekly meal plan based on user preferences.
- */
 export async function generateMealPlan(input: GenerateMealPlanInput): Promise<GenerateMealPlanOutput> {
-  return generateMealPlanFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateMealPlanPrompt',
-  input: { schema: GenerateMealPlanInputSchema },
-  output: { schema: GenerateMealPlanOutputSchema },
-  prompt: `Generate a weekly meal plan for 7 days (Monday to Sunday).
+  const prompt = `Generate a weekly meal plan for 7 days (Monday to Sunday).
 Each day must have breakfast, lunch, and dinner.
 
 User preferences:
-- Diet: {{{dietType}}}
-- Cuisine preference: {{{cuisinePreference}}}
-{{#if healthGoal}}- Health Goal: {{{healthGoal}}}{{/if}}
-{{#if specificDishes}}- Must include these dishes somewhere in the week: {{{specificDishes}}}{{/if}}
+- Diet: ${input.dietType}
+- Cuisine preference: ${input.cuisinePreference}
+${input.healthGoal ? `- Health Goal: ${input.healthGoal}` : ''}
+${input.specificDishes && input.specificDishes.length > 0 ? `- Must include these dishes somewhere in the week: ${input.specificDishes.join(', ')}` : ''}
 
 Rules:
 - Keep variety across the week
@@ -68,26 +54,37 @@ Rules:
 - Keep dish names short (2-4 words max)
 - If specific dishes are provided, place them in appropriate meal slots
 
-{{#if healthGoal}}
-Health Goal Rules:
+${input.healthGoal ? `Health Goal Rules:
 - If Weight Loss: suggest low calorie, light meals, steamed or boiled dishes, lots of vegetables, avoid fried food
 - If Muscle Gain: suggest high protein meals, include dal, paneer, eggs, chicken, filling portions
 - If Diabetic Friendly: avoid sugar, white rice, maida, suggest whole grains, vegetables, low glycemic foods
-- If Heart Healthy: avoid fried food, suggest low fat, high fiber meals, lots of vegetables and fruits
-{{/if}}
+- If Heart Healthy: avoid fried food, suggest low fat, high fiber meals, lots of vegetables and fruits` : ''}
 
-Return only valid JSON matching the output schema.
-No extra text. No markdown.`,
-});
+Output MUST be valid JSON in exactly this format:
+{
+  "monday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "tuesday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "wednesday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "thursday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "friday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "saturday": { "breakfast": "string", "lunch": "string", "dinner": "string" },
+  "sunday": { "breakfast": "string", "lunch": "string", "dinner": "string" }
+}
+Do not include extra text or markdown formatting.`;
 
-export const generateMealPlanFlow = ai.defineFlow(
-  {
-    name: 'generateMealPlanFlow',
-    inputSchema: GenerateMealPlanInputSchema,
-    outputSchema: GenerateMealPlanOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+  const response = await generateWithFallback(
+    [{ role: 'user', content: prompt }],
+    { temperature: 0.7 }
+  );
+
+  const jsonMatch = response.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Failed to parse AI response as JSON');
+
+  const parsed = GenerateMealPlanOutputSchema.safeParse(JSON.parse(jsonMatch[0]));
+  if (!parsed.success) {
+    console.error('Parse error:', parsed.error);
+    throw new Error('Invalid meal plan format from AI');
   }
-);
+
+  return parsed.data;
+}
