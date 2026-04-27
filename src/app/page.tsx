@@ -143,14 +143,15 @@ export default function Home() {
           });
         });
 
-        gsap.utils.toArray('.home-card').forEach((card: any, i: number) => {
-          gsap.from(card, {
+        gsap.utils.toArray('.bento-item').forEach((item: any, i: number) => {
+          gsap.from(item, {
             opacity: 0,
-            y: 40,
+            y: 50,
+            scale: 0.95,
             duration: 0.8,
             delay: i * 0.1,
             ease: 'power3.out',
-            scrollTrigger: { trigger: card, start: 'top 85%' }
+            scrollTrigger: { trigger: item, start: 'top 88%' }
           });
         });
 
@@ -165,16 +166,95 @@ export default function Home() {
           });
         });
 
-        gsap.utils.toArray('.tcard').forEach((tcard: any, i: number) => {
-          gsap.from(tcard, {
-            opacity: 0,
-            y: 50,
-            duration: 0.8,
-            delay: i * 0.12,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: tcard, start: 'top 88%' }
+        // Animated counters
+        document.querySelectorAll('.counter-num').forEach((el: any) => {
+          const target = parseFloat(el.getAttribute('data-target') || '0');
+          const suffix = el.getAttribute('data-suffix') || '';
+          const obj = { val: 0 };
+          gsap.to(obj, {
+            val: target,
+            duration: 7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '.hero-stats',
+              start: 'top 85%',
+            },
+            onUpdate: () => {
+              el.textContent = Math.round(obj.val) + suffix;
+            }
           });
         });
+
+        // Live demo typing animation
+        const demoWindow = document.querySelector('.demo-window');
+        if (demoWindow) {
+          const typedTextEl = demoWindow.querySelector('.demo-typed-text');
+          const cursorEl = demoWindow.querySelector('.demo-cursor');
+          const outputLines = demoWindow.querySelectorAll('.demo-output-line');
+
+          if (typedTextEl) {
+            gsap.set(outputLines, { opacity: 0, y: 15 });
+            const text = 'Avocado Toast';
+
+            ScrollTrigger.create({
+              trigger: demoWindow,
+              start: 'top 70%',
+              onEnter: () => {
+                let charIndex = 0;
+                const typeInterval = setInterval(() => {
+                  if (charIndex < text.length) {
+                    typedTextEl.textContent = text.substring(0, charIndex + 1);
+                    charIndex++;
+                  } else {
+                    clearInterval(typeInterval);
+                    if (cursorEl) {
+                      gsap.to(cursorEl, { opacity: 0, duration: 0.3, delay: 0.3 });
+                    }
+                    gsap.to(outputLines, {
+                      opacity: 1,
+                      y: 0,
+                      duration: 0.5,
+                      stagger: 0.25,
+                      delay: 0.8,
+                      ease: 'power2.out'
+                    });
+                  }
+                }, 100);
+              },
+              once: true
+            });
+          }
+        }
+
+        gsap.from('.testimonials-marquee', {
+          opacity: 0,
+          y: 50,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '.testimonials-marquee', start: 'top 88%' }
+        });
+
+        // Testimonials Stepped Carousel
+        const track = document.querySelector('.testimonials-track') as HTMLElement;
+        if (track) {
+          const carouselTl = gsap.timeline({ repeat: -1 });
+          
+          // 7 shifts, with 2s pause before each
+          for(let i = 1; i <= 7; i++) {
+            carouselTl.to(track, {
+              "--shift": i,
+              duration: 0.8,
+              ease: "power2.inOut",
+              delay: 2
+            });
+          }
+          // Instant reset for seamless loop
+          carouselTl.set(track, { "--shift": 0 });
+
+          // Pause on hover
+          track.addEventListener('mouseenter', () => carouselTl.pause());
+          track.addEventListener('mouseleave', () => carouselTl.play());
+        }
 
         if (model) {
           const tl = gsap.timeline({
@@ -244,40 +324,50 @@ export default function Home() {
               <Link href="/explore" className="home-btn btn-ghost">Watch Demo ▶</Link>
             </div>
             <div className="hero-stats">
-              <div className="stat"><span className="stat-num">12K+</span><span className="stat-label">Recipes</span></div>
+              <div className="stat"><span className="stat-num counter-num" data-target="12" data-suffix="K+">0</span><span className="stat-label">Recipes</span></div>
               <div className="stat-divider"></div>
-              <div className="stat"><span className="stat-num">98%</span><span className="stat-label">Accuracy</span></div>
+              <div className="stat"><span className="stat-num counter-num" data-target="98" data-suffix="%">0</span><span className="stat-label">Accuracy</span></div>
               <div className="stat-divider"></div>
-              <div className="stat"><span className="stat-num">3s</span><span className="stat-label">Generation</span></div>
+              <div className="stat"><span className="stat-num counter-num" data-target="3" data-suffix="s">0</span><span className="stat-label">Generation</span></div>
             </div>
           </div>
         </section>
 
-        {/* SECTION 2 — WHAT WE DO */}
-        <section className="home-section section-features">
-          <div className="home-content features-content">
+        {/* SECTION 2 — BENTO FEATURES */}
+        <section className="home-section section-bento">
+          <div className="home-content bento-content">
             <div className="home-badge">✦ Features</div>
             <h2>Everything you need<br /><span className="gradient-text">to master the kitchen.</span></h2>
-            <div className="cards-grid">
-              <div className="home-card card-glow">
-                <div className="card-icon">🤖</div>
+            <div className="bento-grid">
+              <div className="bento-item bento-large">
+                <div className="bento-icon">🤖</div>
                 <h3>AI Recipe Engine</h3>
-                <p>Tell us what you have — we'll craft the perfect recipe. Powered by cutting-edge language models.</p>
+                <p>Tell us what you have — we&apos;ll craft the perfect recipe. Powered by cutting-edge language models trained on thousands of culinary masterpieces.</p>
               </div>
-              <div className="home-card">
-                <div className="card-icon">⚗️</div>
+              <div className="bento-item">
+                <div className="bento-icon">⚗️</div>
                 <h3>Exact Quantities</h3>
-                <p>No more guesswork. Get precise measurements in grams, ml, and cups for flawless results every time.</p>
+                <p>Precise measurements in grams, ml, and cups for flawless results.</p>
               </div>
-              <div className="home-card">
-                <div className="card-icon">🗺️</div>
+              <div className="bento-item">
+                <div className="bento-icon">🗺️</div>
                 <h3>Step-by-Step Guide</h3>
-                <p>Crystal-clear instructions broken into simple steps — from mise en place to plating.</p>
+                <p>Crystal-clear instructions from mise en place to plating.</p>
               </div>
-              <div className="home-card card-glow">
-                <div className="card-icon">🌍</div>
+              <div className="bento-item bento-large">
+                <div className="bento-icon">🌍</div>
                 <h3>Explore Cuisines</h3>
-                <p>Discover thousands of verified recipes across Italian, Asian, Mediterranean and beyond.</p>
+                <p>Discover thousands of verified recipes across Italian, Asian, Mediterranean and beyond. Browse, filter, and find your next favorite dish.</p>
+              </div>
+              <div className="bento-item">
+                <div className="bento-icon">📅</div>
+                <h3>Meal Planner</h3>
+                <p>Plan your weekly meals and auto-generate organized shopping lists.</p>
+              </div>
+              <div className="bento-item">
+                <div className="bento-icon">💾</div>
+                <h3>Save &amp; Collect</h3>
+                <p>Build your personal recipe collection and access it anywhere, anytime.</p>
               </div>
             </div>
           </div>
@@ -317,6 +407,49 @@ export default function Home() {
           </div>
         </section>
 
+        {/* SECTION — LIVE DEMO */}
+        <section className="home-section section-demo">
+          <div className="home-content demo-content">
+            <div className="home-badge">✦ See It In Action</div>
+            <h2>From prompt to plate<br /><span className="gradient-text">in seconds.</span></h2>
+            <div className="demo-window">
+              <div className="demo-titlebar">
+                <div className="demo-dot"></div>
+                <div className="demo-dot"></div>
+                <div className="demo-dot"></div>
+                <span className="demo-title">Cooking Lab — Recipe Generator</span>
+              </div>
+              <div className="demo-body">
+                <div className="demo-input-line">
+                  <span className="demo-prompt">→</span>
+                  <span className="demo-typed-text"></span>
+                  <span className="demo-cursor">|</span>
+                </div>
+                <div className="demo-output">
+                  <div className="demo-output-line demo-recipe-title">
+                    <span className="demo-label">📋</span> Avocado Toast
+                  </div>
+                  <div className="demo-output-line">
+                    <span className="demo-label">⏱</span> Prep: 5 min &nbsp;|&nbsp; Cook: 3 min
+                  </div>
+                  <div className="demo-output-line">
+                    <span className="demo-label">🥑</span> 2 avocados, sourdough bread, lemon juice, chili flakes...
+                  </div>
+                  <div className="demo-output-line">
+                    <span className="demo-label">📝</span> Step 1: Toast sourdough until golden and crispy...
+                  </div>
+                  <div className="demo-output-line">
+                    <span className="demo-label">📝</span> Step 2: Mash avocado with lemon, salt and pepper...
+                  </div>
+                  <div className="demo-output-line demo-success">
+                    ✅ Recipe generated in 1.8s
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* SECTION 4 — SHOWCASE MARQUEE */}
         <section className="home-section section-marquee">
           <div className="marquee-wrapper">
@@ -343,18 +476,67 @@ export default function Home() {
           </div>
           <div className="home-content marquee-content">
             <h2>Loved by food enthusiasts<br /><span className="gradient-text">around the world.</span></h2>
-            <div className="testimonials">
-              <div className="tcard">
-                <p>"Cooking Lab changed how I plan meals — it's like having a personal chef in my pocket."</p>
-                <div className="tcard-author">— Sarah M., Home Cook</div>
-              </div>
-              <div className="tcard tcard-accent">
-                <p>"The exact quantities feature is a game-changer. No more failed recipes from vague instructions."</p>
-                <div className="tcard-author">— Chef Marco R.</div>
-              </div>
-              <div className="tcard">
-                <p>"I generated 50 unique recipes in a week. The AI understands flavor profiles incredibly well."</p>
-                <div className="tcard-author">— Priya K., Food Blogger</div>
+            <div className="testimonials-marquee">
+              <div className="testimonials-track">
+                {/* ORIGINAL 7 CARDS */}
+                <div className="tcard">
+                  <p>"Cooking Lab changed how I plan meals — it's like having a personal chef in my pocket."</p>
+                  <div className="tcard-author">— Sarah M., Home Cook</div>
+                </div>
+                <div className="tcard">
+                  <p>"The exact quantities feature is a game-changer. No more failed recipes from vague instructions."</p>
+                  <div className="tcard-author">— Chef Marco R.</div>
+                </div>
+                <div className="tcard">
+                  <p>"I generated 50 unique recipes in a week. The AI understands flavor profiles incredibly well."</p>
+                  <div className="tcard-author">— Priya K., Food Blogger</div>
+                </div>
+                <div className="tcard">
+                  <p>"Finally an app that doesn't make me scroll through life stories to get to the ingredients!"</p>
+                  <div className="tcard-author">— Alex D., Busy Parent</div>
+                </div>
+                <div className="tcard">
+                  <p>"The meal planner helps me save so much money on groceries. The auto-generated shopping lists are perfect."</p>
+                  <div className="tcard-author">— Emma T., College Student</div>
+                </div>
+                <div className="tcard">
+                  <p>"I love how it gives substitutions for ingredients I don't have. Saved my dinner party last weekend!"</p>
+                  <div className="tcard-author">— James W., Amateur Cook</div>
+                </div>
+                <div className="tcard">
+                  <p>"Such a beautiful, clean interface. It makes finding and reading recipes a joy rather than a chore."</p>
+                  <div className="tcard-author">— Mia L., Designer</div>
+                </div>
+                
+                {/* DUPLICATE 7 CARDS FOR SEAMLESS LOOP */}
+                <div className="tcard">
+                  <p>"Cooking Lab changed how I plan meals — it's like having a personal chef in my pocket."</p>
+                  <div className="tcard-author">— Sarah M., Home Cook</div>
+                </div>
+                <div className="tcard">
+                  <p>"The exact quantities feature is a game-changer. No more failed recipes from vague instructions."</p>
+                  <div className="tcard-author">— Chef Marco R.</div>
+                </div>
+                <div className="tcard">
+                  <p>"I generated 50 unique recipes in a week. The AI understands flavor profiles incredibly well."</p>
+                  <div className="tcard-author">— Priya K., Food Blogger</div>
+                </div>
+                <div className="tcard">
+                  <p>"Finally an app that doesn't make me scroll through life stories to get to the ingredients!"</p>
+                  <div className="tcard-author">— Alex D., Busy Parent</div>
+                </div>
+                <div className="tcard">
+                  <p>"The meal planner helps me save so much money on groceries. The auto-generated shopping lists are perfect."</p>
+                  <div className="tcard-author">— Emma T., College Student</div>
+                </div>
+                <div className="tcard">
+                  <p>"I love how it gives substitutions for ingredients I don't have. Saved my dinner party last weekend!"</p>
+                  <div className="tcard-author">— James W., Amateur Cook</div>
+                </div>
+                <div className="tcard">
+                  <p>"Such a beautiful, clean interface. It makes finding and reading recipes a joy rather than a chore."</p>
+                  <div className="tcard-author">— Mia L., Designer</div>
+                </div>
               </div>
             </div>
           </div>
