@@ -108,6 +108,10 @@ html {
     max-width: 100vw !important;
   }
 
+  body.modal-open {
+    overflow: hidden !important;
+  }
+
   * {
     @apply border-border;
     box-sizing: border-box;
@@ -185,6 +189,24 @@ html {
 
 .lottie-container svg {
   background: transparent !important;
+}
+
+/* Custom scrollbar for modals/history */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }
 
 /* Nav Link Styling */

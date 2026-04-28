@@ -29,17 +29,17 @@ const RecipeSkeleton = () => (
       <Skeleton className="h-4 w-full max-w-lg rounded-md mt-4" />
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2">
-       <div className="p-8 border-r border-border space-y-4">
-          <Skeleton className="h-4 w-20 rounded-md" />
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-5 w-full rounded-md" />
-          ))}
-       </div>
-       <div className="p-8 space-y-4">
-          <Skeleton className="h-4 w-20 rounded-md" />
-          <Skeleton className="h-32 w-full rounded-md" />
-          <Skeleton className="h-32 w-full rounded-md" />
-       </div>
+      <div className="p-8 border-r border-border space-y-4">
+        <Skeleton className="h-4 w-20 rounded-md" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-5 w-full rounded-md" />
+        ))}
+      </div>
+      <div className="p-8 space-y-4">
+        <Skeleton className="h-4 w-20 rounded-md" />
+        <Skeleton className="h-32 w-full rounded-md" />
+        <Skeleton className="h-32 w-full rounded-md" />
+      </div>
     </div>
   </div>
 );
@@ -77,21 +77,21 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
     setDisplayedRecipe({ ...displayedRecipe, ingredients: newIngredients });
     setIngredientsChanged(true);
   };
-  
+
   const handleInstructionRegenerate = async () => {
     if (!displayedRecipe) return;
     setIsRegenerating(true);
     try {
-        const newInstructions = await regenerateInstructionsAction({
-            dishName: displayedRecipe.title,
-            ingredients: displayedRecipe.ingredients.map(i => i.name),
-        });
-        setDisplayedRecipe({ ...displayedRecipe, instructions: newInstructions });
-        setIngredientsChanged(false);
+      const newInstructions = await regenerateInstructionsAction({
+        dishName: displayedRecipe.title,
+        ingredients: displayedRecipe.ingredients.map(i => i.name),
+      });
+      setDisplayedRecipe({ ...displayedRecipe, instructions: newInstructions });
+      setIngredientsChanged(false);
     } catch (error) {
-        console.error("Failed to regenerate instructions", error);
+      console.error("Failed to regenerate instructions", error);
     } finally {
-        setIsRegenerating(false);
+      setIsRegenerating(false);
     }
   };
 
@@ -105,11 +105,11 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
       instructions: displayedRecipe.instructions,
     };
 
-    await onRegenerate({ 
-      ...originalInput, 
+    await onRegenerate({
+      ...originalInput,
       servings: servings,
       modifications: modificationText,
-      currentRecipe: currentRecipeContext 
+      currentRecipe: currentRecipeContext
     });
     setModificationText('');
   };
@@ -124,7 +124,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
     setIsSaving(true);
     try {
       const structuredIngredients = displayedRecipe.ingredients.map(i => `${i.name} (${i.quantity} ${i.unit || ''})`);
-      
+
       // Since instructions are now an array of strings directly from the AI, we can use them as is.
       const finalSteps = displayedRecipe.instructions.map(step => step.replace(/^\d+\.\s*/, '').trim());
 
@@ -169,7 +169,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
   if (!displayedRecipe) {
     return (
-       <div className="text-center py-16 border border-border border-dashed rounded-lg bg-secondary/10">
+      <div className="text-center py-16 border border-border border-dashed rounded-lg bg-secondary/10">
         <h3 className="text-sm font-medium text-secondary-foreground">Your recipe will appear here</h3>
       </div>
     );
@@ -177,8 +177,8 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <RecipeCard 
-        recipe={displayedRecipe} 
+      <RecipeCard
+        recipe={displayedRecipe}
         onIngredientRemove={handleIngredientRemove}
         onRegenerate={handleInstructionRegenerate}
         isRegenerating={isRegenerating}
@@ -190,8 +190,8 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-4">
-        <Button 
-          onClick={handleSaveRecipe} 
+        <Button
+          onClick={handleSaveRecipe}
           disabled={isSaving || hasSaved}
           className={cn(
             "h-12 px-8 font-semibold text-sm transition-all shadow-md rounded-lg gap-2",
@@ -207,8 +207,8 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
           )}
           {hasSaved ? 'Saved ✓' : 'Save Recipe'}
         </Button>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => router.push('/history')}
           className="h-12 px-8 font-semibold text-sm border-primary text-primary hover:bg-primary/5 rounded-lg gap-2"
         >
@@ -218,29 +218,29 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
       </div>
 
       <div className="bg-card border border-border p-6 rounded-lg shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Settings2 className="h-4 w-4 text-primary" />
-            <h3 className="text-[13px] font-semibold text-foreground uppercase tracking-wider">Make Changes</h3>
-          </div>
-          <Textarea
-            value={modificationText}
-            onChange={(e) => setModificationText(e.target.value)}
-            placeholder="Want to change something? (e.g. 'no nuts', 'make it spicy')"
-            className="input-saas min-h-[100px]"
-          />
-          <div className="mt-6 flex justify-end">
-            <Button
-              onClick={handleRecipeRegenerate}
-              disabled={isLoading || !modificationText.trim()}
-              className="font-medium h-10 px-6"
-            >
-              {isLoading ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</>
-              ) : (
-                'Update Recipe'
-              )}
-            </Button>
-          </div>
+        <div className="flex items-center gap-2 mb-4">
+          <Settings2 className="h-4 w-4 text-primary" />
+          <h3 className="text-[13px] font-semibold text-foreground uppercase tracking-wider">Make Changes</h3>
+        </div>
+        <Textarea
+          value={modificationText}
+          onChange={(e) => setModificationText(e.target.value)}
+          placeholder="Want to change something? (e.g. 'no nuts', 'make it spicy')"
+          className="input-saas min-h-[100px]"
+        />
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={handleRecipeRegenerate}
+            disabled={isLoading || !modificationText.trim()}
+            className="font-medium h-10 px-6"
+          >
+            {isLoading ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Updating...</>
+            ) : (
+              'Update Recipe'
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

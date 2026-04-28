@@ -9,8 +9,10 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export default function GuidePage() {
+  const router = useRouter();
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [lightboxAlt, setLightboxAlt] = useState<string>('');
 
@@ -124,13 +126,13 @@ export default function GuidePage() {
       {/* ── HERO SECTION ── */}
       <section className="pt-12 pb-8 md:pt-16 md:pb-12 px-6 border-b border-border">
         <div className="max-w-4xl mx-auto text-center">
-          <Link 
-            href="/"
+          <button 
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-primary font-bold text-sm mb-6 hover:translate-x-[-4px] transition-transform"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
+            Back
+          </button>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground mb-4 md:mb-6" style={{ fontFamily: "Inter, sans-serif" }}>
             App Guide
           </h1>

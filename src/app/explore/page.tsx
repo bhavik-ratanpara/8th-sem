@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useUser } from '@/firebase'
 import {
   getPublicRecipes,
@@ -26,6 +26,7 @@ import {
   ChevronDown
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
@@ -34,6 +35,7 @@ import { FoodDecorations } from '@/components/FoodDecorations'
 export default function ExplorePage() {
   const { user } = useUser()
   const { toast } = useToast()
+  const router = useRouter()
 
   const [recipes, setRecipes] = useState<SavedRecipe[]>([])
   const [filteredRecipes, setFilteredRecipes] = useState<SavedRecipe[]>([])
@@ -55,6 +57,25 @@ export default function ExplorePage() {
   const CARDS_PER_PAGE = 12
   const [visibleCount, setVisibleCount] = useState(CARDS_PER_PAGE)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  // Layout Measurement
+  const [navbarH, setNavbarH] = useState(52);
+  const [headerH, setHeaderH] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Measure navbar height
+    const navbar = document.querySelector('header.fixed.top-0');
+    if (navbar) setNavbarH(navbar.getBoundingClientRect().height);
+
+    // Measure fixed header height
+    if (!headerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) setHeaderH(entry.contentRect.height);
+    });
+    observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const fetchRecipes = async () => {
     try {
@@ -327,32 +348,51 @@ export default function ExplorePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <FoodDecorations />
-      <div className="max-content px-4 py-12 relative z-10">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Generator
-        </Link>
+      <div style={{ position: 'absolute', inset: 0, top: navbarH + headerH - 51, pointerEvents: 'none' }}>
+        <FoodDecorations />
+      </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
-              Explore Recipes
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Discover recipes shared by the community
-            </p>
-          </div>
-          {!isLoading && (
-            <div className="text-sm font-semibold bg-secondary/50 px-4 py-2 rounded-full border border-border text-secondary-foreground">
-              {recipes.length} recipes shared
+      {/* FIXED HEADER — flush against navbar */}
+      <div
+        ref={headerRef}
+        className="fixed left-0 right-0 bg-background z-20 border-b border-border"
+        style={{ top: navbarH }}
+      >
+        <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 pt-3 pb-2">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-2 hover:translate-x-[-4px] transition-all w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+
+          <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
+            <div className="space-y-1 text-center">
+              <h1
+                className="text-4xl tracking-tight text-foreground uppercase"
+                style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
+              >
+                EXPLORE RECIPES
+              </h1>
+              <p className="text-muted-foreground text-base" style={{ fontFamily: "'Dropline', sans-serif" }}>
+                Discover recipes shared by the community
+              </p>
             </div>
-          )}
+            {!isLoading && (
+              <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 text-sm font-semibold bg-secondary/50 px-4 py-1.5 rounded-full border border-border text-secondary-foreground mb-2 md:mb-0">
+                {recipes.length} recipes shared
+              </div>
+            )}
+          </div>
         </div>
+      </div>
 
+      {/* SCROLLABLE CONTENT */}
+      <div 
+        className="max-content px-4 pb-16 relative z-10"
+        style={{ paddingTop: navbarH + headerH + 24 }}
+      >
         <div className="flex flex-col gap-6 mb-10 bg-card p-4 md:p-6 rounded-xl border border-border shadow-sm relative overflow-visible">
           {/* DESKTOP FILTER BAR */}
           <div className="hidden md:flex items-center gap-1.5 overflow-visible relative">

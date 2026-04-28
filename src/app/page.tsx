@@ -170,6 +170,7 @@ export default function Home() {
         document.querySelectorAll('.counter-num').forEach((el: any) => {
           const target = parseFloat(el.getAttribute('data-target') || '0');
           const suffix = el.getAttribute('data-suffix') || '';
+          const prefix = el.getAttribute('data-prefix') || '';
           const obj = { val: 0 };
           gsap.to(obj, {
             val: target,
@@ -180,7 +181,7 @@ export default function Home() {
               start: 'top 85%',
             },
             onUpdate: () => {
-              el.textContent = Math.round(obj.val) + suffix;
+              el.textContent = prefix + Math.round(obj.val) + suffix;
             }
           });
         });
@@ -328,7 +329,7 @@ export default function Home() {
               <div className="stat-divider"></div>
               <div className="stat"><span className="stat-num counter-num" data-target="98" data-suffix="%">0</span><span className="stat-label">Accuracy</span></div>
               <div className="stat-divider"></div>
-              <div className="stat"><span className="stat-num counter-num" data-target="3" data-suffix="s">0</span><span className="stat-label">Generation</span></div>
+              <div className="stat"><span className="stat-num counter-num" data-target="5" data-prefix="< " data-suffix="s">0</span><span className="stat-label">Generation</span></div>
             </div>
           </div>
         </section>
@@ -391,7 +392,7 @@ export default function Home() {
                 <span className="step-num">02</span>
                 <div className="step-body">
                   <h3>AI Crafts It</h3>
-                  <p>Our model generates a detailed recipe with exact quantities in under 3 seconds.</p>
+                  <p>Our model generates a detailed recipe with exact quantities in under 5 seconds.</p>
                 </div>
               </div>
               <div className="step-line"></div>
@@ -442,7 +443,7 @@ export default function Home() {
                     <span className="demo-label">📝</span> Step 2: Mash avocado with lemon, salt and pepper...
                   </div>
                   <div className="demo-output-line demo-success">
-                    ✅ Recipe generated in 1.8s
+                    ✅ Recipe generated in 4s
                   </div>
                 </div>
               </div>

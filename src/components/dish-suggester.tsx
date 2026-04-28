@@ -59,7 +59,7 @@ export function DishSuggester({ onSuggestionSelect }: DishSuggesterProps) {
           <Sparkles className="w-4 h-4 text-primary" />
           <h2 className="text-sm font-semibold uppercase tracking-wider text-secondary-foreground">AI Recipe Assistant</h2>
         </div>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField

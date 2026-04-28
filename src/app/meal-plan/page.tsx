@@ -354,13 +354,13 @@ function MealPlanContent() {
         style={{ top: navbarH }}
       >
         <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 pt-3 pb-2">
-          <Link
-            href="/"
+          <button
+            onClick={() => router.back()}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-2 hover:translate-x-[-4px] transition-all w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Generator
-          </Link>
+            Back
+          </button>
 
           <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
             <div className="space-y-1 text-center">
@@ -489,95 +489,95 @@ function MealPlanContent() {
                   const mealColor = meal === 'breakfast' ? 'text-amber-500' : meal === 'lunch' ? 'text-emerald-500' : 'text-indigo-400';
                   const mealBg = meal === 'breakfast' ? 'bg-amber-500/5' : meal === 'lunch' ? 'bg-emerald-500/5' : 'bg-indigo-500/5';
                   return (
-                  <div key={meal} className={cn("grid grid-cols-8", mealIdx < 2 && "border-b border-border")} style={{ minHeight: '130px' }}>
-                    <div className={cn("p-4 flex items-center justify-center border-r border-border/50", mealBg)}>
-                      <span className={cn("text-xs font-black uppercase tracking-[0.2em] rotate-[-90deg] whitespace-nowrap", mealColor)}>{meal}</span>
-                    </div>
-                    {DAYS.map(day => {
-                      const dish = plan?.[day]?.[meal]?.dishName;
-                      const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
+                    <div key={meal} className={cn("grid grid-cols-8", mealIdx < 2 && "border-b border-border")} style={{ minHeight: '130px' }}>
+                      <div className={cn("p-4 flex items-center justify-center border-r border-border/50", mealBg)}>
+                        <span className={cn("text-xs font-black uppercase tracking-[0.2em] rotate-[-90deg] whitespace-nowrap", mealColor)}>{meal}</span>
+                      </div>
+                      {DAYS.map(day => {
+                        const dish = plan?.[day]?.[meal]?.dishName;
+                        const isEditing = editingSlot?.day === day && editingSlot?.meal === meal;
 
-                      return (
+                        return (
 
-                        <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group border-l border-border/50", dish && mealBg)}>
-                          {isEditing ? (
-                            <div className="space-y-2">
-                              <Input
-                                autoFocus
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}
-                                className="h-7 text-xs"
-                                placeholder="Dish name..."
-                              />
-                              <div className="flex gap-1">
+                          <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group border-l border-border/50", dish && mealBg)}>
+                            {isEditing ? (
+                              <div className="space-y-2">
                                 <Input
-                                  type="number"
-                                  min="1"
-                                  max="20"
-                                  value={editServings}
-                                  onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
-                                  className="h-7 text-xs w-16"
-                                  placeholder="Srv"
-                                  title="Servings"
+                                  autoFocus
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}
+                                  className="h-7 text-xs"
+                                  placeholder="Dish name..."
                                 />
-                                <Input
-                                  value={editCuisine}
-                                  onChange={(e) => setEditCuisine(e.target.value)}
-                                  className="h-7 text-xs flex-1"
-                                  placeholder="Cuisine"
-                                />
-                              </div>
-                              <div className="flex gap-1 justify-end">
-                                <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
-                                  <Check className="h-3 w-3" />
-                                </Button>
-                                <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => setEditingSlot(null)}>
-                                  <X className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          ) : dish ? (
-                            <div className="h-full flex flex-col justify-between">
-                              <div>
-                                <button
-                                  onClick={() => {
-                                    const slot = plan?.[day]?.[meal];
-                                    router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
-                                  }}
-                                  className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2"
-                                >
-                                  {dish}
-                                </button>
-                                <div className="text-[10px] text-muted-foreground mt-1">
-                                  {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
-                                  {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
+                                <div className="flex gap-1">
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    max="20"
+                                    value={editServings}
+                                    onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
+                                    className="h-7 text-xs w-16"
+                                    placeholder="Srv"
+                                    title="Servings"
+                                  />
+                                  <Input
+                                    value={editCuisine}
+                                    onChange={(e) => setEditCuisine(e.target.value)}
+                                    className="h-7 text-xs flex-1"
+                                    placeholder="Cuisine"
+                                  />
+                                </div>
+                                <div className="flex gap-1 justify-end">
+                                  <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
+                                    <Check className="h-3 w-3" />
+                                  </Button>
+                                  <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => setEditingSlot(null)}>
+                                    <X className="h-3 w-3" />
+                                  </Button>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => updateSlot(day, meal, null)}>
-                                  <Trash2 className="h-3.5 w-3.5" />
+                            ) : dish ? (
+                              <div className="h-full flex flex-col justify-between">
+                                <div>
+                                  <button
+                                    onClick={() => {
+                                      const slot = plan?.[day]?.[meal];
+                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
+                                    }}
+                                    className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2"
+                                  >
+                                    {dish}
+                                  </button>
+                                  <div className="text-[10px] text-muted-foreground mt-1">
+                                    {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
+                                    {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-primary" onClick={() => startEditing(day, meal, plan?.[day]?.[meal])}>
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => updateSlot(day, meal, null)}>
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="h-full flex items-center justify-center">
+                                <Button
+                                  variant="ghost"
+                                  className="text-xs text-muted-foreground hover:text-primary gap-1.5 h-8 border border-dashed border-border"
+                                  onClick={() => startEditing(day, meal)}
+                                >
+                                  <Plus className="h-3 w-3" /> Add Meal
                                 </Button>
                               </div>
-                            </div>
-                          ) : (
-                            <div className="h-full flex items-center justify-center">
-                              <Button
-                                variant="ghost"
-                                className="text-xs text-muted-foreground hover:text-primary gap-1.5 h-8 border border-dashed border-border"
-                                onClick={() => startEditing(day, meal)}
-                              >
-                                <Plus className="h-3 w-3" /> Add Meal
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   );
                 })}
               </div>
@@ -769,119 +769,119 @@ function MealPlanContent() {
 
               {grocerySections.length > 0 && !isGeneratingGrocery && (
                 <div className="divide-y divide-border">
-                    {grocerySections
-                      .sort((a, b) => a.generatedAt - b.generatedAt)
-                      .map((section) => {
-                        const isSectionOpen = openSections.has(section.days);
+                  {grocerySections
+                    .sort((a, b) => a.generatedAt - b.generatedAt)
+                    .map((section) => {
+                      const isSectionOpen = openSections.has(section.days);
 
-                        const categoryOrder = [
-                          'Vegetables', 'Fruits', 'Grains & Cereals',
-                          'Lentils & Pulses', 'Dairy & Eggs',
-                          'Meat & Poultry', 'Seafood',
-                          'Spices & Masalas', 'Oils & Condiments', 'Others',
-                        ];
+                      const categoryOrder = [
+                        'Vegetables', 'Fruits', 'Grains & Cereals',
+                        'Lentils & Pulses', 'Dairy & Eggs',
+                        'Meat & Poultry', 'Seafood',
+                        'Spices & Masalas', 'Oils & Condiments', 'Others',
+                      ];
 
-                        const grouped = categoryOrder.reduce((acc, cat) => {
-                          const items = section.items.filter(item => item.category === cat);
-                          if (items.length > 0) acc[cat] = items;
-                          return acc;
-                        }, {} as Record<string, GroceryItem[]>);
+                      const grouped = categoryOrder.reduce((acc, cat) => {
+                        const items = section.items.filter(item => item.category === cat);
+                        if (items.length > 0) acc[cat] = items;
+                        return acc;
+                      }, {} as Record<string, GroceryItem[]>);
 
-                        return (
-                          <div key={section.days} className="bg-background/50">
-                            <div className="flex items-center pr-2 border-b border-border/40">
-                              <button
-                                onClick={() => toggleSection(section.days)}
-                                className="flex-1 px-5 py-3.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="bg-primary/10 p-1.5 rounded-lg">
-                                    <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-                                  </div>
-                                  <span className="text-sm font-bold text-foreground">
-                                    {section.daysLabel}
-                                  </span>
-                                  <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase bg-secondary px-2 py-0.5 rounded border border-border/50">
-                                    {section.items.length} items
-                                  </span>
+                      return (
+                        <div key={section.days} className="bg-background/50">
+                          <div className="flex items-center pr-2 border-b border-border/40">
+                            <button
+                              onClick={() => toggleSection(section.days)}
+                              className="flex-1 px-5 py-3.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="bg-primary/10 p-1.5 rounded-lg">
+                                  <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                                 </div>
-                                <ChevronDown className={cn(
-                                  "h-4 w-4 text-muted-foreground transition-transform duration-200",
-                                  isSectionOpen && "rotate-180"
-                                )} />
-                              </button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleDeleteGrocerySection(section.days)}
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-                                title="Delete section"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+                                <span className="text-sm font-bold text-foreground">
+                                  {section.daysLabel}
+                                </span>
+                                <span className="text-xs font-bold tracking-wider text-muted-foreground uppercase bg-secondary px-2 py-0.5 rounded border border-border/50">
+                                  {section.items.length} items
+                                </span>
+                              </div>
+                              <ChevronDown className={cn(
+                                "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                                isSectionOpen && "rotate-180"
+                              )} />
+                            </button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteGrocerySection(section.days)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                              title="Delete section"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
 
-                            {isSectionOpen && (
-                              <div className="border-b border-border/40 bg-secondary/5">
-                                {Object.entries(grouped).map(([category, items]) => {
-                                  const catKey = `${section.days}-${category}`;
-                                  const isCatOpen = openCategories.has(catKey);
+                          {isSectionOpen && (
+                            <div className="border-b border-border/40 bg-secondary/5">
+                              {Object.entries(grouped).map(([category, items]) => {
+                                const catKey = `${section.days}-${category}`;
+                                const isCatOpen = openCategories.has(catKey);
 
-                                  return (
-                                    <div key={catKey} className="border-t border-border/20 first:border-t-0">
-                                      <button
-                                        onClick={() => toggleCategory(catKey)}
-                                        className="w-full pl-12 pr-5 py-2.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
-                                      >
-                                        <div className="flex items-center gap-2.5">
-                                          <span className="text-sm">
-                                            {CATEGORY_EMOJI[category] || '📦'}
-                                          </span>
-                                          <span className="text-sm font-semibold text-foreground">
-                                            {category}
-                                          </span>
-                                          <span className="text-xs font-medium text-muted-foreground">
-                                            ({items.length})
-                                          </span>
-                                        </div>
-                                        <ChevronDown className={cn(
-                                          "h-3 w-3 text-muted-foreground transition-transform duration-200",
-                                          isCatOpen && "rotate-180"
-                                        )} />
-                                      </button>
+                                return (
+                                  <div key={catKey} className="border-t border-border/20 first:border-t-0">
+                                    <button
+                                      onClick={() => toggleCategory(catKey)}
+                                      className="w-full pl-12 pr-5 py-2.5 flex items-center justify-between hover:bg-secondary/10 transition-colors"
+                                    >
+                                      <div className="flex items-center gap-2.5">
+                                        <span className="text-sm">
+                                          {CATEGORY_EMOJI[category] || '📦'}
+                                        </span>
+                                        <span className="text-sm font-semibold text-foreground">
+                                          {category}
+                                        </span>
+                                        <span className="text-xs font-medium text-muted-foreground">
+                                          ({items.length})
+                                        </span>
+                                      </div>
+                                      <ChevronDown className={cn(
+                                        "h-3 w-3 text-muted-foreground transition-transform duration-200",
+                                        isCatOpen && "rotate-180"
+                                      )} />
+                                    </button>
 
-                                      {isCatOpen && (
-                                        <div className="pb-2 bg-background/50">
-                                          {items.map((item, index) => (
-                                            <div
-                                              key={index}
-                                              className="flex items-start pl-[4.5rem] pr-5 py-2 hover:bg-secondary/10 transition-colors border-l-2 border-transparent hover:border-primary/50 relative"
-                                            >
-                                              <div className="flex-1">
-                                                <div className="flex items-center gap-2 flex-wrap">
-                                                  <span className="text-[13px] font-medium text-foreground">
-                                                    {item.name}
-                                                  </span>
-                                                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
-                                                    {item.quantity}
-                                                  </span>
-                                                </div>
-                                                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
-                                                  {item.neededFor.join(', ')}
-                                                </div>
+                                    {isCatOpen && (
+                                      <div className="pb-2 bg-background/50">
+                                        {items.map((item, index) => (
+                                          <div
+                                            key={index}
+                                            className="flex items-start pl-[4.5rem] pr-5 py-2 hover:bg-secondary/10 transition-colors border-l-2 border-transparent hover:border-primary/50 relative"
+                                          >
+                                            <div className="flex-1">
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-[13px] font-medium text-foreground">
+                                                  {item.name}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                                                  {item.quantity}
+                                                </span>
+                                              </div>
+                                              <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                                                {item.neededFor.join(', ')}
                                               </div>
                                             </div>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
 
                   <div className="px-6 py-3 bg-secondary/5">
                     <p className="text-[11px] text-muted-foreground font-medium">

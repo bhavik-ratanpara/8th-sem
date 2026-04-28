@@ -190,11 +190,11 @@ export default function ExploreRecipeDetailPage() {
   return (
     <div className="max-content px-4 py-12 max-w-3xl mx-auto">
       <button
-        onClick={() => router.push('/explore')}
+        onClick={() => router.back()}
         className="flex items-center gap-2 text-primary font-bold text-sm mb-10 hover:translate-x-[-4px] transition-transform"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Explore
+        Back
       </button>
 
       <div className="bg-card border border-border rounded-xl p-8 mb-6">

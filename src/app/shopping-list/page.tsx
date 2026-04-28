@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const CATEGORY_CONFIG = [
   { id: 'Vegetables', keywords: ['potato', 'onion', 'tomato', 'garlic', 'spinach', 'mushroom', 'broccoli', 'mint'], emoji: '🥬', accent: 'border-l-green-500', badge: 'bg-green-500/10 text-green-400 border-green-500/20', text: 'text-green-500 dark:text-green-400', gradient: 'from-green-500/60 via-green-500/20 to-transparent' },
@@ -124,7 +125,8 @@ function SidebarCategoryRow({
             </div>
             {/* CHANGED: Added explicit max-height and overflow-y-auto for scrolling */}
             <div
-              className="py-1.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent"
+              className="py-1.5 max-h-64 overflow-y-auto custom-scrollbar"
+              data-lenis-prevent
               style={{
                 // Ensure scroll works within popover
                 overscrollBehavior: 'contain',
@@ -178,6 +180,7 @@ function ShoppingListSkeleton() {
 function ShoppingListContent() {
   const { user } = useUser();
   const { toast } = useToast();
+  const router = useRouter();
 
   const [items, setItems] = useState<UnavailableItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -206,6 +209,17 @@ function ShoppingListContent() {
       setHeaderH(headerRef.current.offsetHeight);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (showHistory || showAdd) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showHistory, showAdd]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -351,13 +365,13 @@ function ShoppingListContent() {
         style={{ top: navbarH }}
       >
         <div className="w-full px-8 sm:px-16 md:px-24 lg:px-32 xl:px-40 pt-3 pb-1">
-          <Link
-            href="/meal-plan"
+          <button
+            onClick={() => router.back()}
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-1 hover:translate-x-[-4px] transition-all w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Planner
-          </Link>
+            Back
+          </button>
           <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
             <div className="space-y-1 text-center">
               <h1
@@ -645,7 +659,7 @@ function ShoppingListContent() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-2">
+              <div className="flex-1 min-h-0 overflow-y-auto p-2 overscroll-contain custom-scrollbar" data-lenis-prevent>
                 {boughtHistory.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground">
                     <p>No items have been bought recently.</p>

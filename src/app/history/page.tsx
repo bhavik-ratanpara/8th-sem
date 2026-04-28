@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { ProtectedRoute } from '@/components/protected-route';
 import { useUser } from '@/firebase';
 import { getSavedRecipes, deleteRecipe, toggleFavourite, shareRecipePublic, unshareRecipePublic, type SavedRecipe } from '@/lib/save-recipe';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { FoodDecorations } from '@/components/FoodDecorations';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -20,6 +20,7 @@ function HistoryContent() {
   const { user } = useUser();
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   const [recipes, setRecipes] = useState<SavedRecipe[]>([]);
   const [filteredRecipes, setFilteredRecipes] = useState<SavedRecipe[]>([]);
@@ -35,8 +36,28 @@ function HistoryContent() {
   const [isSharing, setIsSharing] = useState(false);
 
   // Pagination states
+  // Pagination states
   const RECIPES_PER_PAGE = 12;
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Layout Measurement
+  const [navbarH, setNavbarH] = useState(52);
+  const [headerH, setHeaderH] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Measure navbar height
+    const navbar = document.querySelector('header.fixed.top-0');
+    if (navbar) setNavbarH(navbar.getBoundingClientRect().height);
+
+    // Measure fixed header height
+    if (!headerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) setHeaderH(entry.contentRect.height);
+    });
+    observer.observe(headerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -344,32 +365,52 @@ function HistoryContent() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <FoodDecorations />
-      <div className="max-content px-4 py-8 relative z-10">
-        <Link 
-          href="/"
-          className="flex items-center gap-2 text-primary font-bold text-sm mb-6 hover:translate-x-[-4px] transition-transform w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Generator
-        </Link>
+      <div style={{ position: 'absolute', inset: 0, top: navbarH + headerH - 51, pointerEvents: 'none' }}>
+        <FoodDecorations />
+      </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground" style={{ fontFamily: "Inter, sans-serif", fontWeight: 800 }}>
-              {searchParams.get('filter') === 'favourite' ? 'My Favourites' : 'My Recipes'}
-            </h1>
-            <p className="text-muted-foreground text-base">
-              {searchParams.get('filter') === 'favourite' ? 'Your top picks in one place' : 'All your saved recipes in one place'}
-            </p>
-          </div>
-          {!isLoading && (
-            <div className="text-xs font-semibold bg-secondary/50 px-3 py-1.5 rounded-full border border-border text-secondary-foreground">
-              {filteredRecipes.length} recipes {searchParams.get('filter') === 'favourite' ? 'favourited' : 'saved'}
+      {/* FIXED HEADER — flush against navbar */}
+      <div
+        ref={headerRef}
+        className="fixed left-0 right-0 bg-background z-20 border-b border-border"
+        style={{ top: navbarH }}
+      >
+        <div className="w-full px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 pt-3 pb-2">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground font-medium text-sm mb-2 hover:translate-x-[-4px] transition-all w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+
+          <div className="relative flex flex-col items-center justify-center mt-2 md:mt-0">
+            <div className="space-y-1 text-center">
+              <h1
+                className="text-4xl tracking-tight text-foreground uppercase"
+                style={{ fontFamily: "'Regalia Monarch', serif", fontWeight: 'normal' }}
+              >
+                {searchParams.get('filter') === 'favourite' ? 'MY FAVOURITES' : 'MY RECIPES'}
+              </h1>
+              <p className="text-muted-foreground text-base" style={{ fontFamily: "'Dropline', sans-serif" }}>
+                {searchParams.get('filter') === 'favourite' ? 'Your top picks in one place' : 'All your saved recipes in one place'}
+              </p>
             </div>
-          )}
+            
+            {!isLoading && (
+              <div className="mt-4 md:mt-0 md:absolute md:right-0 md:bottom-0 text-sm font-semibold bg-secondary/50 px-4 py-1.5 rounded-full border border-border text-secondary-foreground mb-2 md:mb-0">
+                {filteredRecipes.length} recipes {searchParams.get('filter') === 'favourite' ? 'favourited' : 'saved'}
+              </div>
+            )}
+          </div>
         </div>
+      </div>
 
+      {/* SCROLLABLE CONTENT */}
+      <div 
+        className="max-content px-4 pb-16 relative z-10"
+        style={{ paddingTop: navbarH + headerH + 24 }}
+      >
         <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-8 bg-card p-4 rounded-xl border border-border shadow-sm">
           <div className="flex items-center gap-2 overflow-x-auto w-full lg:w-auto pb-1 lg:pb-0">
             {(['All', 'Vegetarian', 'Non-Vegetarian'] as const).map((filter) => (

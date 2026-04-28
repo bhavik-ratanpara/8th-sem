@@ -110,11 +110,11 @@ export function RecipeCard({
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2 mb-1">
-               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 rounded-full px-3">Recipe</Badge>
-               <div className="flex items-center gap-1.5 text-xs font-semibold text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
-                 <Users className="h-3 w-3" />
-                 This recipe serves: {recipe.servings} people
-               </div>
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 rounded-full px-3">Recipe</Badge>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-primary/80 bg-primary/5 px-2 py-0.5 rounded-full border border-primary/10">
+                <Users className="h-3 w-3" />
+                This recipe serves: {recipe.servings} people
+              </div>
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight text-foreground">{recipe.title}</CardTitle>
             <p className="text-secondary-foreground max-w-2xl text-base leading-relaxed">
@@ -146,7 +146,7 @@ export function RecipeCard({
           </div>
         </div>
       </CardHeader>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-12">
         {/* Ingredients Column */}
         <div className="lg:col-span-4 p-8 border-b lg:border-b-0 lg:border-r border-border bg-secondary/10">
@@ -170,10 +170,10 @@ export function RecipeCard({
                   >
                     <ShoppingCart className="h-3.5 w-3.5" />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-8 w-8 hover:text-destructive" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:text-destructive"
                     onClick={() => onIngredientRemove(ingredient)}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -197,8 +197,8 @@ export function RecipeCard({
                 ))}
               </div>
               <Button onClick={handleSuggestAlternatives} disabled={isCheckingAlternatives} className="w-full">
-                {isCheckingAlternatives ? 
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Working...</> : 
+                {isCheckingAlternatives ?
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Working...</> :
                   'Suggest Alternatives'}
               </Button>
             </div>

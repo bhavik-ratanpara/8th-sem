@@ -35,12 +35,12 @@ type RecipeFormProps = {
   selectedCuisine?: string | null;
 };
 
-export function RecipeForm({ 
-  onSubmit, 
-  isLoading, 
-  selectedDishName, 
-  selectedServings, 
-  selectedCuisine 
+export function RecipeForm({
+  onSubmit,
+  isLoading,
+  selectedDishName,
+  selectedServings,
+  selectedCuisine
 }: RecipeFormProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,7 +53,7 @@ export function RecipeForm({
       diet: 'Vegetarian',
     },
   });
-  
+
   useEffect(() => {
     if (selectedDishName) {
       form.setValue('dishName', selectedDishName);
@@ -79,12 +79,12 @@ export function RecipeForm({
   return (
     <div className="relative bg-card border border-border p-8 rounded-lg shadow-sm mt-24">
       {/* Peeking Chef Image - Positioned so hands sit naturally on the border */}
-      <img 
-        src="/chefsee.png" 
-        alt="Chef looking into form" 
-        className="absolute -top-[92px] left-6 w-[130px] h-auto pointer-events-none z-20" 
+      <img
+        src="/chefsee.png"
+        alt="Chef looking into form"
+        className="absolute -top-[92px] left-6 w-[130px] h-auto pointer-events-none z-20"
       />
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-10">
           <div className="space-y-2">
@@ -113,13 +113,13 @@ export function RecipeForm({
                 <FormItem>
                   <FormLabel className="text-[13px] font-medium text-foreground">Number of Servings</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="number" 
-                      min="1" 
-                      max="100" 
-                      placeholder="4" 
-                      className="input-saas h-12" 
-                      {...field} 
+                    <Input
+                      type="number"
+                      min="1"
+                      max="100"
+                      placeholder="4"
+                      className="input-saas h-12"
+                      {...field}
                       onChange={(e) => {
                         let val = e.target.value;
                         if (val === '') {
@@ -136,8 +136,8 @@ export function RecipeForm({
                           toast({ description: "Maximum 100 servings", duration: 2000 });
                         }
                         field.onChange(value);
-                      }} 
-                      value={field.value ?? ''} 
+                      }}
+                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />
@@ -171,7 +171,7 @@ export function RecipeForm({
               )}
             />
           </div>
-          
+
           <FormField
             control={form.control}
             name="diet"
@@ -180,16 +180,16 @@ export function RecipeForm({
                 <FormLabel className="text-[13px] font-medium text-foreground">Diet Type</FormLabel>
                 <FormControl>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <label 
+                    <label
                       htmlFor="diet-veg"
                       className={cn(
                         "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
-                        field.value === "Vegetarian" 
-                          ? "bg-[#f0fdf4] border-2 border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]" 
+                        field.value === "Vegetarian"
+                          ? "bg-[#f0fdf4] border-2 border-[#16a34a] text-[#15803d] dark:bg-[#052e16] dark:text-[#4ade80]"
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
                     >
-                      <input 
+                      <input
                         type="radio"
                         id="diet-veg"
                         name={field.name}
@@ -212,16 +212,16 @@ export function RecipeForm({
                       </div>
                     </label>
 
-                    <label 
+                    <label
                       htmlFor="diet-nonveg"
                       className={cn(
                         "flex items-center border rounded-lg px-4 h-12 cursor-pointer transition-all duration-200 group",
-                        field.value === "Non-Vegetarian" 
-                          ? "bg-[#fff1f2] border-2 border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]" 
+                        field.value === "Non-Vegetarian"
+                          ? "bg-[#fff1f2] border-2 border-[#dc2626] text-[#b91c1c] dark:bg-[#2d0a0a] dark:text-[#f87171]"
                           : "bg-background border-border text-muted-foreground hover:border-muted-foreground/50"
                       )}
                     >
-                      <input 
+                      <input
                         type="radio"
                         id="diet-nonveg"
                         name={field.name}
