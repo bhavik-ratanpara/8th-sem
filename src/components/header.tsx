@@ -98,7 +98,7 @@ function HeaderContent() {
         </div>
 
         {/* CENTER - Nav links (Desktop only) */}
-        <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center h-full">
+        <nav className="hidden xl:flex absolute left-1/2 -translate-x-1/2 items-center h-full whitespace-nowrap">
           <Link href="/" className={cn("nav-link text-[15px]", pathname === "/" && "active")}>
             Home
           </Link>

@@ -141,6 +141,21 @@ export default function RootLayout({
                           </Link>
                         </li>
                         <li>
+                          <Link href="/generator" className="text-muted-foreground hover:text-foreground transition-colors">
+                            Generator
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href="/meal-plan" className="text-muted-foreground hover:text-foreground transition-colors">
+                            Meal Plan
+                          </Link>
+                        </li>
+                        <li>
+                          <Link href="/shopping-list" className="text-muted-foreground hover:text-foreground transition-colors">
+                            Shopping List
+                          </Link>
+                        </li>
+                        <li>
                           <Link href="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
                             Explore
                           </Link>
@@ -151,8 +166,8 @@ export default function RootLayout({
                           </Link>
                         </li>
                         <li>
-                          <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
-                            About
+                          <Link href="/guide" className="text-muted-foreground hover:text-foreground transition-colors">
+                            Guide
                           </Link>
                         </li>
                       </ul>

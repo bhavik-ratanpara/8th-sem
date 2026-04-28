@@ -69,10 +69,12 @@ export function FooterAccordion() {
       <AccordionItem title="Navigate">
         {[
           { label: 'Home', href: '/' },
-          { label: 'Guide', href: '/guide' },
+          { label: 'Generator', href: '/generator' },
+          { label: 'Meal Plan', href: '/meal-plan' },
+          { label: 'Shopping List', href: '/shopping-list' },
           { label: 'Explore', href: '/explore' },
           { label: 'My Recipes', href: '/history' },
-          { label: 'About', href: '/about' },
+          { label: 'Guide', href: '/guide' },
         ].map((link) => (
           <div key={link.href}>
             <Link
