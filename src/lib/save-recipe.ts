@@ -169,6 +169,7 @@ export async function saveFromExplore(
     originalSharedBy: recipe.sharedBy,
     originalSharedByName: recipe.sharedByName,
     originalRecipeId: recipe.id,
+    ...(recipe.imageUrl ? { imageUrl: recipe.imageUrl } : {}),
   });
   return docRef.id;
 }

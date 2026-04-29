@@ -171,6 +171,18 @@ function RecipeDetailContent() {
         Back
       </button>
 
+      {/* Hero Image */}
+      {recipe.imageUrl && (
+        <div className="relative w-full h-[300px] md:h-[450px] rounded-3xl overflow-hidden mb-12 shadow-xl border border-border/50">
+          <img 
+            src={recipe.imageUrl} 
+            alt={recipe.recipeName}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+        </div>
+      )}
+
       {/* Hero Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start gap-10 mb-16">
         <div className="space-y-6 flex-1">

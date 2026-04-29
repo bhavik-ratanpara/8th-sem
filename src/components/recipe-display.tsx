@@ -243,6 +243,7 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         isYoutubeLoading={isYoutubeLoading}
         youtubeError={youtubeError}
         recipeImage={recipeImage}
+        setRecipeImage={setRecipeImage}
       />
 
       {/* Action Buttons */}

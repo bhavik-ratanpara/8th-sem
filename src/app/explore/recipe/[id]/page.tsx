@@ -197,6 +197,18 @@ export default function ExploreRecipeDetailPage() {
         Back
       </button>
 
+      {/* Hero Image */}
+      {recipe.imageUrl && (
+        <div className="relative w-full h-[300px] md:h-[450px] rounded-3xl overflow-hidden mb-12 shadow-xl border border-border/50">
+          <img 
+            src={recipe.imageUrl} 
+            alt={recipe.recipeName}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+        </div>
+      )}
+
       <div className="bg-card border border-border rounded-xl p-8 mb-6">
         <div className="flex items-center gap-1.5 mb-4">
           <Globe className="h-4 w-4 text-primary" />

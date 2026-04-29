@@ -36,6 +36,7 @@ type RecipeCardProps = {
   isYoutubeLoading?: boolean;
   youtubeError?: string | null;
   recipeImage?: string | null;
+  setRecipeImage?: (url: string) => void;
 };
 
 export function RecipeCard({
@@ -50,11 +51,13 @@ export function RecipeCard({
   youtubeVideos = [],
   isYoutubeLoading = false,
   youtubeError = null,
-  recipeImage = null
+  recipeImage = null,
+  setRecipeImage
 }: RecipeCardProps) {
   const [missingIngredients, setMissingIngredients] = useState<string[]>([]);
   const [isCheckingAlternatives, setIsCheckingAlternatives] = useState(false);
   const [alternativeSuggestions, setAlternativeSuggestions] = useState<AlternativeSuggestion[]>([]);
+  const [imageIndex, setImageIndex] = useState(0);
   const { toast } = useToast();
 
   const handleAddMissingIngredient = async (ingredientName: string) => {
@@ -118,13 +121,33 @@ export function RecipeCard({
     <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
       {/* Hero Image */}
       {recipeImage && (
-        <div className="relative w-full h-48 md:h-64 overflow-hidden bg-secondary">
+        <div className="relative w-full h-48 md:h-64 overflow-hidden bg-secondary group/hero">
           <img
             src={recipeImage}
             alt={recipe.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover/hero:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+          
+          {youtubeVideos.length > 1 && setRecipeImage && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute top-4 right-4 z-20 bg-background/80 backdrop-blur-md border border-border/50 shadow-lg hover:bg-background transition-all"
+              onClick={() => {
+                const nextIndex = (imageIndex + 1) % Math.min(youtubeVideos.length, 5);
+                setImageIndex(nextIndex);
+                const thumbs = youtubeVideos[nextIndex]?.snippet?.thumbnails;
+                if (thumbs) {
+                  const nextUrl = thumbs.maxres?.url || thumbs.high?.url || thumbs.medium?.url || thumbs.default?.url;
+                  if (nextUrl) setRecipeImage(nextUrl);
+                }
+              }}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Change Photo
+            </Button>
+          )}
         </div>
       )}
       <CardHeader className="p-8 bg-secondary/30 border-b border-border">
