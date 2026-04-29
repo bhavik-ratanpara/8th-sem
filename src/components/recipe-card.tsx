@@ -8,8 +8,10 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { type CreateRecipeOutput, type Ingredient } from '@/ai/schemas';
 import { Button } from './ui/button';
-import { Trash2, RefreshCw, Minus, Plus, Users, ShoppingCart, Loader2, Lightbulb, X } from 'lucide-react';
+import { Trash2, RefreshCw, Minus, Plus, Users, ShoppingCart, Loader2, Lightbulb, X, Video, Info } from 'lucide-react';
 import { Badge } from './ui/badge';
+import Image from 'next/image';
+import { type YouTubeVideo } from './youtube-search-results';
 import { addUnavailableItem } from '@/lib/meal-plan';
 import { suggestAlternative } from '@/ai/flows/suggest-alternative-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +32,10 @@ type RecipeCardProps = {
   servings: number;
   onServingsChange: (servings: number) => void;
   userId?: string | null;
+  youtubeVideos?: YouTubeVideo[];
+  isYoutubeLoading?: boolean;
+  youtubeError?: string | null;
+  recipeImage?: string | null;
 };
 
 export function RecipeCard({
@@ -40,7 +46,11 @@ export function RecipeCard({
   ingredientsChanged,
   servings,
   onServingsChange,
-  userId
+  userId,
+  youtubeVideos = [],
+  isYoutubeLoading = false,
+  youtubeError = null,
+  recipeImage = null
 }: RecipeCardProps) {
   const [missingIngredients, setMissingIngredients] = useState<string[]>([]);
   const [isCheckingAlternatives, setIsCheckingAlternatives] = useState(false);
@@ -106,6 +116,17 @@ export function RecipeCard({
 
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+      {/* Hero Image */}
+      {recipeImage && (
+        <div className="relative w-full h-48 md:h-64 overflow-hidden bg-secondary">
+          <img
+            src={recipeImage}
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+        </div>
+      )}
       <CardHeader className="p-8 bg-secondary/30 border-b border-border">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
@@ -272,6 +293,66 @@ export function RecipeCard({
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* YouTube Videos Section */}
+          <div className="mt-12 pt-8 border-t border-border">
+            <div className="mb-6">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-secondary-foreground flex items-center gap-2 mb-2">
+                <Video className="h-4 w-4 text-red-500" />
+                Watch Tutorials
+              </h3>
+              <p className="text-[11.5px] text-muted-foreground flex items-center gap-1.5 bg-secondary/40 w-fit px-2.5 py-1.5 rounded-md border border-border/60">
+                <Info className="h-3.5 w-3.5 text-primary/80" />
+                These videos demonstrate the standard recipe. Your custom ingredient replacements and modifications are not included.
+              </p>
+            </div>
+
+            {isYoutubeLoading && (
+              <div className="flex gap-4 overflow-x-auto pb-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex-shrink-0 w-40 space-y-2">
+                    <div className="h-24 bg-secondary/30 rounded animate-pulse" />
+                    <div className="h-3 bg-secondary/30 rounded animate-pulse w-3/4" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {youtubeError && (
+              <p className="text-xs text-muted-foreground italic text-destructive">{youtubeError}</p>
+            )}
+
+            {!isYoutubeLoading && !youtubeError && youtubeVideos.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {youtubeVideos.slice(0, 6).map(video => (
+                  <a
+                    key={video.id.videoId}
+                    href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group space-y-2 hover:opacity-80 transition-opacity"
+                  >
+                    <div className="relative aspect-video rounded-md overflow-hidden bg-secondary">
+                      <Image
+                        src={video.snippet.thumbnails.medium.url}
+                        alt={video.snippet.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-[12px] font-medium leading-snug line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+                        {video.snippet.title}
+                      </h4>
+                      <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">
+                        {video.snippet.channelTitle}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

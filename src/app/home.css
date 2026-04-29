@@ -56,13 +56,19 @@
     transform: translateZ(0);
 }
 
+@media (max-width: 768px) {
+    #webgl-container {
+        opacity: 0.4;
+    }
+}
+
 .home-section {
     position: relative;
     z-index: 10;
-    min-height: 100vh;
+    min-height: auto;
     display: flex;
     align-items: center;
-    padding: 120px 8%;
+    padding: 80px 8%;
 }
 
 .home-badge {

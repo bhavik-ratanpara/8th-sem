@@ -22,7 +22,7 @@ export default function Home() {
       for (let i = 0; i < 18; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
-        const size = Math.random() * 3 + 2; 
+        const size = Math.random() * 3 + 2;
         p.style.cssText = `
             width: ${size}px;
             height: ${size}px;
@@ -69,7 +69,11 @@ export default function Home() {
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 3 / maxDim;
+
+      // Responsive scale: significantly smaller on mobile
+      const isMobile = window.innerWidth <= 768;
+      const targetSize = isMobile ? 1.7 : 2;
+      const scale = targetSize / maxDim;
 
       model.scale.setScalar(scale);
       model.position.sub(center.multiplyScalar(scale));
@@ -239,9 +243,9 @@ export default function Home() {
         const track = document.querySelector('.testimonials-track') as HTMLElement;
         if (track) {
           const carouselTl = gsap.timeline({ repeat: -1 });
-          
+
           // 7 shifts, with 2s pause before each
-          for(let i = 1; i <= 7; i++) {
+          for (let i = 1; i <= 7; i++) {
             carouselTl.to(track, {
               "--shift": i,
               duration: 0.8,
@@ -508,7 +512,7 @@ export default function Home() {
                   <p>"Such a beautiful, clean interface. It makes finding and reading recipes a joy rather than a chore."</p>
                   <div className="tcard-author">— Mia L., Designer</div>
                 </div>
-                
+
                 {/* DUPLICATE 7 CARDS FOR SEAMLESS LOOP */}
                 <div className="tcard">
                   <p>"Cooking Lab changed how I plan meals — it's like having a personal chef in my pocket."</p>

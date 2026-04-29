@@ -3,7 +3,7 @@
 import { Loader2, Settings2, Bookmark, Check, History } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { RecipeCard } from './recipe-card';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { type CreateRecipeOutput, type Ingredient, type CreateRecipeInput } from '@/ai/schemas';
 import { regenerateInstructionsAction } from '@/app/actions';
 import { Textarea } from './ui/textarea';
@@ -13,6 +13,8 @@ import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { YoutubeSearchResults, type YouTubeVideo } from './youtube-search-results';
+import { Video } from 'lucide-react';
 
 type RecipeDisplayProps = {
   recipe: CreateRecipeOutput | null;
@@ -57,16 +59,66 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
   const { toast } = useToast();
   const router = useRouter();
 
+  const [youtubeVideos, setYoutubeVideos] = useState<YouTubeVideo[]>([]);
+  const [isYoutubeLoading, setIsYoutubeLoading] = useState(false);
+  const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const [recipeImage, setRecipeImage] = useState<string | null>(null);
+  const lastFetchedTitle = useRef<string | null>(null);
+
   useEffect(() => {
     if (recipe) {
       setDisplayedRecipe(recipe);
       setServings(recipe.servings);
       setIngredientsChanged(false);
       setHasSaved(false);
+
+      // Only fetch YouTube & image if it's done loading and we have a new title
+      if (!isLoading && recipe.title && lastFetchedTitle.current !== recipe.title) {
+        lastFetchedTitle.current = recipe.title;
+        setRecipeImage(null);
+
+        // Fetch YouTube videos for the recipe
+        const fetchVideos = async () => {
+          setIsYoutubeLoading(true);
+          setYoutubeError(null);
+          try {
+            const location = originalInput?.location && originalInput.location !== 'Any' ? `${originalInput.location} style ` : '';
+            const diet = originalInput?.diet && originalInput.diet !== 'Any' ? `${originalInput.diet} ` : '';
+            const query = `how to make ${location}${diet}${recipe.title} recipe`;
+            const response = await fetch(`/api/youtube?q=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+              throw new Error(`Could not find videos.`);
+            }
+            const data = await response.json();
+            const videos = data.items || [];
+            setYoutubeVideos(videos);
+
+            // User's brilliant idea: Use the first YouTube video's thumbnail as the recipe hero image!
+            if (videos.length > 0) {
+              const thumbs = videos[0]?.snippet?.thumbnails;
+              if (thumbs) {
+                // Try to get the highest resolution available
+                const bestThumb = thumbs.maxres?.url || thumbs.high?.url || thumbs.medium?.url || thumbs.default?.url;
+                if (bestThumb) {
+                  setRecipeImage(bestThumb);
+                }
+              }
+            }
+          } catch (e: any) {
+            setYoutubeError(e.message || 'Failed to fetch tutorials.');
+          } finally {
+            setIsYoutubeLoading(false);
+          }
+        };
+        fetchVideos();
+      }
     } else {
       setDisplayedRecipe(null);
+      setYoutubeVideos([]);
+      setRecipeImage(null);
+      lastFetchedTitle.current = null;
     }
-  }, [recipe]);
+  }, [recipe, originalInput, isLoading]);
 
   const handleIngredientRemove = (ingredientToRemove: Ingredient) => {
     if (!displayedRecipe) return;
@@ -136,7 +188,8 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         language: originalInput.language,
         ingredients: structuredIngredients,
         steps: finalSteps,
-        isFavourite: false
+        isFavourite: false,
+        ...(recipeImage ? { imageUrl: recipeImage } : {})
       });
 
       setHasSaved(true);
@@ -186,6 +239,10 @@ export function RecipeDisplay({ recipe, setRecipe, isLoading, originalInput, onR
         servings={servings}
         onServingsChange={setServings}
         userId={user?.uid || null}
+        youtubeVideos={youtubeVideos}
+        isYoutubeLoading={isYoutubeLoading}
+        youtubeError={youtubeError}
+        recipeImage={recipeImage}
       />
 
       {/* Action Buttons */}

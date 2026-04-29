@@ -581,8 +581,21 @@ export default function ExplorePage() {
               {sortedRecipes.slice(0, visibleCount).map((recipe) => (
                 <div
                   key={recipe.id}
-                  className="group relative bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full"
+                  className="group relative bg-card border border-border rounded-lg shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full overflow-hidden"
                 >
+                  {/* Recipe Image */}
+                  {recipe.imageUrl && (
+                    <div className="relative w-full h-36 overflow-hidden bg-secondary">
+                      <img
+                        src={recipe.imageUrl}
+                        alt={recipe.recipeName}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
+                    </div>
+                  )}
+
+                  <div className="p-5 flex flex-col flex-1">
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-1.5">
                       <Globe className="h-3 w-3 text-primary" />
@@ -720,6 +733,7 @@ export default function ExplorePage() {
                         </span>
                       </button>
                     </div>
+                  </div>
                   </div>
                 </div>
               ))}

@@ -113,9 +113,9 @@ export default function RootLayout({
                   </div>
 
                   {/* DESKTOP FOOTER — only on large screens */}
-                  <div className="hidden md:grid md:grid-cols-4 gap-12 mb-10">
+                  <div className="hidden md:flex justify-between items-start mb-10">
                     {/* Brand */}
-                    <div className="space-y-4 md:col-span-1">
+                    <div className="space-y-4 max-w-sm">
                       <div className="flex items-center gap-2">
                         <ChefHat className="text-primary h-6 w-6" />
                         <span className="font-bold text-foreground">
@@ -129,75 +129,42 @@ export default function RootLayout({
                       </p>
                     </div>
 
-                    {/* Navigate */}
-                    <div>
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                        Navigate
-                      </h4>
-                      <ul className="space-y-2 text-sm">
-                        <li>
-                          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Home
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/generator" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Generator
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/meal-plan" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Meal Plan
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/shopping-list" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Shopping List
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Explore
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/history" className="text-muted-foreground hover:text-foreground transition-colors">
-                            My Recipes
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/guide" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Guide
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-
-                    {/* Account — dynamic based on auth */}
-                    <div>
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                        Account
-                      </h4>
-                      <FooterAccountLinks />
-                    </div>
-
-                    {/* Legal */}
-                    <div>
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                        Legal
-                      </h4>
-                      <ul className="space-y-2 text-sm">
-                        <li>
-                          <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Privacy Policy
-                          </Link>
-                        </li>
-                        <li>
-                          <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                            Terms of Service
-                          </Link>
-                        </li>
-                      </ul>
+                    {/* Links */}
+                    <div className="flex gap-16">
+                      <div>
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                          Resources
+                        </h4>
+                        <ul className="space-y-2 text-sm">
+                          <li>
+                            <Link href="/guide" className="text-muted-foreground hover:text-foreground transition-colors">
+                              Guide
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+                              About
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                          Legal
+                        </h4>
+                        <ul className="space-y-2 text-sm">
+                          <li>
+                            <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                              Privacy Policy
+                            </Link>
+                          </li>
+                          <li>
+                            <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                              Terms of Service
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
 

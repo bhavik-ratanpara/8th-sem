@@ -39,6 +39,7 @@ export interface SavedRecipe {
   originalRecipeId?: string;
   likes?: number;
   likedBy?: string[];
+  imageUrl?: string;
 }
 
 // Save a recipe to Firestore
@@ -112,6 +113,7 @@ export async function shareRecipePublic(
     originalRecipeId: recipeId,
     likes: 0,
     likedBy: [],
+    ...(recipe.imageUrl ? { imageUrl: recipe.imageUrl } : {}),
   });
 
   const userRecipeRef = doc(db, 'users', userId, 'savedRecipes', recipeId);

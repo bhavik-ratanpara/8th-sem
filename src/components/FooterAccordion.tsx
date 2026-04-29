@@ -65,16 +65,11 @@ export function FooterAccordion() {
   return (
     <div className="md:hidden px-6 pt-2 pb-4">
 
-      {/* Navigate */}
-      <AccordionItem title="Navigate">
+      {/* Resources */}
+      <AccordionItem title="Resources">
         {[
-          { label: 'Home', href: '/' },
-          { label: 'Generator', href: '/generator' },
-          { label: 'Meal Plan', href: '/meal-plan' },
-          { label: 'Shopping List', href: '/shopping-list' },
-          { label: 'Explore', href: '/explore' },
-          { label: 'My Recipes', href: '/history' },
           { label: 'Guide', href: '/guide' },
+          { label: 'About', href: '/about' },
         ].map((link) => (
           <div key={link.href}>
             <Link
@@ -90,11 +85,6 @@ export function FooterAccordion() {
             </Link>
           </div>
         ))}
-      </AccordionItem>
-
-      {/* Account */}
-      <AccordionItem title="Account">
-        <FooterAccountLinks />
       </AccordionItem>
 
       {/* Legal */}

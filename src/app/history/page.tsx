@@ -493,8 +493,21 @@ function HistoryContent() {
               {paginatedRecipes.map((recipe) => (
                 <div 
                   key={recipe.id}
-                  className="group relative bg-card border border-border rounded-lg p-5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full"
+                  className="group relative bg-card border border-border rounded-lg shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-300 flex flex-col h-full overflow-hidden"
                 >
+                  {/* Recipe Image */}
+                  {recipe.imageUrl && (
+                    <div className="relative w-full h-36 overflow-hidden bg-secondary">
+                      <img
+                        src={recipe.imageUrl}
+                        alt={recipe.recipeName}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card/60 to-transparent" />
+                    </div>
+                  )}
+
+                  <div className="p-5 flex flex-col flex-1">
                   <div className="flex justify-between items-start mb-1.5">
                     <h3 className="font-bold text-base text-foreground line-clamp-2 pr-2">{recipe.recipeName}</h3>
                     <div className="flex gap-2 items-center shrink-0">
@@ -582,6 +595,7 @@ function HistoryContent() {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
+                  </div>
                   </div>
                 </div>
               ))}

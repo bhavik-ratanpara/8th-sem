@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Loader2, Search, LogOut, User as UserIcon, ChefHat, BookMarked, Star, X, Globe, Info, BookOpen, Home, CalendarDays, ShoppingCart } from 'lucide-react';
+import { Loader2, Search, LogOut, User as UserIcon, ChefHat, BookMarked, Star, X, Globe, Info, BookOpen, Home, CalendarDays, ShoppingCart, Pencil, Check } from 'lucide-react';
 import { Popover, PopoverContent } from '@/components/ui/popover';
 import { YoutubeSearchResults, type YouTubeVideo } from './youtube-search-results';
 import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
+import { signOut, updateProfile } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -23,6 +23,11 @@ function HeaderContent() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
+  // Name edit state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -80,6 +85,20 @@ function HeaderContent() {
       setDropdownOpen(false);
     } catch (err) {
       console.error('Logout failed', err);
+    }
+  };
+
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+    setIsUpdatingName(true);
+    try {
+      await updateProfile(user, { displayName: newName.trim() });
+      setIsEditingName(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to update name', err);
+    } finally {
+      setIsUpdatingName(false);
     }
   };
 
@@ -152,7 +171,7 @@ function HeaderContent() {
                       <Input
                         type="search"
                         placeholder="Search videos..."
-                        className="pr-10 h-8 md:h-9 bg-secondary/50 border-border text-[12px] md:text-sm"
+                        className="pr-10 h-8 md:h-9 bg-secondary border border-border/50 focus:border-primary/50 focus:bg-background text-[12px] md:text-sm placeholder:text-muted-foreground/70"
                         autoFocus={isMobileSearchOpen}
                         value={query}
                         onChange={(e) => {
@@ -170,7 +189,7 @@ function HeaderContent() {
                       className="absolute right-0 top-0 h-full w-8 md:w-9 hover:bg-transparent"
                       disabled={isLoading}
                     >
-                      {isLoading ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" /> : <Search className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />}
+                      {isLoading ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" /> : <Search className="h-3.5 w-3.5 md:h-4 md:w-4 text-foreground/80" />}
                     </Button>
                   </form>
                 </div>
@@ -222,11 +241,57 @@ function HeaderContent() {
                   {dropdownOpen && (
                     <div className="absolute right-0 top-[48px] md:top-[44px] w-64 bg-card border border-border rounded-lg shadow-xl z-[60] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="px-4 py-3 border-b border-border bg-secondary/10">
-                        <p className="text-sm font-semibold truncate text-foreground">{user.displayName || 'Chef'}</p>
+                        {isEditingName ? (
+                          <div className="flex items-center gap-2 mb-1">
+                            <Input
+                              value={newName}
+                              onChange={(e) => setNewName(e.target.value)}
+                              className="h-7 text-xs px-2"
+                              autoFocus
+                              disabled={isUpdatingName}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleUpdateName();
+                                if (e.key === 'Escape') setIsEditingName(false);
+                              }}
+                            />
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 shrink-0 text-green-500"
+                              onClick={handleUpdateName}
+                              disabled={isUpdatingName || !newName.trim()}
+                            >
+                              {isUpdatingName ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 shrink-0 text-muted-foreground"
+                              onClick={() => setIsEditingName(false)}
+                              disabled={isUpdatingName}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between mb-1 group">
+                            <p className="text-sm font-semibold truncate text-foreground pr-2">{user.displayName || 'Chef'}</p>
+                            <button
+                              onClick={() => {
+                                setNewName(user.displayName || '');
+                                setIsEditingName(true);
+                              }}
+                              className="text-muted-foreground hover:text-foreground shrink-0 transition-colors"
+                              title="Edit Name"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
 
-                      <div className="p-1">
+                      <div className="p-1 xl:hidden">
                         <Link
                           href="/"
                           className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
@@ -242,14 +307,6 @@ function HeaderContent() {
                         >
                           <ChefHat className="h-4 w-4 text-primary" />
                           Recipe Generator
-                        </Link>
-                        <Link
-                          href="/guide"
-                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <BookOpen className="h-4 w-4 text-blue-500" />
-                          App Guide
                         </Link>
                         <Link
                           href="/explore"
@@ -290,6 +347,17 @@ function HeaderContent() {
                         >
                           <ShoppingCart className="h-4 w-4 text-emerald-500" />
                           Shopping List
+                        </Link>
+                      </div>
+
+                      <div className="p-1 border-t border-border xl:border-t-0">
+                        <Link
+                          href="/guide"
+                          className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary rounded-md transition-colors"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <BookOpen className="h-4 w-4 text-blue-500" />
+                          App Guide
                         </Link>
                         <Link
                           href="/about"
