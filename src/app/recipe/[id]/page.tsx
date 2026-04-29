@@ -26,6 +26,21 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const DietIcon = ({ type }: { type: string }) => {
+  const isVeg = type === 'Vegetarian';
+  return (
+    <div className={cn(
+      "flex items-center justify-center w-[15px] h-[15px] border-[1.5px] rounded-sm shrink-0",
+      isVeg ? "border-green-600" : "border-red-700"
+    )}>
+      <div className={cn(
+        "w-[7px] h-[7px] rounded-full",
+        isVeg ? "bg-green-600" : "bg-red-700"
+      )} />
+    </div>
+  );
+};
+
 const { firestore: db } = initializeFirebase();
 
 function RecipeDetailContent() {
@@ -206,7 +221,7 @@ function RecipeDetailContent() {
                "flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold",
                recipe.dietType === 'Vegetarian' ? "bg-green-50 text-green-700 border-green-100" : "bg-rose-50 text-rose-700 border-rose-100"
              )}>
-                <Utensils className="h-4 w-4" /> {recipe.dietType}
+                 <DietIcon type={recipe.dietType} /> {recipe.dietType}
              </div>
              <p className="text-sm text-muted-foreground font-medium pl-2 border-l border-border">
                 Saved {recipe.generatedAt?.toDate ? format(recipe.generatedAt.toDate(), 'dd MMM yyyy') : 'Recently'}

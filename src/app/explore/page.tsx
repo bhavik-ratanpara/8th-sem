@@ -32,6 +32,21 @@ import { useToast } from '@/hooks/use-toast'
 import { cn } from '@/lib/utils'
 import { FoodDecorations } from '@/components/FoodDecorations'
 
+const DietIcon = ({ type }: { type: string }) => {
+  const isVeg = type === 'Vegetarian';
+  return (
+    <div className={cn(
+      "flex items-center justify-center w-[15px] h-[15px] border-[1.5px] rounded-sm shrink-0",
+      isVeg ? "border-green-600" : "border-red-700"
+    )}>
+      <div className={cn(
+        "w-[7px] h-[7px] rounded-full",
+        isVeg ? "bg-green-600" : "bg-red-700"
+      )} />
+    </div>
+  );
+};
+
 export default function ExplorePage() {
   const { user } = useUser()
   const { toast } = useToast()
@@ -623,17 +638,9 @@ export default function ExplorePage() {
                   </h3>
 
                   <div className="mb-4">
-                    <p className="text-[13px] font-medium text-muted-foreground">
-                      {recipe.cuisine} · {recipe.servings} Servings ·{' '}
-                      <span className={cn(
-                        "font-semibold",
-                        recipe.dietType === 'Vegetarian'
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
-                      )}>
-                        {recipe.dietType}
-                      </span>
-                    </p>
+                    <div className="flex items-center gap-2 text-[13px] font-medium text-muted-foreground">
+                      {recipe.cuisine} · {recipe.servings} Servings · <DietIcon type={recipe.dietType} />
+                    </div>
                   </div>
 
                   <div className="mt-auto space-y-4">
