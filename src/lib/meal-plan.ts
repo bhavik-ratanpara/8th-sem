@@ -20,6 +20,7 @@ export interface MealSlot {
   dishName: string;
   servings?: number;
   cuisine?: string;
+  dietType?: string;
 }
 
 export interface DayPlan {
@@ -47,6 +48,7 @@ export interface UnavailableItem {
   id?: string;
   itemName: string;
   addedOn?: any;
+  boughtOn?: any;
 }
 
 export interface GroceryItem {
@@ -103,7 +105,7 @@ export async function saveGroceryList(
   existingSections: GrocerySection[]
 ): Promise<void> {
   const docRef = doc(db, 'users', userId, 'weeklyMealPlan', weekStartDate);
-  
+
   const updatedSections = existingSections.filter(
     s => s.days !== newSection.days
   );
@@ -122,7 +124,7 @@ export async function deleteGrocerySection(
   existingSections: GrocerySection[]
 ): Promise<void> {
   const docRef = doc(db, 'users', userId, 'weeklyMealPlan', weekStartDate);
-  
+
   const updatedSections = existingSections.filter(
     s => s.days !== days
   );
@@ -152,7 +154,7 @@ export async function getUnavailableItems(userId: string): Promise<UnavailableIt
   const colRef = collection(db, 'users', userId, 'unavailableItems');
   const q = query(colRef, orderBy('addedOn', 'desc'));
   const snapshot = await getDocs(q);
-  
+
   return snapshot.docs.map(doc => ({
     ...doc.data(),
     id: doc.id
@@ -186,7 +188,7 @@ export async function getBoughtItems(userId: string): Promise<UnavailableItem[]>
   const colRef = collection(db, 'users', userId, 'boughtItems');
   const q = query(colRef, orderBy('boughtOn', 'desc'));
   const snapshot = await getDocs(q);
-  
+
   return snapshot.docs.map(doc => ({
     ...doc.data(),
     id: doc.id

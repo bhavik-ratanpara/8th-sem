@@ -28,38 +28,43 @@ function GeneratorContent() {
   const [selectedServings, setSelectedServings] = useState<number | null>(null);
   const [selectedCuisine, setSelectedCuisine] = useState<string | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [selectedDiet, setSelectedDiet] = useState<string | null>(null);
   const [originalRecipeInput, setOriginalRecipeInput] = useState<CreateRecipeInput | null>(null);
   const [restoredFromStorage, setRestoredFromStorage] = useState(false);
 
   const { user, isUserLoading } = useUser();
 
-  // Read params from URL
+  // Initialization: Handle URL params and localStorage
   useEffect(() => {
+    setIsClient(true);
+    
+    // 1. Check URL params first (Highest Priority)
     const dishParam = searchParams.get('dish');
     const servingsParam = searchParams.get('servings');
     const cuisineParam = searchParams.get('cuisine');
     const goalParam = searchParams.get('goal');
-    
+    const dietParam = searchParams.get('diet');
+
     if (dishParam) {
+      // Clear any previous recipe when coming from a link
+      setRecipe(null);
+      setOriginalRecipeInput(null);
+      setRestoredFromStorage(false);
+      localStorage.removeItem(RECIPE_STORAGE_KEY);
+      localStorage.removeItem(FORM_STORAGE_KEY);
+
       setSelectedDish(dishParam);
-      if (servingsParam) {
-        setSelectedServings(parseInt(servingsParam));
-      }
-      if (cuisineParam) {
-        setSelectedCuisine(cuisineParam);
-      }
-      if (goalParam) {
-        setSelectedGoal(goalParam);
-      }
+      if (servingsParam) setSelectedServings(parseInt(servingsParam));
+      if (cuisineParam) setSelectedCuisine(cuisineParam);
+      if (goalParam) setSelectedGoal(goalParam);
+      if (dietParam) setSelectedDiet(dietParam);
+
       // Clean URL parameter
       window.history.replaceState({}, '', window.location.pathname);
+      return; // Stop here, URL params take precedence
     }
-  }, [searchParams]);
 
-  useEffect(() => {
-    setIsClient(true);
-
-    // Restore from localStorage
+    // 2. Fallback to localStorage if no URL params
     try {
       const savedRecipe = localStorage.getItem(RECIPE_STORAGE_KEY);
       const savedForm = localStorage.getItem(FORM_STORAGE_KEY);
@@ -71,15 +76,16 @@ function GeneratorContent() {
         setOriginalRecipeInput(parsedForm);
         setRestoredFromStorage(true);
         
-        // Restore dish name to form via selectedDish state
-        if (parsedForm.dishName) {
-          setSelectedDish(parsedForm.dishName);
-        }
+        // Restore form state
+        if (parsedForm.dishName) setSelectedDish(parsedForm.dishName);
+        if (parsedForm.servings) setSelectedServings(parsedForm.servings);
+        if (parsedForm.location) setSelectedCuisine(parsedForm.location);
+        if (parsedForm.diet) setSelectedDiet(parsedForm.diet);
       }
     } catch (e) {
       console.error('Failed to restore recipe:', e);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleGenerateRecipe = async (input: CreateRecipeInput) => {
     if (!user) return;
@@ -196,6 +202,7 @@ function GeneratorContent() {
                     selectedDishName={selectedDish}
                     selectedServings={selectedServings}
                     selectedCuisine={selectedCuisine}
+                    selectedDiet={selectedDiet}
                   />
                 </div>
               </div>

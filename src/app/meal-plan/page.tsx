@@ -79,10 +79,12 @@ function MealPlanContent() {
   // AI Inputs
   const [dietType, setDietType] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Mixed'>('Mixed');
   const [cuisinePreference, setCuisinePreference] = useState('');
+  const [planServings, setPlanServings] = useState<number>(2);
   const [healthGoal, setHealthGoal] = useState<
     'No Preference' | 'Weight Loss' | 'Muscle Gain' |
     'Diabetic Friendly' | 'Heart Healthy'
   >('No Preference');
+  const [goalDropdownOpen, setGoalDropdownOpen] = useState(false);
 
   // Editing State
   const [editingSlot, setEditingSlot] = useState<{ day: typeof DAYS[number], meal: typeof MEALS[number] } | null>(null);
@@ -146,18 +148,31 @@ function MealPlanContent() {
   }, [user, weekStartDateStr, toast]);
 
   // ── ACTIONS ──
-  const handleSave = async () => {
-    if (!user || !plan) return;
+  const handleSave = async (planToSave?: WeeklyMealPlan) => {
+    const targetPlan = planToSave || plan;
+    if (!user || !targetPlan) return;
     setIsSaving(true);
     try {
-      await saveMealPlan(user.uid, plan);
+      await saveMealPlan(user.uid, targetPlan);
       setHasChanges(false);
-      toast({ title: "Meal plan saved! 🥗", description: "Your week is all planned out." });
+      // No toast for auto-save to keep it silent and smooth, 
+      // or a subtle one if preferred. We'll keep it silent for a premium feel.
     } catch (error) {
-      toast({ variant: "destructive", title: "Error saving plan" });
+      toast({ variant: "destructive", title: "Auto-save failed", description: "Please check your connection." });
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleClearMenu = () => {
+    if (!plan || !user) return;
+    const confirmClear = window.confirm("Are you sure you want to delete the entire menu for this week?");
+    if (!confirmClear) return;
+    
+    const clearedPlan: WeeklyMealPlan = { weekStartDate: weekStartDateStr };
+    setPlan(clearedPlan);
+    handleSave(clearedPlan);
+    toast({ title: "Menu deleted", description: "The plan for this week has been cleared." });
   };
 
   const handleGenerateAI = async () => {
@@ -166,7 +181,7 @@ function MealPlanContent() {
       const dishesArray: string[] = [];
       const result = await generateMealPlan({
         dietType,
-        cuisinePreference: cuisinePreference || 'Mixed',
+        cuisinePreference: cuisinePreference || '',
         specificDishes: dishesArray,
         healthGoal: healthGoal === 'No Preference' ? undefined : healthGoal,
       });
@@ -177,15 +192,31 @@ function MealPlanContent() {
 
       DAYS.forEach(day => {
         newPlan[day] = {
-          breakfast: { dishName: result[day].breakfast, servings: 2, cuisine: cuisinePreference || 'Mixed' },
-          lunch: { dishName: result[day].lunch, servings: 2, cuisine: cuisinePreference || 'Mixed' },
-          dinner: { dishName: result[day].dinner, servings: 2, cuisine: cuisinePreference || 'Mixed' },
+          breakfast: { 
+            dishName: result[day].breakfast.name, 
+            servings: planServings, 
+            cuisine: cuisinePreference || '',
+            dietType: result[day].breakfast.diet,
+          },
+          lunch: { 
+            dishName: result[day].lunch.name, 
+            servings: planServings, 
+            cuisine: cuisinePreference || '',
+            dietType: result[day].lunch.diet,
+          },
+          dinner: { 
+            dishName: result[day].dinner.name, 
+            servings: planServings, 
+            cuisine: cuisinePreference || '',
+            dietType: result[day].dinner.diet,
+          },
         };
       });
 
       setPlan(newPlan);
       setHasChanges(true);
-      toast({ title: "Plan generated! ✨", description: "AI has filled your week." });
+      toast({ title: "Plan generated! ✨", description: "Saving your weekly menu..." });
+      handleSave(newPlan);
     } catch (error) {
       toast({ variant: "destructive", title: "Generation failed", description: "Please try again." });
     } finally {
@@ -318,18 +349,22 @@ function MealPlanContent() {
   };
 
   const updateSlot = (day: typeof DAYS[number], meal: typeof MEALS[number], slot: MealSlot | null) => {
-    setPlan(prev => {
-      if (!prev) return prev;
-      const dayPlan = { ...(prev[day] || {}) };
-      if (slot === null) {
-        delete dayPlan[meal];
-      } else {
-        dayPlan[meal] = slot;
-      }
-      return { ...prev, [day]: dayPlan };
-    });
+    if (!plan) return;
+
+    const dayPlan = { ...(plan[day] || {}) };
+    if (slot === null) {
+      delete dayPlan[meal];
+    } else {
+      dayPlan[meal] = slot;
+    }
+
+    const nextPlan = { ...plan, [day]: dayPlan };
+    setPlan(nextPlan);
     setHasChanges(true);
     setEditingSlot(null);
+
+    // Auto-save the change
+    handleSave(nextPlan);
   };
 
   const startEditing = (day: typeof DAYS[number], meal: typeof MEALS[number], currentSlot?: MealSlot) => {
@@ -337,7 +372,10 @@ function MealPlanContent() {
     setEditValue(currentSlot?.dishName || '');
     setEditServings(currentSlot?.servings || 2);
     setEditCuisine(currentSlot?.cuisine || '');
+    setEditDiet(currentSlot?.dietType || 'Vegetarian');
   };
+
+  const [editDiet, setEditDiet] = useState('Vegetarian');
 
   const weekRange = `${format(weekStart, 'MMM d')} – ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
 
@@ -394,35 +432,24 @@ function MealPlanContent() {
         style={{ paddingTop: navbarH + headerH + 24 }}
       >
         {/* ── AI Generator ── */}
-        <div className="bg-card border border-border rounded-2xl shadow-sm mb-10 overflow-hidden">
-          {/* Top row: title + generate button */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border/50">
-            <div className="flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <span className="text-base font-bold text-foreground tracking-tight">AI Plan Generator</span>
+        <div className="bg-card border border-border rounded-2xl shadow-sm mb-10 overflow-visible relative z-30">
+          <div className="px-5 py-3 flex flex-wrap items-end gap-x-5 gap-y-3">
+            {/* Title */}
+            <div className="flex items-center gap-2 mr-auto">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-bold text-foreground tracking-tight">AI Plan Generator</span>
             </div>
-            <Button
-              onClick={handleGenerateAI}
-              disabled={isGenerating}
-              size="default"
-              className="bg-primary hover:bg-primary/90 text-white text-sm font-bold px-6 rounded-lg shadow-sm gap-2 h-9"
-            >
-              {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              {isGenerating ? 'Generating…' : 'Generate Plan'}
-            </Button>
-          </div>
-          {/* Bottom row: controls */}
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3">
+
             {/* Diet pills */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground mr-1">Diet</span>
-              <div className="flex bg-secondary/30 p-1 rounded-lg border border-border/40">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Diet</span>
+              <div className="flex bg-secondary/30 p-0.5 rounded-md border border-border/40">
                 {(['Vegetarian', 'Non-Vegetarian', 'Mixed'] as const).map(type => (
                   <button
                     key={type}
                     onClick={() => setDietType(type)}
                     className={cn(
-                      "text-xs px-4 py-2 rounded-md font-semibold transition-all whitespace-nowrap",
+                      "text-[11px] px-3 py-1.5 rounded font-semibold transition-all whitespace-nowrap",
                       dietType === type
                         ? "bg-primary text-white shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -433,34 +460,84 @@ function MealPlanContent() {
                 ))}
               </div>
             </div>
+
             {/* Cuisine */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Cuisine</span>
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Cuisine <span className="text-destructive">*</span></span>
               <Input
                 placeholder="e.g. Indian"
                 value={cuisinePreference}
                 onChange={(e) => setCuisinePreference(e.target.value)}
-                className="h-9 w-[150px] text-sm rounded-lg border-border/50"
+                className="h-8 w-[130px] text-xs rounded-md"
               />
             </div>
-            {/* Health Goal */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Goal</span>
-              <div className="relative">
-                <select
-                  value={healthGoal}
-                  onChange={(e) => setHealthGoal(e.target.value as any)}
-                  className="h-9 pl-4 pr-8 text-sm bg-background border border-border/50 rounded-lg text-foreground appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary/50"
-                >
-                  <option value="No Preference">Any</option>
-                  <option value="Weight Loss">Weight Loss</option>
-                  <option value="Muscle Gain">Muscle Gain</option>
-                  <option value="Diabetic Friendly">Diabetic Friendly</option>
-                  <option value="Heart Healthy">Heart Healthy</option>
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
-              </div>
+
+            {/* Servings */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Servings</span>
+              <Input
+                type="number"
+                min="1"
+                max="20"
+                value={planServings}
+                onChange={(e) => setPlanServings(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+                className="h-8 w-[65px] text-xs rounded-md"
+              />
             </div>
+
+            {/* Goal */}
+            <div className="space-y-1 relative">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Goal</span>
+              <button
+                onClick={() => setGoalDropdownOpen(!goalDropdownOpen)}
+                className={cn(
+                  "h-8 px-2.5 text-xs bg-background border border-input rounded-md text-foreground flex items-center gap-1.5 transition-all duration-200 min-w-[110px] justify-between hover:border-primary",
+                  healthGoal !== 'No Preference' && "border-primary text-primary bg-primary/5"
+                )}
+              >
+                <span className="truncate">
+                  {healthGoal === 'No Preference' ? 'No Preference' : healthGoal === 'Diabetic Friendly' ? 'Diabetic' : healthGoal}
+                </span>
+                <ChevronDown className={cn("h-3 w-3 transition-transform shrink-0", goalDropdownOpen && "rotate-180")} />
+              </button>
+
+              {goalDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setGoalDropdownOpen(false)} />
+                  <div className="absolute top-full right-0 mt-1.5 bg-popover border border-border rounded-lg shadow-2xl z-50 min-w-[180px] py-1 animate-in fade-in zoom-in-95 duration-100">
+                    {(['No Preference', 'Weight Loss', 'Muscle Gain', 'Diabetic Friendly', 'Heart Healthy'] as const).map((goal) => (
+                      <button
+                        key={goal}
+                        onClick={() => { setHealthGoal(goal); setGoalDropdownOpen(false); }}
+                        className={cn(
+                          "w-full text-left px-3 py-2 text-[12px] transition-colors",
+                          healthGoal === goal ? "bg-primary/10 text-primary font-bold" : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                        )}
+                      >
+                        {goal}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Generate */}
+            <Button
+              onClick={() => {
+                if (!cuisinePreference.trim()) {
+                  toast({ variant: "destructive", title: "Cuisine required", description: "Enter a cuisine (e.g. Indian)." });
+                  return;
+                }
+                handleGenerateAI();
+              }}
+              disabled={isGenerating}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-5 rounded-md shadow-sm gap-1.5 h-8"
+            >
+              {isGenerating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              {isGenerating ? 'Generating…' : 'Generate'}
+            </Button>
           </div>
         </div>
 
@@ -470,7 +547,23 @@ function MealPlanContent() {
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="space-y-10 mb-20">
+          <div className="space-y-6 mb-20">
+            {/* Menu Header with Clear Button */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-foreground">Your Weekly Menu</h3>
+              {plan && Object.keys(plan).some(k => DAYS.includes(k as any) && Object.keys((plan as any)[k] || {}).length > 0) && (
+                <Button
+                  onClick={handleClearMenu}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive hover:text-destructive transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                  Delete Menu
+                </Button>
+              )}
+            </div>
+
             {/* Desktop Grid */}
             <div className="hidden lg:block overflow-x-auto">
               <div className="min-w-[1000px] bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
@@ -501,35 +594,51 @@ function MealPlanContent() {
 
                           <div key={`${day}-${meal}`} className={cn("p-3 transition-colors relative group border-l border-border/50", dish && mealBg)}>
                             {isEditing ? (
-                              <div className="space-y-2">
-                                <Input
-                                  autoFocus
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={(e) => e.key === 'Enter' && editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}
-                                  className="h-7 text-xs"
-                                  placeholder="Dish name..."
-                                />
-                                <div className="flex gap-1">
+                              <div className="space-y-1.5 text-[10px]">
+                                <div className="space-y-0.5">
+                                  <span className="text-muted-foreground font-semibold uppercase tracking-wide text-[9px]">Dish Name</span>
+                                  <Input
+                                    autoFocus
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine, dietType: editDiet })}
+                                    className="h-7 text-xs"
+                                    placeholder="e.g. Paneer Butter Masala"
+                                  />
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-muted-foreground font-semibold uppercase tracking-wide text-[9px]">Servings</span>
                                   <Input
                                     type="number"
                                     min="1"
                                     max="20"
                                     value={editServings}
                                     onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
-                                    className="h-7 text-xs w-16"
-                                    placeholder="Srv"
-                                    title="Servings"
+                                    className="h-7 text-xs"
                                   />
+                                </div>
+                                <div className="space-y-0.5">
+                                  <span className="text-muted-foreground font-semibold uppercase tracking-wide text-[9px]">Cuisine / Region</span>
                                   <Input
                                     value={editCuisine}
                                     onChange={(e) => setEditCuisine(e.target.value)}
-                                    className="h-7 text-xs flex-1"
-                                    placeholder="Cuisine"
+                                    className="h-7 text-xs"
+                                    placeholder="e.g. Indian"
                                   />
                                 </div>
-                                <div className="flex gap-1 justify-end">
-                                  <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
+                                <div className="space-y-0.5">
+                                  <span className="text-muted-foreground font-semibold uppercase tracking-wide text-[9px]">Diet Type</span>
+                                  <select
+                                    value={editDiet}
+                                    onChange={(e) => setEditDiet(e.target.value)}
+                                    className="w-full h-7 text-xs bg-background border border-input rounded-md px-2"
+                                  >
+                                    <option value="Vegetarian">Vegetarian</option>
+                                    <option value="Non-Vegetarian">Non-Vegetarian</option>
+                                  </select>
+                                </div>
+                                <div className="flex gap-1 justify-end pt-0.5">
+                                  <Button size="icon" variant="ghost" className="h-6 w-6 text-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine, dietType: editDiet })}>
                                     <Check className="h-3 w-3" />
                                   </Button>
                                   <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" onClick={() => setEditingSlot(null)}>
@@ -543,7 +652,8 @@ function MealPlanContent() {
                                   <button
                                     onClick={() => {
                                       const slot = plan?.[day]?.[meal];
-                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
+                                      const dietParam = slot?.dietType ? `&diet=${encodeURIComponent(slot.dietType)}` : '';
+                                      router.push(`/generator?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}${dietParam}`);
                                     }}
                                     className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2"
                                   >
@@ -551,7 +661,6 @@ function MealPlanContent() {
                                   </button>
                                   <div className="text-[10px] text-muted-foreground mt-1">
                                     {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
-                                    {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -604,32 +713,49 @@ function MealPlanContent() {
                           <div className="mt-2">
                             {isEditing ? (
                               <div className="flex flex-col gap-2 w-full">
-                                <Input
-                                  autoFocus
-                                  value={editValue}
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  className="h-9 text-sm"
-                                  placeholder="Dish name..."
-                                />
-                                <div className="flex gap-2">
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Dish Name</span>
+                                  <Input
+                                    autoFocus
+                                    value={editValue}
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    className="h-9 text-sm"
+                                    placeholder="e.g. Paneer Butter Masala"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Servings</span>
                                   <Input
                                     type="number"
                                     min="1"
                                     max="20"
                                     value={editServings}
                                     onChange={(e) => setEditServings(parseInt(e.target.value) || 2)}
-                                    className="h-9 text-sm w-20"
-                                    placeholder="Servings"
+                                    className="h-9 text-sm"
                                   />
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Cuisine / Region</span>
                                   <Input
                                     value={editCuisine}
                                     onChange={(e) => setEditCuisine(e.target.value)}
-                                    className="h-9 text-sm flex-1"
-                                    placeholder="Cuisine"
+                                    className="h-9 text-sm"
+                                    placeholder="e.g. Indian"
                                   />
                                 </div>
-                                <div className="flex gap-1 justify-end">
-                                  <Button size="icon" className="h-8 w-8 bg-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine })}>
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Diet Type</span>
+                                  <select
+                                    value={editDiet}
+                                    onChange={(e) => setEditDiet(e.target.value)}
+                                    className="w-full h-9 text-sm bg-background border border-input rounded-md px-2"
+                                  >
+                                    <option value="Vegetarian">Vegetarian</option>
+                                    <option value="Non-Vegetarian">Non-Vegetarian</option>
+                                  </select>
+                                </div>
+                                <div className="flex gap-2 justify-end">
+                                  <Button size="icon" className="h-8 w-8 bg-green-600" onClick={() => editValue.trim() && updateSlot(day, meal, { dishName: editValue.trim(), servings: editServings, cuisine: editCuisine, dietType: editDiet })}>
                                     <Check className="h-3.5 w-3.5" />
                                   </Button>
                                   <Button size="icon" variant="outline" className="h-8 w-8 border-destructive text-destructive" onClick={() => setEditingSlot(null)}>
@@ -643,7 +769,8 @@ function MealPlanContent() {
                                   <button
                                     onClick={() => {
                                       const slot = plan?.[day]?.[meal];
-                                      router.push(`/?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}`);
+                                      const dietParam = slot?.dietType ? `&diet=${encodeURIComponent(slot.dietType)}` : '';
+                                      router.push(`/generator?dish=${encodeURIComponent(slot?.dishName || '')}${slot?.servings ? `&servings=${slot.servings}` : ''}${slot?.cuisine ? `&cuisine=${encodeURIComponent(slot.cuisine)}` : ''}${healthGoal !== 'No Preference' ? `&goal=${encodeURIComponent(healthGoal)}` : ''}${dietParam}`);
                                     }}
                                     className="text-sm font-semibold text-foreground hover:text-primary transition-colors text-left line-clamp-2"
                                   >
@@ -651,7 +778,6 @@ function MealPlanContent() {
                                   </button>
                                   <div className="text-xs text-muted-foreground mt-0.5">
                                     {plan?.[day]?.[meal]?.servings && <span>{plan[day]![meal]!.servings} srv</span>}
-                                    {plan?.[day]?.[meal]?.cuisine && <span> · {plan[day]![meal]!.cuisine}</span>}
                                   </div>
                                 </div>
                                 <div className="flex gap-1 ml-4 shrink-0">
@@ -903,21 +1029,7 @@ function MealPlanContent() {
           </div>
         )}
 
-        {/* Floating Save Button */}
-        <div className={cn(
-          "fixed bottom-6 right-6 z-[40] transition-all duration-300",
-          hasChanges ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
-        )}>
-          <Button
-            size="sm"
-            disabled={isSaving}
-            onClick={handleSave}
-            className="h-11 px-6 rounded-full bg-primary text-white font-bold shadow-xl shadow-primary/25 gap-2 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all"
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            {isSaving ? "Saving…" : "Save Plan"}
-          </Button>
-        </div>
+
       </div>
     </div>
   );

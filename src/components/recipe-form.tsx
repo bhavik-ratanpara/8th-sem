@@ -33,6 +33,7 @@ type RecipeFormProps = {
   selectedDishName?: string | null;
   selectedServings?: number | null;
   selectedCuisine?: string | null;
+  selectedDiet?: string | null;
 };
 
 export function RecipeForm({
@@ -40,7 +41,8 @@ export function RecipeForm({
   isLoading,
   selectedDishName,
   selectedServings,
-  selectedCuisine
+  selectedCuisine,
+  selectedDiet
 }: RecipeFormProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,6 +73,12 @@ export function RecipeForm({
       form.setValue('location', selectedCuisine);
     }
   }, [selectedCuisine, form]);
+  
+  useEffect(() => {
+    if (selectedDiet && (selectedDiet === 'Vegetarian' || selectedDiet === 'Non-Vegetarian')) {
+      form.setValue('diet', selectedDiet);
+    }
+  }, [selectedDiet, form]);
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
